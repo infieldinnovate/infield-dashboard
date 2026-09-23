@@ -1,0 +1,32 @@
+.card {
+  background: var(--neutral-0);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast);
+}
+
+.hover:hover,
+.clickable:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.none {
+  padding: 0;
+}
+
+.sm {
+  padding: 12px;
+}
+
+.md {
+  padding: 20px;
+}
+
+.lg {
+  padding: 28px;
+}

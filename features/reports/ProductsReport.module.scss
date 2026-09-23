@@ -1,0 +1,75 @@
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.productCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.productAvatar {
+  width: 36px;
+  height: 36px;
+  background: var(--primary-100);
+  color: var(--primary-700);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.productName {
+  font-weight: 600;
+  color: var(--neutral-800);
+  font-size: 13px;
+}
+
+.productCategory {
+  font-size: 11px;
+  color: var(--neutral-400);
+}
+
+.amount {
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+@media (max-width: 1279px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}

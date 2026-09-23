@@ -1,0 +1,28 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--neutral-400);
+  font-weight: 500;
+}
+
+.chart {
+  width: 100%;
+}

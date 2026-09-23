@@ -1,0 +1,570 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ---------- Sidebar nav ---------- */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--neutral-0);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 8px;
+  position: sticky;
+  top: 0;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+  width: 100%;
+}
+
+.navItem:hover {
+  background: var(--neutral-50);
+}
+
+.navItemActive {
+  background: var(--primary-600);
+}
+
+.navItemActive:hover {
+  background: var(--primary-700);
+}
+
+.navIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--neutral-100);
+  color: var(--neutral-500);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.navItemActive .navIcon {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--neutral-0);
+}
+
+.navText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.navLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--neutral-800);
+  transition: color var(--transition-fast);
+}
+
+.navItemActive .navLabel {
+  color: var(--neutral-0);
+}
+
+.navDesc {
+  font-size: 11px;
+  color: var(--neutral-400);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navItemActive .navDesc {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Content ---------- */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- Section card ---------- */
+.sectionCard {
+  width: 100%;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--neutral-100);
+  margin-bottom: 24px;
+}
+
+.sectionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--primary-50);
+  color: var(--primary-600);
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.sectionDescription {
+  font-size: 13px;
+  color: var(--neutral-500);
+  margin: 2px 0 0;
+}
+
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Form ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+/* ---------- Logo upload ---------- */
+.logoUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logoLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--neutral-700);
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logoPreview {
+  width: 160px;
+  height: 80px;
+  border: 2px dashed var(--neutral-300);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--neutral-50);
+}
+
+.logoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logoPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--neutral-400);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.logoActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.logoHint {
+  font-size: 12px;
+  color: var(--neutral-400);
+}
+
+/* ---------- Numbering ---------- */
+.numberingGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.numberingCard {
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.numberingHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.numberingIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.numberingIcon.primary {
+  background: var(--primary-100);
+  color: var(--primary-700);
+}
+
+.numberingIcon.secondary {
+  background: var(--secondary-100);
+  color: var(--secondary-700);
+}
+
+.numberingIcon.success {
+  background: var(--success-100);
+  color: var(--success-700);
+}
+
+.numberingIcon.warning {
+  background: var(--warning-100);
+  color: var(--warning-700);
+}
+
+.numberingLabel {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--neutral-800);
+}
+
+.numberingFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.numberingPreview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.numberingPreviewLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--neutral-400);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Toggle ---------- */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+}
+
+.toggleList {
+  display: flex;
+  flex-direction: column;
+}
+
+.toggleList .toggleRow + .toggleRow {
+  border-top: 1px solid var(--neutral-100);
+}
+
+.toggleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggleTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--neutral-800);
+}
+
+.toggleDesc {
+  font-size: 12px;
+  color: var(--neutral-500);
+}
+
+.toggle {
+  width: 46px;
+  height: 26px;
+  border-radius: 9999px;
+  background: var(--neutral-300);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+}
+
+.toggleOn {
+  background: var(--primary-600);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--neutral-0);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.toggleOn .toggleThumb {
+  transform: translateX(20px);
+}
+
+/* ---------- Currency preview ---------- */
+.currencyPreview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  background: var(--primary-50);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--primary-100);
+}
+
+.currencyPreviewLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-600);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.currencyPreviewValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+/* ---------- Theme ---------- */
+.themeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.groupLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--neutral-700);
+}
+
+.themeOptions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.themeOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--neutral-200);
+  background: var(--neutral-0);
+  color: var(--neutral-600);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.themeOption:hover {
+  border-color: var(--neutral-300);
+  background: var(--neutral-50);
+}
+
+.themeOptionActive {
+  border-color: var(--primary-600);
+  background: var(--primary-50);
+  color: var(--primary-700);
+}
+
+.themeOptionActive:hover {
+  border-color: var(--primary-600);
+  background: var(--primary-50);
+}
+
+.themeOptionIcon {
+  display: flex;
+  align-items: center;
+}
+
+.colorSwatches {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--neutral-200);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  color: var(--neutral-0);
+  position: relative;
+}
+
+.swatch:hover {
+  transform: scale(1.08);
+}
+
+.swatchActive {
+  border-color: var(--neutral-900);
+  box-shadow: 0 0 0 2px var(--neutral-0), 0 0 0 4px var(--neutral-300);
+}
+
+.swatchCheck {
+  color: var(--neutral-0);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* ---------- Actions ---------- */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+.savedBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--success-700);
+  background: var(--success-50);
+  border: 1px solid var(--success-100);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  margin-right: auto;
+  animation: slideUp 250ms ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .nav {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 6px;
+  }
+
+  .navItem {
+    flex-shrink: 0;
+    padding: 10px 14px;
+  }
+
+  .navDesc {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .formRow,
+  .numberingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .logoArea {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .logoPreview {
+    width: 100%;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .savedBadge {
+    margin-right: 0;
+    justify-content: center;
+  }
+}

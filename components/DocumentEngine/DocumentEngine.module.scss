@@ -1,0 +1,538 @@
+/* === Document Engine Shared Styles === */
+
+/* A4 Print Layout */
+.a4Container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.a4Page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 15mm;
+  background: #fff;
+  position: relative;
+  page-break-after: always;
+  &:last-child { page-break-after: auto; }
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.companyBlock { flex: 1; }
+
+.companyName {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-600, #21458a);
+  margin: 0;
+}
+
+.companyAddress {
+  font-size: 10px;
+  color: var(--neutral-500, #666);
+  margin: 2px 0 0;
+}
+
+.companyContact {
+  font-size: 10px;
+  color: var(--neutral-500, #666);
+  margin: 2px 0 0;
+}
+
+.docTitleBlock { text-align: right; }
+
+.docTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-600, #21458a);
+  margin: 0;
+}
+
+.docNumber {
+  font-size: 12px;
+  color: var(--neutral-500, #666);
+  margin: 4px 0 0;
+}
+
+.docDate {
+  font-size: 10px;
+  color: var(--neutral-500, #666);
+  margin: 2px 0 0;
+}
+
+/* Compact Header */
+.compactHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--neutral-200, #e5e5e5);
+}
+
+.compactCompany {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-600, #21458a);
+}
+
+.compactDocInfo { text-align: right; }
+
+.compactTitle {
+  font-size: 12px;
+  color: var(--neutral-500, #666);
+}
+
+.compactNumber {
+  font-size: 10px;
+  color: var(--neutral-400, #999);
+  display: block;
+}
+
+/* Company Info */
+.companyInfo {
+  margin-bottom: 16px;
+}
+
+.companyInfoName {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--neutral-900, #1a1a1a);
+  margin: 0 0 4px;
+}
+
+.companyInfoText {
+  font-size: 10px;
+  color: var(--neutral-500, #666);
+  margin: 1px 0;
+}
+
+/* Customer / Party Info */
+.customerInfo {
+  margin-bottom: 16px;
+}
+
+.partyGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.partyBlock { }
+
+.partyLabel {
+  font-size: 10px;
+  color: var(--neutral-500, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.partyName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--neutral-900, #1a1a1a);
+  margin: 4px 0 0;
+}
+
+.partyText {
+  font-size: 10px;
+  color: var(--neutral-500, #666);
+  margin: 2px 0 0;
+}
+
+/* Metadata */
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--neutral-50, #f8f9fa);
+  border-radius: 6px;
+}
+
+.metadataRow {
+  display: flex;
+  gap: 4px;
+  font-size: 10px;
+}
+
+.metadataLabel { color: var(--neutral-500, #666); }
+.metadataValue { font-weight: 600; }
+
+/* Items Table */
+.itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+
+  thead th {
+    background: var(--primary-600, #21458a);
+    color: #fff;
+    padding: 8px 10px;
+    font-size: 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  thead th.colNum { text-align: right; }
+
+  tbody tr {
+    page-break-inside: avoid;
+  }
+
+  tbody td {
+    padding: 8px 10px;
+    font-size: 10px;
+    border-bottom: 1px solid var(--neutral-200, #eee);
+  }
+
+  tbody td.cellNum { text-align: right; }
+
+  tbody tr:nth-child(even) {
+    background: var(--neutral-50, #f9f9f9);
+  }
+}
+
+.itemName {
+  display: block;
+  font-weight: 500;
+}
+
+.itemDesc {
+  display: block;
+  font-size: 9px;
+  color: var(--neutral-400, #999);
+  margin-top: 2px;
+}
+
+.qtyComplete { color: #10b981; font-weight: 600; }
+.qtyPartial { color: #f59e0b; font-weight: 600; }
+.qtyPending { color: var(--neutral-500, #666); }
+.qtyLabel { font-size: 9px; }
+
+/* Totals */
+.totals {
+  width: 250px;
+  margin-left: auto;
+  margin-bottom: 16px;
+}
+
+.totalsRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 11px;
+}
+
+.totalsGrand {
+  border-top: 2px solid var(--primary-600, #21458a);
+  padding-top: 8px;
+  margin-top: 4px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.totalsBalance {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.totalsLabel { color: var(--neutral-600, #555); }
+.totalsValue { font-weight: 500; }
+
+/* Notes */
+.notesSection { margin-bottom: 16px; }
+
+.notesBlock {
+  margin-top: 12px;
+}
+
+.notesLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--neutral-500, #666);
+  margin: 0;
+}
+
+.notesText {
+  font-size: 10px;
+  color: var(--neutral-800, #333);
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+
+/* Amount Box (receipt) */
+.amountBox {
+  text-align: center;
+  border: 2px solid var(--primary-600, #21458a);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px auto;
+  width: 300px;
+}
+
+.amountLabel {
+  font-size: 11px;
+  color: var(--neutral-500, #666);
+  margin: 0;
+}
+
+.amountValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-600, #21458a);
+  margin: 4px 0 0;
+}
+
+.amountMethod {
+  font-size: 10px;
+  color: var(--neutral-500, #666);
+  margin: 4px 0 0;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--neutral-200, #eee);
+  padding-top: 8px;
+  margin-top: 20px;
+}
+
+.footerContact {
+  font-size: 9px;
+  color: var(--neutral-400, #999);
+}
+
+.footerText {
+  font-size: 9px;
+  color: var(--neutral-400, #999);
+  margin-top: 2px;
+}
+
+/* Signature */
+.signatureSection {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+}
+
+.signatureBlock { width: 200px; }
+
+.signatureLine {
+  border-bottom: 1px solid var(--neutral-400, #999);
+  height: 40px;
+}
+
+.signatureLabel {
+  font-size: 9px;
+  color: var(--neutral-500, #666);
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* Status Badge */
+.statusBadge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+/* Action Bar */
+.actionBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actionBarItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--neutral-700, #444);
+  background: var(--neutral-100, #f3f4f6);
+  border: 1px solid var(--neutral-200, #e5e7eb);
+  border-radius: var(--radius-md, 6px);
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: var(--neutral-200, #e5e7eb);
+    color: var(--neutral-900, #1a1a1a);
+  }
+}
+
+.actionBarDanger {
+  color: var(--error-600, #dc2626);
+  &:hover {
+    background: var(--error-50, #fef2f2);
+    color: var(--error-700, #b91c1c);
+  }
+}
+
+/* Preview Container */
+.previewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.previewToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--neutral-200, #e5e7eb);
+}
+
+.previewStatus { display: flex; align-items: center; gap: 8px; }
+
+.previewBody {
+  max-height: 70vh;
+  overflow: auto;
+  background: var(--neutral-100, #f3f4f6);
+  padding: 16px;
+  border-radius: var(--radius-md, 6px);
+  display: flex;
+  justify-content: center;
+}
+
+/* Thermal 57mm Layout */
+.thermalContainer {
+  width: 57mm;
+  padding: 4mm 2mm;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: #000;
+  background: #fff;
+}
+
+.thermalHeader { text-align: center; }
+
+.thermalBusinessName {
+  font-weight: 700;
+  font-size: 12px;
+  margin: 0;
+}
+
+.thermalBusinessAddr {
+  font-size: 9px;
+  margin-top: 2px;
+}
+
+.thermalBusinessPhone {
+  font-size: 9px;
+}
+
+.thermalDivider {
+  border-top: 1px dashed #000;
+  margin: 6px 0;
+}
+
+.thermalInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.thermalInfoRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+}
+
+.thermalItem {
+  margin-bottom: 4px;
+}
+
+.thermalItemName {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.thermalItemRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+}
+
+.thermalTotals { margin-top: 4px; }
+
+.thermalTotalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+}
+
+.thermalGrandTotal {
+  font-weight: 700;
+  font-size: 12px;
+  border-top: 1px solid #000;
+  padding-top: 4px;
+  margin-top: 4px;
+}
+
+.thermalPaymentMethod {
+  margin-top: 4px;
+  font-size: 9px;
+  text-align: center;
+}
+
+.thermalThankYou {
+  text-align: center;
+  margin-top: 8px;
+
+  p { margin: 2px 0; }
+}
+
+.thermalPoweredBy {
+  font-size: 8px;
+  color: #999;
+}
+
+.thermalCutLine {
+  text-align: center;
+  font-size: 8px;
+  color: #999;
+  margin-top: 8px;
+  border-top: 1px dashed #999;
+  padding-top: 4px;
+}
+
+/* Print media */
+@media print {
+  .a4Page {
+    page-break-after: always;
+    &:last-child { page-break-after: auto; }
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .previewBody {
+    max-height: none;
+    overflow: visible;
+    background: none;
+    padding: 0;
+  }
+
+  .previewToolbar {
+    display: none;
+  }
+}

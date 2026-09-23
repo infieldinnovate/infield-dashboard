@@ -1,0 +1,110 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.viewAll {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-600);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.viewAll:hover {
+  background: var(--primary-50);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.empty {
+  font-size: 13px;
+  color: var(--neutral-400);
+  text-align: center;
+  padding: 16px 0;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--neutral-50);
+  border-radius: var(--radius-md);
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--neutral-800);
+}
+
+.sku {
+  font-size: 11px;
+  color: var(--neutral-400);
+}
+
+.stockInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.barTrack {
+  flex: 1;
+  height: 6px;
+  background: var(--neutral-200);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width var(--transition-base);
+}
+
+.warning {
+  background: var(--warning-400);
+}
+
+.critical {
+  background: var(--error-500);
+}
+
+.count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--neutral-500);
+  white-space: nowrap;
+}
+
+.criticalText {
+  color: var(--error-600);
+}

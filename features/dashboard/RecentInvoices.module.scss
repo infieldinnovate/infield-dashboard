@@ -1,0 +1,94 @@
+.card {
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.viewAll {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-600);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.viewAll:hover {
+  background: var(--primary-50);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table thead th {
+  text-align: left;
+  padding: 12px 24px;
+  font-weight: 600;
+  color: var(--neutral-500);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--neutral-50);
+  border-bottom: 1px solid var(--neutral-200);
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--neutral-100);
+  transition: background var(--transition-fast);
+}
+
+.table tbody tr:hover {
+  background: var(--neutral-50);
+}
+
+.table tbody td {
+  padding: 14px 24px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.invId {
+  display: block;
+  font-weight: 600;
+  color: var(--neutral-800);
+  font-size: 13px;
+}
+
+.invDate {
+  display: block;
+  font-size: 11px;
+  color: var(--neutral-400);
+  margin-top: 2px;
+}
+
+.customer {
+  color: var(--neutral-700);
+  font-weight: 500;
+}
+
+.amount {
+  font-weight: 600;
+  color: var(--neutral-900);
+}

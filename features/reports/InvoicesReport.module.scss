@@ -1,0 +1,62 @@
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.invoiceNumber {
+  font-weight: 600;
+  color: var(--primary-700);
+  font-size: 13px;
+  font-family: var(--font-mono);
+}
+
+.customerName {
+  font-weight: 600;
+  color: var(--neutral-800);
+  font-size: 13px;
+}
+
+.statusLabel {
+  font-weight: 600;
+  color: var(--neutral-800);
+  font-size: 13px;
+}
+
+.amount {
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+.date {
+  color: var(--neutral-500);
+  font-size: 13px;
+}
+
+@media (max-width: 1279px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}

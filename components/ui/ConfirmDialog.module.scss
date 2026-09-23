@@ -1,0 +1,46 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon.danger {
+  background: var(--error-50);
+  color: var(--error-600);
+}
+
+.icon.warning {
+  background: var(--warning-50);
+  color: var(--warning-600);
+}
+
+.icon.info {
+  background: var(--info-50);
+  color: var(--info-600);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.message {
+  font-size: 14px;
+  color: var(--neutral-500);
+  margin: 0;
+  line-height: 1.5;
+}

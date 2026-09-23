@@ -1,0 +1,128 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+  animation: fadeIn 200ms ease;
+}
+
+.modal {
+  background: var(--neutral-0);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 250ms ease;
+}
+
+.sm {
+  max-width: 400px;
+}
+
+.md {
+  max-width: 520px;
+}
+
+.lg {
+  max-width: 720px;
+}
+
+.xl {
+  max-width: 960px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--neutral-500);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  margin-left: auto;
+}
+
+.closeButton:hover {
+  background: var(--neutral-100);
+  color: var(--neutral-800);
+}
+
+.body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.footer {
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--neutral-200);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .overlay {
+    padding: 12px;
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-height: calc(100vh - 24px);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .sm,
+  .md,
+  .lg,
+  .xl {
+    max-width: 100%;
+  }
+}

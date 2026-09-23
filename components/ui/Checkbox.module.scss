@@ -1,0 +1,65 @@
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--neutral-300);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.checkIcon {
+  width: 14px;
+  height: 14px;
+  color: var(--neutral-0);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.input:checked + .checkmark {
+  background: var(--primary-600);
+  border-color: var(--primary-600);
+}
+
+.input:checked + .checkmark .checkIcon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.input:focus + .checkmark {
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.input:disabled + .checkmark {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.label {
+  font-size: 14px;
+  color: var(--neutral-700);
+  user-select: none;
+}
+
+.error {
+  font-size: 12px;
+  color: var(--error-600);
+}

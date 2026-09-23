@@ -1,0 +1,273 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search {
+  width: 280px;
+}
+
+.filter {
+  width: 170px;
+}
+
+.tableCard {
+  overflow: hidden;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.results {
+  font-size: 13px;
+  color: var(--neutral-500);
+  font-weight: 500;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 20px;
+  color: var(--neutral-400);
+  font-size: 14px;
+}
+
+.loadingState svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Table cells */
+.companyCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: var(--primary-100);
+  color: var(--primary-700);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.companyInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.companyName {
+  font-weight: 600;
+  color: var(--neutral-800);
+  font-size: 13px;
+}
+
+.contactPerson {
+  font-size: 11px;
+  color: var(--neutral-400);
+}
+
+.location {
+  font-size: 13px;
+  color: var(--neutral-600);
+}
+
+.source {
+  font-size: 13px;
+  color: var(--neutral-600);
+}
+
+.followUp {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--warning-600);
+}
+
+.dash {
+  color: var(--neutral-300);
+}
+
+/* Detail modal */
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detailHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.detailAvatar {
+  width: 56px;
+  height: 56px;
+  background: var(--primary-100);
+  color: var(--primary-700);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.detailInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detailName {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.detailBadges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.detailField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--neutral-400);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.notesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notesText {
+  font-size: 13px;
+  color: var(--neutral-700);
+  line-height: 1.5;
+  background: var(--neutral-50);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--neutral-200);
+  margin: 0;
+}
+
+.detailFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+/* Forms */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.consentWrapper {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1279px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search,
+  .filter {
+    width: 100%;
+  }
+
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
