@@ -2,8 +2,8 @@
 
 import React from 'react';
 import type { DocumentConfig, DocumentItem } from '../types';
+import InvoiceHeader from './InvoiceHeader';
 import DocumentHeader from './DocumentHeader';
-import DocumentCustomerInfo from './DocumentCustomerInfo';
 import DocumentMetadata from './DocumentMetadata';
 import DocumentItemsTable from './DocumentItemsTable';
 import DocumentTotals from './DocumentTotals';
@@ -42,14 +42,7 @@ export default function InvoiceLayout({ config }: InvoiceLayoutProps) {
           <div key={pageIndex} className={styles.a4Page}>
             {isFirst ? (
               <>
-                <DocumentHeader
-                  title={config.title}
-                  documentNumber={config.documentNumber}
-                  date={config.date}
-                  dateLabel={config.dateLabel}
-                  variant="full"
-                />
-                <DocumentCustomerInfo party={config.customer} label="Bill To" />
+                <InvoiceHeader config={config} />
                 <DocumentMetadata entries={config.metadata} />
                 <DocumentItemsTable items={pageItems} showPrices={config.showPrices} />
                 {isLast && config.showTotals && config.totals && (
