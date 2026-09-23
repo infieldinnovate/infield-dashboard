@@ -1,104 +1,27 @@
 'use client';
 
 import React from 'react';
-import type { DocumentConfig, DocumentItem } from '../types';
-import { formatCurrency } from '../types';
-import DocumentHeader from './DocumentHeader';
-import DocumentCompanyInfo from './DocumentCompanyInfo';
-import DocumentCustomerInfo from './DocumentCustomerInfo';
-import DocumentMetadata from './DocumentMetadata';
-import DocumentItemsTable from './DocumentItemsTable';
-import DocumentTotals from './DocumentTotals';
-import DocumentNotes from './DocumentNotes';
-import DocumentFooter from './DocumentFooter';
-import DocumentSignatureSection from './DocumentSignatureSection';
-import styles from '../DocumentEngine.module.scss';
-
-const ITEMS_PER_PAGE = 12;
-const ITEMS_PER_MIDDLE_PAGE = 18;
+import type { DocumentConfig } from '../types';
+import InvoiceLayout from './InvoiceLayout';
+import QuotationLayout from './QuotationLayout';
+import ReceiptLayout from './ReceiptLayout';
+import DeliveryNoteLayout from './DeliveryNoteLayout';
 
 interface PrintLayoutA4Props {
   config: DocumentConfig;
 }
 
 export default function PrintLayoutA4({ config }: PrintLayoutA4Props) {
-  const { items } = config;
-  const isDeliveryNote = config.type === 'delivery-note';
-  const isReceipt = config.type === 'receipt';
-
-  const pages: DocumentItem[][] = [];
-  if (items.length <= ITEMS_PER_PAGE) {
-    pages.push(items);
-  } else {
-    pages.push(items.slice(0, ITEMS_PER_PAGE));
-    const remaining = items.slice(ITEMS_PER_PAGE);
-    for (let i = 0; i < remaining.length; i += ITEMS_PER_MIDDLE_PAGE) {
-      pages.push(remaining.slice(i, i + ITEMS_PER_MIDDLE_PAGE));
-    }
+  switch (config.type) {
+    case 'invoice':
+      return <InvoiceLayout config={config} />;
+    case 'quotation':
+      return <QuotationLayout config={config} />;
+    case 'receipt':
+      return <ReceiptLayout config={config} />;
+    case 'delivery-note':
+      return <DeliveryNoteLayout config={config} />;
+    default:
+      return <InvoiceLayout config={config} />;
   }
-
-  return (
-    <div className={styles.a4Container}>
-      {pages.map((pageItems, pageIndex) => {
-        const isFirst = pageIndex === 0;
-        const isLast = pageIndex === pages.length - 1;
-        return (
-          <div key={pageIndex} className={styles.a4Page}>
-            {isFirst ? (
-              <>
-                <DocumentHeader
-                  title={config.title}
-                  documentNumber={config.documentNumber}
-                  date={config.date}
-                  dateLabel={config.dateLabel}
-                  variant="full"
-                />
-                {isReceipt ? (
-                  <DocumentCustomerInfo party={config.customer} label="Received From" />
-                ) : (
-                  <DocumentCustomerInfo
-                    party={config.customer}
-                    label={isDeliveryNote ? 'Deliver To' : 'Bill To'}
-                    recipient={config.recipient}
-                  />
-                )}
-                <DocumentMetadata entries={config.metadata} />
-                <DocumentItemsTable
-                  items={pageItems}
-                  showPrices={config.showPrices}
-                  isDeliveryNote={isDeliveryNote}
-                />
-                {isLast && config.showTotals && config.totals && (
-                  <DocumentTotals totals={config.totals} />
-                )}
-                {isLast && <DocumentNotes notes={config.notes} amount={config.amount} paymentMethod={config.paymentMethod} />}
-                {isLast && config.showSignature && <DocumentSignatureSection />}
-                <DocumentFooter />
-              </>
-            ) : (
-              <>
-                <DocumentHeader
-                  title={config.title}
-                  documentNumber={config.documentNumber}
-                  date={config.date}
-                  dateLabel={config.dateLabel}
-                  variant="compact"
-                />
-                <DocumentItemsTable
-                  items={pageItems}
-                  showPrices={config.showPrices}
-                  isDeliveryNote={isDeliveryNote}
-                />
-                {isLast && config.showTotals && config.totals && (
-                  <DocumentTotals totals={config.totals} />
-                )}
-                {isLast && config.showSignature && <DocumentSignatureSection />}
-                {isLast && <DocumentFooter />}
-              </>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
 }
