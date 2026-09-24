@@ -5,6 +5,8 @@ export { default as PrintLayoutA4 } from './components/PrintLayoutA4';
 export { default as PrintLayoutThermal57 } from './components/PrintLayoutThermal57';
 export { default as InvoiceLayout } from './components/InvoiceLayout';
 export { default as InvoiceHeader } from './components/InvoiceHeader';
+export { default as InvoiceItemsTable } from './components/InvoiceItemsTable';
+export { default as InvoiceTotals } from './components/InvoiceTotals';
 export { default as QuotationLayout } from './components/QuotationLayout';
 export { default as ReceiptLayout } from './components/ReceiptLayout';
 export { default as DeliveryNoteLayout } from './components/DeliveryNoteLayout';
