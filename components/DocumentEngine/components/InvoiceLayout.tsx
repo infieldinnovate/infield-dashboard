@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import React from 'react';
-import type { DocumentConfig, DocumentItem } from '../types';
-import InvoiceHeader from './InvoiceHeader';
-import DocumentHeader from './DocumentHeader';
-import DocumentMetadata from './DocumentMetadata';
-import DocumentItemsTable from './DocumentItemsTable';
-import DocumentTotals from './DocumentTotals';
-import DocumentNotes from './DocumentNotes';
-import DocumentFooter from './DocumentFooter';
-import DocumentSignatureSection from './DocumentSignatureSection';
-import styles from '../DocumentEngine.module.scss';
+import React from "react";
+import type { DocumentConfig, DocumentItem } from "../types";
+import InvoiceHeader from "./InvoiceHeader";
+import DocumentHeader from "./DocumentHeader";
+import DocumentMetadata from "./DocumentMetadata";
+import DocumentItemsTable from "./DocumentItemsTable";
+import DocumentTotals from "./DocumentTotals";
+import DocumentNotes from "./DocumentNotes";
+import DocumentFooter from "./DocumentFooter";
+import DocumentSignatureSection from "./DocumentSignatureSection";
+import styles from "../DocumentEngine.module.scss";
 
 const ITEMS_PER_PAGE = 12;
 const ITEMS_PER_MIDDLE_PAGE = 18;
@@ -44,11 +44,20 @@ export default function InvoiceLayout({ config }: InvoiceLayoutProps) {
               <>
                 <InvoiceHeader config={config} />
                 <DocumentMetadata entries={config.metadata} />
-                <DocumentItemsTable items={pageItems} showPrices={config.showPrices} />
+                <DocumentItemsTable
+                  items={pageItems}
+                  showPrices={config.showPrices}
+                />
                 {isLast && config.showTotals && config.totals && (
                   <DocumentTotals totals={config.totals} />
                 )}
-                {isLast && <DocumentNotes notes={config.notes} amount={config.amount} paymentMethod={config.paymentMethod} />}
+                {isLast && (
+                  <DocumentNotes
+                    notes={config.notes}
+                    amount={config.amount}
+                    paymentMethod={config.paymentMethod}
+                  />
+                )}
                 {isLast && config.showSignature && <DocumentSignatureSection />}
                 <DocumentFooter />
               </>
@@ -61,7 +70,10 @@ export default function InvoiceLayout({ config }: InvoiceLayoutProps) {
                   dateLabel={config.dateLabel}
                   variant="compact"
                 />
-                <DocumentItemsTable items={pageItems} showPrices={config.showPrices} />
+                <DocumentItemsTable
+                  items={pageItems}
+                  showPrices={config.showPrices}
+                />
                 {isLast && config.showTotals && config.totals && (
                   <DocumentTotals totals={config.totals} />
                 )}

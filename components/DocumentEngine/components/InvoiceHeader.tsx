@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef } from 'react';
-import JsBarcode from 'jsbarcode';
-import type { DocumentConfig } from '../types';
-import { formatCurrency, formatDate, getSettings } from '../types';
-import styles from '../DocumentEngine.module.scss';
+import React, { useEffect, useRef } from "react";
+import JsBarcode from "jsbarcode";
+import type { DocumentConfig } from "../types";
+import { formatCurrency, formatDate, getSettings } from "../types";
+import styles from "../DocumentEngine.module.scss";
 
 interface InvoiceHeaderProps {
   config: DocumentConfig;
@@ -20,13 +20,13 @@ export default function InvoiceHeader({ config }: InvoiceHeaderProps) {
   useEffect(() => {
     if (!barcodeRef.current) return;
     JsBarcode(barcodeRef.current, config.documentNumber, {
-      format: 'CODE128',
+      format: "CODE128",
       displayValue: false,
       height: 34,
       width: 1.35,
       margin: 0,
-      background: 'transparent',
-      lineColor: '#111111',
+      background: "transparent",
+      lineColor: "#111111",
     });
   }, [config.documentNumber]);
 
@@ -48,7 +48,11 @@ export default function InvoiceHeader({ config }: InvoiceHeaderProps) {
 
         <div className={styles.invoiceTitleBlock}>
           <h1>INVOICE</h1>
-          <svg ref={barcodeRef} className={styles.invoiceBarcode} aria-label={`Barcode for ${config.documentNumber}`} />
+          <svg
+            ref={barcodeRef}
+            className={styles.invoiceBarcode}
+            aria-label={`Barcode for ${config.documentNumber}`}
+          />
         </div>
 
         <div className={styles.invoiceContact}>
@@ -58,7 +62,7 @@ export default function InvoiceHeader({ config }: InvoiceHeaderProps) {
           </div>
           <div className={styles.invoiceContactRow}>
             <strong>W.</strong>
-            <span>{website || 'Website not set'}</span>
+            <span>{website || "Website not set"}</span>
           </div>
           <div className={styles.invoiceContactRow}>
             <strong>E.</strong>
@@ -94,7 +98,9 @@ export default function InvoiceHeader({ config }: InvoiceHeaderProps) {
           </div>
           <div>
             <strong>TOTAL DUE</strong>
-            <span className={styles.invoiceTotalDue}>{formatCurrency(totalDue)}</span>
+            <span className={styles.invoiceTotalDue}>
+              {formatCurrency(totalDue)}
+            </span>
           </div>
         </div>
       </div>
