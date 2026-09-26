@@ -1,0 +1,607 @@
+/* === Invoice Document — Independent Design === */
+
+/* A4 page layout */
+.a4Container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.a4Page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 15mm;
+  background: #fff;
+  position: relative;
+  page-break-after: always;
+
+  &:last-child {
+    page-break-after: auto;
+  }
+}
+
+/* === Branded header (first page) === */
+.header {
+  margin-bottom: 20px;
+  overflow: hidden;
+  background: #fff;
+  color: #111;
+}
+
+.headerTop {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1fr;
+  align-items: stretch;
+  min-height: 132px;
+  padding: 18px 28px 22px;
+  gap: 24px;
+}
+
+/* Brand column */
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: fit-content;
+  color: #168ac0;
+  font-size: 25px;
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: -0.08em;
+  line-height: 0.9;
+  position: relative;
+  padding: 0 8px 9px 4px;
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 7px;
+  border-top: 3px solid #168ac0;
+  border-radius: 50%;
+  transform: skewX(-20deg);
+}
+
+.logoMark {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  color: #168ac0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.08em;
+}
+
+.logoName {
+  font-size: 25px;
+  font-weight: 800;
+  color: #168ac0;
+  letter-spacing: -0.08em;
+}
+
+.logoDrop {
+  width: 8px;
+  height: 14px;
+  border: 2px solid #168ac0;
+  border-radius: 70% 30% 70% 30%;
+  transform: rotate(35deg);
+  align-self: flex-end;
+  margin: 0 0 1px 3px;
+}
+
+.businessName {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: 23px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.businessName strong {
+  font-weight: 800;
+  color: #126542;
+}
+
+.businessName span {
+  font-weight: 400;
+  color: #111;
+}
+
+.brandRule {
+  height: 18px;
+  width: 58%;
+  background: #707070;
+  margin-top: auto;
+}
+
+/* Title column */
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.titleBlock h1 {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #126542;
+  margin: 0;
+  line-height: 1;
+}
+
+.barcode {
+  height: 34px;
+  width: auto;
+}
+
+/* Contact column */
+.contact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  border-left: 4px solid #111;
+  padding: 8px 0 8px 20px;
+  position: relative;
+}
+
+.contact::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  right: -28px;
+  width: 130px;
+  height: 24px;
+  background: #c9c9c9;
+}
+
+.contactRow {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #c9c9c9;
+  font-size: 11px;
+  color: #111;
+}
+
+.contactRow strong {
+  color: #126542;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.contact address {
+  font-size: 11px;
+  font-style: normal;
+  color: #111;
+  margin-top: 8px;
+  line-height: 1.35;
+}
+
+/* Accent bar */
+.accentBar {
+  height: 8px;
+  background: #35b875;
+  display: flex;
+}
+
+.accentBar span {
+  width: 7%;
+  background: #c9c9c9;
+}
+
+/* "INVOICE FOR" section */
+.invoiceFor {
+  display: grid;
+  grid-template-columns: 252px 1fr;
+  min-height: 56px;
+  background: #e2e2e2;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.invoiceFor strong {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 14px 28px;
+  background: #86ad9c;
+  color: #fff;
+  font-size: 18px;
+  letter-spacing: 0.01em;
+}
+
+.invoiceFor span {
+  display: flex;
+  align-items: center;
+  padding: 12px 28px;
+  color: #222;
+}
+
+/* === Items table === */
+.itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 44px 0 0;
+  color: #111;
+  font-size: 12px;
+}
+
+.itemsTable th,
+.itemsTable td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #dce5e8;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.itemsTable thead th {
+  height: 34px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  background: #36b976;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  border-right: 2px solid #fff;
+}
+
+.itemsTable thead th:nth-child(3),
+.itemsTable thead th:nth-child(4) {
+  background: #888b8b;
+}
+
+.itemsTable thead th:last-child {
+  border-right: 0;
+}
+
+.itemsTable tbody td {
+  height: 34px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+}
+
+.itemsTable tbody tr:has(td:nth-child(2):empty) td {
+  color: transparent;
+}
+
+.noColumn {
+  width: 8%;
+  text-align: center !important;
+}
+
+.sizeColumn {
+  width: 9%;
+  text-align: center !important;
+}
+
+.qtyColumn {
+  width: 15%;
+  text-align: center !important;
+}
+
+.priceColumn {
+  width: 12%;
+  text-align: right !important;
+}
+
+.totalColumn {
+  width: 16%;
+  text-align: right !important;
+}
+
+/* === Totals === */
+.totals {
+  width: 52%;
+  margin: 48px 0 24px auto;
+  color: #111;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+}
+
+.totalsRow {
+  display: grid;
+  grid-template-columns: 1fr 0.7fr;
+  min-height: 32px;
+  align-items: center;
+  border-bottom: 2px solid #d2d2d2;
+}
+
+.totalsRow span {
+  padding-left: 18px;
+}
+
+.totalsRow strong {
+  text-align: right;
+  padding-right: 14px;
+  font-weight: 400;
+}
+
+.totalsRow em {
+  margin-left: 24px;
+  font-style: italic;
+}
+
+.grandTotal {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  min-height: 42px;
+  align-items: center;
+  margin-top: 0;
+  background: #b4ead6;
+  font-size: 16px;
+}
+
+.grandTotal strong {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 18px;
+  background: #36b976;
+  color: #fff;
+  font-size: 17px;
+}
+
+.grandTotal span {
+  text-align: right;
+  padding-right: 14px;
+  font-weight: 800;
+}
+
+/* === Notes === */
+.notes {
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.notesLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 4px;
+}
+
+.notesText {
+  font-size: 10px;
+  color: #333;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* === Footer === */
+.footer {
+  position: absolute;
+  bottom: 15mm;
+  left: 15mm;
+  right: 15mm;
+  border-top: 1px solid #eee;
+  padding-top: 8px;
+}
+
+.footerContact {
+  font-size: 9px;
+  color: #999;
+}
+
+.footerText {
+  font-size: 9px;
+  color: #999;
+  margin-top: 2px;
+}
+
+/* === Signature === */
+.signature {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+}
+
+.signatureBlock {
+  width: 200px;
+}
+
+.signatureLine {
+  border-bottom: 1px solid #999;
+  height: 40px;
+}
+
+.signatureLabel {
+  font-size: 9px;
+  color: #666;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* === Compact header (multi-page) === */
+.compactHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.compactCompany {
+  font-size: 14px;
+  font-weight: 700;
+  color: #126542;
+}
+
+.compactDocInfo {
+  text-align: right;
+}
+
+.compactTitle {
+  font-size: 12px;
+  color: #666;
+}
+
+.compactNumber {
+  font-size: 10px;
+  color: #999;
+  display: block;
+}
+
+/* === Action bar === */
+.actionBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #444;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: #e5e7eb;
+    color: #1a1a1a;
+  }
+}
+
+.actionBtnDanger {
+  color: #dc2626;
+
+  &:hover {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+}
+
+/* === Preview container === */
+.previewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.previewToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.previewStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.previewBody {
+  max-height: 70vh;
+  overflow: auto;
+  background: #f3f4f6;
+  padding: 16px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+}
+
+/* === Responsive === */
+@media (max-width: 700px) {
+  .headerTop,
+  .invoiceFor {
+    grid-template-columns: 1fr;
+  }
+
+  .contact {
+    border-left: none;
+    border-top: 4px solid #111;
+    padding: 12px 0 0;
+  }
+
+  .contact::before {
+    display: none;
+  }
+
+  .invoiceFor strong {
+    justify-content: flex-start;
+  }
+
+  .itemsTable {
+    margin-top: 24px;
+    font-size: 10px;
+  }
+
+  .itemsTable th,
+  .itemsTable td {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .totals {
+    width: 100%;
+    margin-top: 32px;
+  }
+}
+
+/* === Print media === */
+@media print {
+  .a4Page {
+    page-break-after: always;
+
+    &:last-child {
+      page-break-after: auto;
+    }
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .previewBody {
+    max-height: none;
+    overflow: visible;
+    background: none;
+    padding: 0;
+  }
+
+  .previewToolbar {
+    display: none;
+  }
+}
