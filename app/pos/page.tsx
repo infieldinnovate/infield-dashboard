@@ -11,7 +11,7 @@ import PageHeader from '../../components/ui/PageHeader';
 import { products } from '../../data/products';
 import { categories } from '../../data/categories';
 import { Product } from '../../types';
-import { formatCurrency } from '../../components/DocumentEngine';
+import { formatCurrency } from '../../lib/documentUtils';
 import { toast } from 'sonner';
 
 interface CartItem {

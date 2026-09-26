@@ -16,7 +16,7 @@ import PageHeader from '../../components/ui/PageHeader';
 import { suppliers as initialSuppliers } from '../../data/suppliers';
 import { products } from '../../data/products';
 import { Supplier } from '../../types';
-import { formatCurrency } from '../../components/DocumentEngine';
+import { formatCurrency } from '../../lib/documentUtils';
 import { toast } from 'sonner';
 
 const statusVariant: Record<string, 'success' | 'error'> = {

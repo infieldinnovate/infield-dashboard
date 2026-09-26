@@ -12,7 +12,7 @@ import RowActions from '../../components/ui/RowActions';
 import { receipts as initialReceipts } from '../../data/receipts';
 import { invoices } from '../../data/invoices';
 import { Receipt } from '../../types';
-import { DocumentEngine, toDocumentConfig, printDocumentA4, printDocumentThermal57, downloadDocumentPDF } from '../../components/DocumentEngine';
+import ReceiptDocument, { printReceipt, printReceiptThermal, downloadReceiptPDF } from '../../components/ReceiptDocument';
 import { toast } from 'sonner';
 
 const paymentMethodIcon: Record<string, string> = {
@@ -139,9 +139,9 @@ export default function ReceiptsPage() {
       render: (row: Receipt) => (
         <RowActions actions={[
           { icon: 'Eye', label: 'Preview', onClick: (e) => { e.stopPropagation(); setPreviewReceipt(row); } },
-          { icon: 'Receipt', label: 'Thermal Print (57mm)', onClick: (e) => { e.stopPropagation(); printDocumentThermal57(toDocumentConfig(row)); } },
-          { icon: 'Printer', label: 'Print (A4)', onClick: (e) => { e.stopPropagation(); printDocumentA4(toDocumentConfig(row)); } },
-          { icon: 'Download', label: 'Download PDF', onClick: (e) => { e.stopPropagation(); downloadDocumentPDF(toDocumentConfig(row)); } },
+          { icon: 'Receipt', label: 'Thermal Print (57mm)', onClick: (e) => { e.stopPropagation(); printReceiptThermal(row); } },
+          { icon: 'Printer', label: 'Print (A4)', onClick: (e) => { e.stopPropagation(); printReceipt(row); } },
+          { icon: 'Download', label: 'Download PDF', onClick: (e) => { e.stopPropagation(); downloadReceiptPDF(row); } },
         ]} />
       ),
     },
@@ -225,14 +225,13 @@ export default function ReceiptsPage() {
       {/* Preview Modal */}
       <Modal isOpen={!!previewReceipt} onClose={() => setPreviewReceipt(null)} title="Receipt Preview" size="xl">
         {previewReceipt && (
-          <DocumentEngine
-            document={previewReceipt}
+          <ReceiptDocument
+            receipt={previewReceipt}
             actions={{
               onEdit: () => { setPreviewReceipt(null); },
               onDuplicate: () => { const r = previewReceipt; setPreviewReceipt(null); duplicateReceipt(r); },
               onDelete: () => { const r = previewReceipt; setPreviewReceipt(null); setDeleteReceipt(r); },
             }}
-            showThermal
           />
         )}
       </Modal>

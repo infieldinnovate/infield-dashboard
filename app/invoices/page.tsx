@@ -18,7 +18,8 @@ import { invoices as initialInvoices } from '../../data/invoices';
 import { customers } from '../../data/customers';
 import { products } from '../../data/products';
 import { Invoice, InvoiceItem } from '../../types';
-import { DocumentEngine, toDocumentConfig, printDocumentA4, downloadDocumentPDF, formatCurrency } from '../../components/DocumentEngine';
+import InvoiceDocument, { printInvoice, downloadInvoicePDF } from '../../components/InvoiceDocument';
+import { formatCurrency } from '../../lib/documentUtils';
 import { toast } from 'sonner';
 
 const statusVariant: Record<string, 'primary' | 'success' | 'warning' | 'error' | 'secondary'> = {
@@ -290,8 +291,8 @@ export default function InvoicesPage() {
       render: (row: Invoice) => {
         const actions: { icon: string; label: string; onClick: (e: React.MouseEvent) => void; variant?: 'danger' }[] = [
           { icon: 'Eye', label: 'Preview', onClick: (e: React.MouseEvent) => { e.stopPropagation(); setPreviewInvoice(row); } },
-          { icon: 'Printer', label: 'Print', onClick: (e: React.MouseEvent) => { e.stopPropagation(); printDocumentA4(toDocumentConfig(row)); } },
-          { icon: 'Download', label: 'Download PDF', onClick: (e: React.MouseEvent) => { e.stopPropagation(); downloadDocumentPDF(toDocumentConfig(row)); } },
+          { icon: 'Printer', label: 'Print', onClick: (e: React.MouseEvent) => { e.stopPropagation(); printInvoice(row); } },
+          { icon: 'Download', label: 'Download PDF', onClick: (e: React.MouseEvent) => { e.stopPropagation(); downloadInvoicePDF(row); } },
           { icon: 'Pencil', label: 'Edit', onClick: (e: React.MouseEvent) => { e.stopPropagation(); openEdit(row); } },
           { icon: 'Copy', label: 'Duplicate', onClick: (e: React.MouseEvent) => { e.stopPropagation(); duplicateInvoice(row); } },
         ];
@@ -365,8 +366,8 @@ export default function InvoicesPage() {
       {/* Preview Modal */}
       <Modal isOpen={!!previewInvoice} onClose={() => setPreviewInvoice(null)} title="Invoice Preview" size="xl">
         {previewInvoice && (
-          <DocumentEngine
-            document={previewInvoice}
+          <InvoiceDocument
+            invoice={previewInvoice}
             actions={{
               onEdit: () => { const inv = previewInvoice; setPreviewInvoice(null); openEdit(inv); },
               onDuplicate: () => { const inv = previewInvoice; setPreviewInvoice(null); duplicateInvoice(inv); },

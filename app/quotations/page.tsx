@@ -18,13 +18,8 @@ import { quotations as initialQuotations } from "../../data/quotations";
 import { customers } from "../../data/customers";
 import { products } from "../../data/products";
 import { Quotation, QuotationItem } from "../../types";
-import {
-  DocumentEngine,
-  toDocumentConfig,
-  printDocumentA4,
-  downloadDocumentPDF,
-  formatCurrency,
-} from "../../components/DocumentEngine";
+import QuotationDocument, { printQuotation, downloadQuotationPDF } from "../../components/QuotationDocument";
+import { formatCurrency } from "../../lib/documentUtils";
 import { toast } from "sonner";
 
 const statusVariant: Record<
@@ -339,7 +334,7 @@ export default function QuotationsPage() {
               label: "Print",
               onClick: (e) => {
                 e.stopPropagation();
-                printDocumentA4(toDocumentConfig(row));
+                printQuotation(row);
               },
             },
             {
@@ -347,7 +342,7 @@ export default function QuotationsPage() {
               label: "Download PDF",
               onClick: (e) => {
                 e.stopPropagation();
-                downloadDocumentPDF(toDocumentConfig(row));
+                downloadQuotationPDF(row);
               },
             },
             {
@@ -443,8 +438,8 @@ export default function QuotationsPage() {
         size="xl"
       >
         {previewQuotation && (
-          <DocumentEngine
-            document={previewQuotation}
+          <QuotationDocument
+            quotation={previewQuotation}
             actions={{
               onEdit: () => {
                 const q = previewQuotation;

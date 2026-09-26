@@ -18,7 +18,7 @@ import { deliveryNotes as initialDeliveryNotes } from '../../data/deliveryNotes'
 import { invoices } from '../../data/invoices';
 import { products } from '../../data/products';
 import { DeliveryNote, DeliveryItem } from '../../types';
-import { DocumentEngine, toDocumentConfig, printDocumentA4, downloadDocumentPDF } from '../../components/DocumentEngine';
+import DeliveryNoteDocument, { printDeliveryNote, downloadDeliveryNotePDF } from '../../components/DeliveryNoteDocument';
 import { toast } from 'sonner';
 
 const statusVariant: Record<string, 'primary' | 'success' | 'warning' | 'error' | 'secondary'> = {
@@ -324,8 +324,8 @@ export default function DeliveryNotesPage() {
       render: (row: DeliveryNote) => (
         <RowActions actions={[
           { icon: 'Eye', label: 'Preview', onClick: (e) => { e.stopPropagation(); setPreviewNote(row); } },
-          { icon: 'Printer', label: 'Print', onClick: (e) => { e.stopPropagation(); printDocumentA4(toDocumentConfig(row)); } },
-          { icon: 'Download', label: 'Download PDF', onClick: (e) => { e.stopPropagation(); downloadDocumentPDF(toDocumentConfig(row)); } },
+          { icon: 'Printer', label: 'Print', onClick: (e) => { e.stopPropagation(); printDeliveryNote(row); } },
+          { icon: 'Download', label: 'Download PDF', onClick: (e) => { e.stopPropagation(); downloadDeliveryNotePDF(row); } },
           { icon: 'Pencil', label: 'Edit', onClick: (e) => { e.stopPropagation(); openEdit(row); } },
           { icon: 'Trash2', label: 'Delete', variant: 'danger', onClick: (e) => { e.stopPropagation(); setDeleteNote(row); } },
         ]} />
@@ -392,8 +392,8 @@ export default function DeliveryNotesPage() {
       {/* Preview Modal */}
       <Modal isOpen={!!previewNote} onClose={() => setPreviewNote(null)} title="Delivery Note Preview" size="xl">
         {previewNote && (
-          <DocumentEngine
-            document={previewNote}
+          <DeliveryNoteDocument
+            note={previewNote}
             actions={{
               onEdit: () => { const n = previewNote; setPreviewNote(null); openEdit(n); },
               onDuplicate: () => { const n = previewNote; setPreviewNote(null); duplicateNote(n); },

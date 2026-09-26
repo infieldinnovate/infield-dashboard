@@ -17,7 +17,7 @@ import RowActions from '../../components/ui/RowActions';
 import { quoteTemplates as initialTemplates } from '../../data/quoteTemplates';
 import { products } from '../../data/products';
 import { QuoteTemplate, QuotationItem } from '../../types';
-import { formatCurrency } from '../../components/DocumentEngine';
+import { formatCurrency } from '../../lib/documentUtils';
 import { toast } from 'sonner';
 
 const productOptions = products.map((p) => ({ value: p.id, label: p.name }));
