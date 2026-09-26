@@ -1,4 +1,4 @@
-import { formatCurrency } from "../components/DocumentEngine";
+import { formatCurrency } from "./documentUtils";
 
 export function formatCompactCurrency(amount: number): string {
   if (Math.abs(amount) >= 1000000)

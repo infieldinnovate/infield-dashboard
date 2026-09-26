@@ -5,7 +5,7 @@ import StatCard from '../../components/ui/StatCard';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
 import { ChartCard, LineTrend, CategoryPie } from '../../components/ui/ReportCharts';
-import { formatCurrency, formatDateShort } from '../../components/DocumentEngine';
+import { formatCurrency, formatDateShort } from '../../lib/documentUtils';
 import { quotationReportData, getTimeSeries } from '../../data/reports';
 import { QuotationReportData, ReportPeriod } from '../../types';
 import { downloadCSV, printReport, formatPercent } from '../../lib/reportUtils';

@@ -6,7 +6,7 @@ import Icon from '../ui/Icon';
 import { AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import type { TimeSeriesPoint, CategoryBreakdown } from '../../types';
 import { formatCompactCurrency } from '../../lib/reportUtils';
-import { formatCurrency } from '../DocumentEngine';
+import { formatCurrency } from '../../lib/documentUtils';
 import styles from './ReportCharts.module.scss';
 
 interface ChartCardProps {

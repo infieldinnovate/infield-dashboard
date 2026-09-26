@@ -6,7 +6,7 @@ import styles from './RecentInvoices.module.scss';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
-import { formatCurrency, formatDate } from '../../components/DocumentEngine';
+import { formatCurrency, formatDate } from '../../lib/documentUtils';
 import { invoices } from '../../data/invoices';
 import type { Invoice } from '../../types';
 

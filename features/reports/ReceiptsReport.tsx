@@ -5,11 +5,11 @@ import StatCard from '../../components/ui/StatCard';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
 import { ChartCard, BarTrend, CategoryPie } from '../../components/ui/ReportCharts';
-import { formatCurrency, formatDateShort } from '../../components/DocumentEngine';
+import { formatCurrency, formatDateShort } from '../../lib/documentUtils';
 import { receiptReportData, getTimeSeries } from '../../data/reports';
 import { ReceiptReportData, ReportPeriod } from '../../types';
 import { downloadCSV, printReport } from '../../lib/reportUtils';
-import { paymentMethodLabels } from '../../components/DocumentEngine';
+import { paymentMethodLabels } from '../../lib/documentUtils';
 import styles from './ReceiptsReport.module.scss';
 
 interface ReceiptsReportProps {
