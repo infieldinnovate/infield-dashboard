@@ -1,0 +1,470 @@
+/* === Delivery Note Document — Independent Design === */
+
+/* A4 page layout */
+.a4Container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.a4Page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 15mm;
+  background: #fff;
+  position: relative;
+  page-break-after: always;
+
+  &:last-child {
+    page-break-after: auto;
+  }
+}
+
+/* === Full header (first page) === */
+.header {
+  margin-bottom: 24px;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 16px;
+  border-bottom: 3px solid #d97706;
+}
+
+.companyBlock {
+  flex: 1;
+}
+
+.companyName {
+  font-size: 20px;
+  font-weight: 800;
+  color: #d97706;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.companyAddr {
+  font-size: 10px;
+  color: #555;
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.companyContact {
+  font-size: 10px;
+  color: #555;
+  margin: 2px 0 0;
+}
+
+.docTitleBlock {
+  text-align: right;
+}
+
+.docTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: #d97706;
+  margin: 0;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.docNumber {
+  font-size: 12px;
+  color: #555;
+  margin: 6px 0 0;
+  font-weight: 600;
+}
+
+.docDate {
+  font-size: 10px;
+  color: #777;
+  margin: 2px 0 0;
+}
+
+/* === Party grid (Deliver To + Recipient) === */
+.partyGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.partyBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.partyLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #d97706;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 4px;
+}
+
+.partyName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.partyText {
+  font-size: 10px;
+  color: #555;
+  margin: 2px 0 0;
+  line-height: 1.4;
+}
+
+/* === Metadata box === */
+.metadataBox {
+  display: flex;
+  gap: 0;
+  margin-bottom: 24px;
+  border-left: 4px solid #d97706;
+  background: #fffbeb;
+  padding: 14px 18px;
+  border-radius: 0 6px 6px 0;
+}
+
+.metaItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaItem + .metaItem {
+  padding-left: 20px;
+  border-left: 1px solid #fde68a;
+}
+
+.metaLabel {
+  font-size: 9px;
+  font-weight: 700;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.metaValue {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* === Items table === */
+.itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 11px;
+}
+
+.itemsTable thead th {
+  background: #d97706;
+  color: #fff;
+  padding: 10px 12px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  text-align: left;
+}
+
+.itemsTable thead th.numCol {
+  text-align: center;
+}
+
+.itemsTable tbody tr {
+  page-break-inside: avoid;
+}
+
+.itemsTable tbody td {
+  padding: 9px 12px;
+  font-size: 11px;
+  border-bottom: 1px solid #e0e6ed;
+  color: #333;
+  vertical-align: middle;
+}
+
+.itemsTable tbody td.numCol {
+  text-align: center;
+}
+
+.itemsTable tbody tr:nth-child(even) {
+  background: #fefce8;
+}
+
+.itemName {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.itemDesc {
+  display: block;
+  font-size: 9px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.qtyComplete {
+  color: #059669;
+  font-weight: 600;
+}
+
+.qtyPartial {
+  color: #d97706;
+  font-weight: 600;
+}
+
+.qtyPending {
+  color: #999;
+  font-weight: 500;
+}
+
+.qtyLabel {
+  font-size: 9px;
+  margin-left: 4px;
+}
+
+/* === Notes === */
+.notesSection {
+  margin-bottom: 20px;
+}
+
+.notesLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #d97706;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 6px;
+}
+
+.notesText {
+  font-size: 10px;
+  color: #555;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* === Signature === */
+.signatureSection {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 48px;
+  margin-bottom: 20px;
+}
+
+.signatureBlock {
+  width: 200px;
+}
+
+.signatureLine {
+  border-bottom: 1px solid #999;
+  height: 40px;
+}
+
+.signatureLabel {
+  font-size: 9px;
+  color: #666;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* === Footer === */
+.footer {
+  position: absolute;
+  bottom: 15mm;
+  left: 15mm;
+  right: 15mm;
+  border-top: 1px solid #e0e6ed;
+  padding-top: 8px;
+}
+
+.footerContact {
+  font-size: 9px;
+  color: #999;
+}
+
+.footerText {
+  font-size: 9px;
+  color: #999;
+  margin-top: 2px;
+}
+
+/* === Compact header (multi-page) === */
+.compactHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #d97706;
+}
+
+.compactCompany {
+  font-size: 14px;
+  font-weight: 700;
+  color: #d97706;
+}
+
+.compactDocInfo {
+  text-align: right;
+}
+
+.compactTitle {
+  font-size: 12px;
+  color: #555;
+  font-weight: 600;
+}
+
+.compactNumber {
+  font-size: 10px;
+  color: #777;
+  display: block;
+}
+
+/* === Action bar === */
+.actionBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #444;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: #e5e7eb;
+    color: #1a1a1a;
+  }
+}
+
+.actionBtnDanger {
+  color: #dc2626;
+
+  &:hover {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+}
+
+/* === Preview container === */
+.previewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.previewToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.previewStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.previewBody {
+  max-height: 70vh;
+  overflow: auto;
+  background: #f3f4f6;
+  padding: 16px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+}
+
+/* === Responsive === */
+@media (max-width: 700px) {
+  .headerTop {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .docTitleBlock {
+    text-align: left;
+  }
+
+  .partyGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .metadataBox {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .metaItem + .metaItem {
+    padding-left: 0;
+    border-left: none;
+    padding-top: 10px;
+    border-top: 1px solid #fde68a;
+  }
+
+  .signatureSection {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+/* === Print media === */
+@media print {
+  .a4Page {
+    page-break-after: always;
+
+    &:last-child {
+      page-break-after: auto;
+    }
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .previewBody {
+    max-height: none;
+    overflow: visible;
+    background: none;
+    padding: 0;
+  }
+
+  .previewToolbar {
+    display: none;
+  }
+}
