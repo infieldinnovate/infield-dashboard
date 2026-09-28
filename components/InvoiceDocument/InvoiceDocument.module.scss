@@ -391,75 +391,91 @@
 
 /* === Footer === */
 .footer {
-  position: absolute;
-  bottom: 15mm;
-  left: 15mm;
-  right: 15mm;
-  border-top: 2px solid #126542;
-  padding-top: 10px;
+  margin-top: 28px;
+  color: #111;
+}
+
+.paymentInfo h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.paymentRow {
+  display: grid;
+  grid-template-columns: 136px minmax(0, 390px);
+  height: 58px;
+  background: linear-gradient(90deg, #d9d9d9 0%, #f0f0f0 62%, #fff 100%);
+}
+
+.paymentRow strong {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  padding: 0 20px;
+  background: #bdbdbd;
+  color: #fff;
+  font-size: 15px;
+}
+
+.footerNotes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 82px;
+  padding-top: 44px;
+  font-size: 14px;
+}
+
+.footerNotes strong {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.footerNotes span {
+  color: #333;
+  line-height: 1.45;
+}
+
+.footerBottom {
+  display: grid;
+  grid-template-columns: 1fr 120px 1fr;
+  align-items: end;
+  gap: 20px;
+  min-height: 126px;
+}
+
+.footerThankYou {
+  align-self: end;
+  padding-bottom: 16px;
+  color: #126542;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .footerStamp {
-  flex-shrink: 0;
+  justify-self: center;
+  align-self: center;
 }
 
-.footerContact {
+.authorizedSignature {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 10px;
-  color: #555;
-  text-align: center;
-  flex: 1;
-  gap: 2px;
-}
-
-.footerContact strong {
-  font-size: 12px;
-  font-weight: 800;
-  color: #126542;
-  letter-spacing: 0.02em;
-}
-
-.footerContact span {
-  font-size: 9px;
-  color: #777;
-}
-
-.footerText {
-  font-size: 9px;
-  color: #999;
-  margin-top: 0;
-  flex-shrink: 0;
-  text-align: right;
-  max-width: 160px;
-}
-
-/* === Signature === */
-.signature {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 40px;
-}
-
-.signatureBlock {
-  width: 200px;
+  gap: 8px;
+  padding-bottom: 12px;
 }
 
 .signatureLine {
-  border-bottom: 1px solid #999;
-  height: 40px;
+  width: 100%;
+  border-bottom: 1px solid #111;
+  height: 26px;
 }
 
-.signatureLabel {
-  font-size: 9px;
-  color: #666;
-  margin-top: 4px;
-  text-align: center;
+.authorizedSignature strong {
+  font-size: 14px;
+  font-weight: 800;
 }
 
 /* === Compact header (multi-page) === */
