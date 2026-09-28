@@ -1,0 +1,48 @@
+.stamp {
+  width: 88px;
+  height: 88px;
+  border: 2.5px solid #c0392b;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #c0392b;
+  font-family: Georgia, 'Times New Roman', serif;
+  transform: rotate(-8deg);
+  opacity: 0.85;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.name {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stars {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+
+.number {
+  font-size: 7px;
+  font-weight: 600;
+}
+
+.text {
+  font-size: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+  border-top: 1px solid #c0392b;
+  padding-top: 1px;
+}

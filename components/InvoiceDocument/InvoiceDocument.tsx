@@ -13,6 +13,7 @@ import {
   downloadPDF,
 } from '../../lib/documentUtils';
 import styles from './InvoiceDocument.module.scss';
+import Stamp from './Stamp';
 
 export interface InvoiceDocumentActions {
   onEdit: () => void;
@@ -212,13 +213,19 @@ function CompactHeader({ invoice }: { invoice: Invoice }) {
 /* === Footer === */
 function Footer() {
   const settings = getSettings();
-  const { businessName, phone, email } = settings.business;
+  const { businessName, phone, email, website } = settings.business;
   const footerText = settings.print.footerText || 'Thank you for your business!';
 
   return (
     <div className={styles.footer}>
+      <div className={styles.footerStamp}>
+        <Stamp />
+      </div>
       <div className={styles.footerContact}>
-        {businessName} | {phone} | {email}
+        <strong>{businessName}</strong>
+        <span>{phone}</span>
+        <span>{website}</span>
+        <span>{email}</span>
       </div>
       <div className={styles.footerText}>{footerText}</div>
     </div>
@@ -276,7 +283,7 @@ function A4Layout({ invoice }: { invoice: Invoice }) {
                   </div>
                 )}
                 {isLast && <Signature />}
-                <Footer />
+                {isLast && <Footer />}
               </>
             ) : (
               <>
@@ -392,9 +399,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .inv-notes { margin-top: 24px; margin-bottom: 16px; }
 .inv-notes-label { font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 4px; }
 .inv-notes-text { font-size: 10px; color: #333; margin: 0; line-height: 1.5; }
-.inv-footer { position: absolute; bottom: 15mm; left: 15mm; right: 15mm; border-top: 1px solid #eee; padding-top: 8px; }
-.inv-footer-contact { font-size: 9px; color: #999; }
-.inv-footer-text { font-size: 9px; color: #999; margin-top: 2px; }
+.inv-footer { position: absolute; bottom: 15mm; left: 15mm; right: 15mm; border-top: 2px solid #126542; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.inv-footer-stamp { width: 88px; height: 88px; border: 2.5px solid #c0392b; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #c0392b; font-family: Georgia, 'Times New Roman', serif; transform: rotate(-8deg); opacity: 0.85; flex-shrink: 0; }
+.inv-footer-stamp-inner { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.inv-footer-stamp-name { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+.inv-footer-stamp-stars { font-size: 7px; letter-spacing: 1px; }
+.inv-footer-stamp-number { font-size: 7px; font-weight: 600; }
+.inv-footer-stamp-text { font-size: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; border-top: 1px solid #c0392b; padding-top: 1px; }
+.inv-footer-contact { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #555; text-align: center; flex: 1; gap: 2px; }
+.inv-footer-contact strong { font-size: 12px; font-weight: 800; color: #126542; letter-spacing: 0.02em; }
+.inv-footer-contact span { font-size: 9px; color: #777; }
+.inv-footer-text { font-size: 9px; color: #999; margin-top: 0; flex-shrink: 0; text-align: right; max-width: 160px; }
 .inv-signature { display: flex; justify-content: space-between; margin-top: 40px; }
 .inv-sig-block { width: 200px; }
 .inv-sig-line { border-bottom: 1px solid #999; height: 40px; }
@@ -478,10 +493,8 @@ function buildInvoiceHTML(invoice: Invoice): string {
   };
 
   const buildFooter = (): string => {
-    return `<div class="inv-footer">
-      <div class="inv-footer-contact">${escapeHtml(businessName)} | ${escapeHtml(phone)} | ${escapeHtml(email)}</div>
-      <div class="inv-footer-text">${escapeHtml(footerText)}</div>
-    </div>`;
+    const stampHtml = `<div class="inv-footer-stamp"><div class="inv-footer-stamp-inner"><span class="inv-footer-stamp-name">Infield</span><span class="inv-footer-stamp-stars">★ ★ ★ ★</span><span class="inv-footer-stamp-number">+254 702 393 677</span></div><span class="inv-footer-stamp-text">DIGITAL STAMP</span></div>`;
+    return `<div class="inv-footer">${stampHtml}<div class="inv-footer-contact"><strong>${escapeHtml(businessName)}</strong><span>${escapeHtml(phone)}</span><span>${escapeHtml(website || '')}</span><span>${escapeHtml(email)}</span></div><div class="inv-footer-text">${escapeHtml(footerText)}</div></div>`;
   };
 
   const headerFull = `<header class="inv-header">
@@ -516,7 +529,7 @@ function buildInvoiceHTML(invoice: Invoice): string {
     if (isFirst) {
       return `<div class="inv-page">${headerFull}${buildItemsTable(pageItems, true)}${isLast ? buildTotals() + buildNotes() + buildSignature() : ''}${buildFooter()}</div>`;
     }
-    return `<div class="inv-page">${headerCompact}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildSignature() : ''}${isLast ? buildFooter() : `<div class="inv-footer"><div class="inv-footer-contact">${escapeHtml(businessName)} | ${escapeHtml(phone)} | ${escapeHtml(email)}</div></div>`}</div>`;
+    return `<div class="inv-page">${headerCompact}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildSignature() : ''}${isLast ? buildFooter() : `<div class="inv-footer"><div class="inv-footer-contact"><strong>${escapeHtml(businessName)}</strong><span>${escapeHtml(phone)}</span><span>${escapeHtml(email)}</span></div></div>`}</div>`;
   }).join('');
 }
 
@@ -723,9 +736,29 @@ export async function generateInvoicePDF(invoice: Invoice): Promise<Uint8Array> 
 
   // Footer
   const footerY = MARGIN - 20;
-  page.drawLine({ start: { x: MARGIN, y: footerY + 14 }, end: { x: PAGE_WIDTH - MARGIN, y: footerY + 14 }, thickness: 0.5, color: LIGHT_GRAY });
-  page.drawText(`${businessName} | ${phone} | ${email}`, { x: MARGIN, y: footerY, size: 8, font, color: GRAY });
-  page.drawText(footerText, { x: MARGIN, y: footerY - 12, size: 8, font, color: GRAY });
+  const stampRed = rgb(0.753, 0.224, 0.169);
+  page.drawLine({ start: { x: MARGIN, y: footerY + 14 }, end: { x: PAGE_WIDTH - MARGIN, y: footerY + 14 }, thickness: 2, color: PRIMARY });
+
+  // Stamp circle
+  const stampCx = MARGIN + 44;
+  const stampCy = footerY - 30;
+  const stampR = 38;
+  page.drawCircle({ x: stampCx, y: stampCy, size: stampR, borderWidth: 2.5, borderColor: stampRed, color: rgb(1, 1, 1) });
+  page.drawText('INFIELD', { x: stampCx - boldFont.widthOfTextAtSize('INFIELD', 9) / 2, y: stampCy + 12, size: 9, font: boldFont, color: stampRed });
+  page.drawText('★ ★ ★ ★', { x: stampCx - font.widthOfTextAtSize('★ ★ ★ ★', 6) / 2, y: stampCy + 2, size: 6, font, color: stampRed });
+  page.drawText('+254 702 393 677', { x: stampCx - font.widthOfTextAtSize('+254 702 393 677', 6) / 2, y: stampCy - 6, size: 6, font, color: stampRed });
+  page.drawLine({ start: { x: stampCx - 22, y: stampCy - 12 }, end: { x: stampCx + 22, y: stampCy - 12 }, thickness: 0.5, color: stampRed });
+  page.drawText('DIGITAL STAMP', { x: stampCx - boldFont.widthOfTextAtSize('DIGITAL STAMP', 5) / 2, y: stampCy - 20, size: 5, font: boldFont, color: stampRed });
+
+  // Contact info centered
+  const contactX = PAGE_WIDTH / 2;
+  page.drawText(businessName, { x: contactX - boldFont.widthOfTextAtSize(businessName, 10) / 2, y: footerY + 4, size: 10, font: boldFont, color: PRIMARY });
+  page.drawText(phone, { x: contactX - font.widthOfTextAtSize(phone, 8) / 2, y: footerY - 6, size: 8, font, color: GRAY });
+  page.drawText(email, { x: contactX - font.widthOfTextAtSize(email, 8) / 2, y: footerY - 16, size: 8, font, color: GRAY });
+
+  // Footer text right-aligned
+  const ftWidth = font.widthOfTextAtSize(footerText, 7);
+  page.drawText(footerText, { x: PAGE_WIDTH - MARGIN - ftWidth, y: footerY - 4, size: 7, font, color: GRAY });
 
   return doc.save();
 }

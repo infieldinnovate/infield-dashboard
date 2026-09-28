@@ -395,19 +395,48 @@
   bottom: 15mm;
   left: 15mm;
   right: 15mm;
-  border-top: 1px solid #eee;
-  padding-top: 8px;
+  border-top: 2px solid #126542;
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.footerStamp {
+  flex-shrink: 0;
 }
 
 .footerContact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 10px;
+  color: #555;
+  text-align: center;
+  flex: 1;
+  gap: 2px;
+}
+
+.footerContact strong {
+  font-size: 12px;
+  font-weight: 800;
+  color: #126542;
+  letter-spacing: 0.02em;
+}
+
+.footerContact span {
   font-size: 9px;
-  color: #999;
+  color: #777;
 }
 
 .footerText {
   font-size: 9px;
   color: #999;
-  margin-top: 2px;
+  margin-top: 0;
+  flex-shrink: 0;
+  text-align: right;
+  max-width: 160px;
 }
 
 /* === Signature === */
