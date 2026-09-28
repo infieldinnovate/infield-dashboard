@@ -236,18 +236,14 @@ function Footer({ notes }: { notes?: string }) {
         <div className={styles.footerThankYou}>{footerText}</div>
         <div className={styles.footerStamp}><Stamp /></div>
         <div className={styles.authorizedSignature}>
-          {signatureSrc ? (
-            <ImageWithFallback
-              src={signatureSrc}
-              alt="Authorised signature"
-              width={140}
-              height={50}
-              animation="fadeUp"
-              className={styles.signatureImage}
-            />
-          ) : (
-            <div className={styles.signatureLine} />
-          )}
+          <ImageWithFallback
+            src={signatureSrc}
+            alt="Authorised signature"
+            width={140}
+            height={50}
+            animation="fadeUp"
+            className={styles.signatureImage}
+          />
           <strong>Authorised Sign</strong>
         </div>
       </div>

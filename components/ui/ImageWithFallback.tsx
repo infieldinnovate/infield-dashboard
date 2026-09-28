@@ -52,13 +52,14 @@ export function ImageWithFallback({
   animation = "kenburns",
   ...rest
 }: ImageWithFallbackProps) {
+  const hasSrc = Boolean(src);
   const [status, setStatus] = useState<"loading" | "loaded" | "error">(
-    "loading",
+    hasSrc ? "loading" : "error",
   );
 
   useEffect(() => {
-    setStatus("loading");
-  }, [src]);
+    setStatus(hasSrc ? "loading" : "error");
+  }, [src, hasSrc]);
 
   const showPlaceholder = status !== "loaded";
 
@@ -78,7 +79,7 @@ export function ImageWithFallback({
           : undefined
       }
     >
-      {status !== "error" && (
+      {hasSrc && status !== "error" && (
         <Image
           src={src}
           alt={alt}
@@ -99,7 +100,11 @@ export function ImageWithFallback({
 
       {showPlaceholder && (
         <div className={styles.placeholder} aria-hidden="true">
-          <div className={styles.shimmer} />
+          {hasSrc ? (
+            <div className={styles.shimmer} />
+          ) : (
+            <div className={styles.emptyState} aria-hidden="true" />
+          )}
         </div>
       )}
     </div>

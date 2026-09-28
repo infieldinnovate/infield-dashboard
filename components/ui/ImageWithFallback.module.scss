@@ -27,6 +27,11 @@
   z-index: 0;
 }
 
+.emptyState {
+  position: absolute;
+  inset: 0;
+}
+
 .shimmer {
   position: absolute;
   inset: 0;
