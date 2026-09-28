@@ -1,6 +1,3 @@
-@use "../../styles/abstracts/variables" as *;
-@use "../../styles/abstracts/mixins" as *;
-
 .wrapper {
   position: relative;
   overflow: hidden;
@@ -25,7 +22,7 @@
 .placeholder {
   position: absolute;
   inset: 0;
-  background: $color-gray-100;
+  background: #f1f5f9;
   overflow: hidden;
   z-index: 0;
 }
@@ -51,15 +48,8 @@
   }
 }
 
-// ============================================
-// Animation: kenburns — slow continuous zoom-pan
-// Applied to the wrapper so it works with fill images
-// ============================================
-
-.animateKenburns {
-  .image {
-    animation: kenburns 12s ease-out infinite alternate;
-  }
+.animateKenburns .image {
+  animation: kenburns 12s ease-out infinite alternate;
 }
 
 @keyframes kenburns {
@@ -71,33 +61,20 @@
   }
 }
 
-// ============================================
-// Animation: fadeUp — image fades in and slides up
-// once loaded; hidden until the load event fires
-// ============================================
-
-.animateFadeUp {
-  .image {
-    opacity: 0;
-    transform: translateY(20px);
-    transition:
-      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+.animateFadeUp .image {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.fadeUpVisible {
-  .image {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.fadeUpVisible .image {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-// ============================================
-// Reduced motion — disable all animations
-// ============================================
-
-@include reduced-motion {
+@media (prefers-reduced-motion: reduce) {
   .shimmer {
     animation: none;
   }

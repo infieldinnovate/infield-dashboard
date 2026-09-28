@@ -8,6 +8,7 @@ export const defaultSettings: AppSettings = {
     email: 'infieldinnovations@gmail.com',
     website: '',
     logo: '',
+    signature: '',
   },
   numbering: {
     quotationPrefix: 'QUO',

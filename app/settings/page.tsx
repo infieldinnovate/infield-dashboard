@@ -184,6 +184,32 @@ function BusinessSection({
             </div>
           </div>
         </div>
+        <div className={styles.logoUpload}>
+          <label className={styles.logoLabel}>Authorised Signature</label>
+          <div className={styles.logoArea}>
+            <div className={styles.logoPreview}>
+              {b.signature ? (
+                <img src={b.signature} alt="Authorised signature" className={styles.logoImage} />
+              ) : (
+                <div className={styles.logoPlaceholder}>
+                  <Icon name="PenTool" size={28} />
+                  <span>No signature uploaded</span>
+                </div>
+              )}
+            </div>
+            <div className={styles.logoActions}>
+              <Button variant="outline" size="sm" leftIcon={<Icon name="Upload" size={16} />}>
+                Upload Signature
+              </Button>
+              {b.signature && (
+                <Button variant="ghost" size="sm" leftIcon={<Icon name="Trash2" size={16} />} onClick={() => update('business', { ...b, signature: '' })}>
+                  Remove
+                </Button>
+              )}
+              <span className={styles.logoHint}>PNG with transparency, max 1MB. Recommended 280×80px.</span>
+            </div>
+          </div>
+        </div>
       </div>
     </SectionCard>
   );

@@ -224,6 +224,7 @@ export interface BusinessInfo {
   email: string;
   website: string;
   logo: string;
+  signature: string;
 }
 
 export interface DocumentNumbering {

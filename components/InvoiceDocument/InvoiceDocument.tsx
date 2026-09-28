@@ -14,6 +14,7 @@ import {
 } from '../../lib/documentUtils';
 import styles from './InvoiceDocument.module.scss';
 import Stamp from './Stamp';
+import { ImageWithFallback } from '../ui/ImageWithFallback';
 
 export interface InvoiceDocumentActions {
   onEdit: () => void;
@@ -212,7 +213,9 @@ function CompactHeader({ invoice }: { invoice: Invoice }) {
 
 /* === Footer === */
 function Footer({ notes }: { notes?: string }) {
-  const footerText = getSettings().print.footerText || 'Thank you for your business!';
+  const settings = getSettings();
+  const footerText = settings.print.footerText || 'Thank you for your business!';
+  const signatureSrc = settings.business.signature;
 
   return (
     <footer className={styles.footer}>
@@ -233,7 +236,18 @@ function Footer({ notes }: { notes?: string }) {
         <div className={styles.footerThankYou}>{footerText}</div>
         <div className={styles.footerStamp}><Stamp /></div>
         <div className={styles.authorizedSignature}>
-          <div className={styles.signatureLine} />
+          {signatureSrc ? (
+            <ImageWithFallback
+              src={signatureSrc}
+              alt="Authorised signature"
+              width={140}
+              height={50}
+              animation="fadeUp"
+              className={styles.signatureImage}
+            />
+          ) : (
+            <div className={styles.signatureLine} />
+          )}
           <strong>Authorised Sign</strong>
         </div>
       </div>
@@ -480,7 +494,11 @@ function buildInvoiceHTML(invoice: Invoice): string {
   const buildFooter = (notes?: string): string => {
     const stampHtml = `<div class="inv-footer-stamp"><div class="inv-footer-stamp-inner"><span class="inv-footer-stamp-name">Infield</span><span class="inv-footer-stamp-stars">* * * *</span><span class="inv-footer-stamp-number">+254 702 393 677</span></div><span class="inv-footer-stamp-text">DIGITAL STAMP</span></div>`;
     const stampStyles = `.inv-footer-stamp { width: 88px; height: 88px; border: 2.5px solid #c0392b; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #c0392b; font-family: Georgia, 'Times New Roman', serif; transform: rotate(-8deg); opacity: 0.85; } .inv-footer-stamp-inner { display: flex; flex-direction: column; align-items: center; gap: 1px; } .inv-footer-stamp-name { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; } .inv-footer-stamp-stars { font-size: 7px; letter-spacing: 1px; } .inv-footer-stamp-number { font-size: 7px; font-weight: 600; } .inv-footer-stamp-text { font-size: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; border-top: 1px solid #c0392b; padding-top: 1px; }`;
-    return `<style>${stampStyles}</style><footer class="inv-footer"><section class="inv-payment-info"><h2>Payment Information</h2><div class="inv-payment-row"><strong>M-PESA</strong><span></span></div></section><div class="inv-footer-notes"><strong>Notes:</strong>${notes ? `<span>${escapeHtml(notes)}</span>` : ''}</div><div class="inv-footer-bottom"><div class="inv-footer-thank">${escapeHtml(footerText)}</div>${stampHtml}<div class="inv-authorised-sign"><div class="inv-authorised-line"></div><strong>Authorised Sign</strong></div></div></footer>`;
+    const sigSrc = settings.business.signature;
+    const sigHtml = sigSrc
+      ? `<img src="${escapeHtml(sigSrc)}" alt="Authorised signature" style="max-width:140px;max-height:50px;object-fit:contain;" />`
+      : `<div class="inv-authorised-line"></div>`;
+    return `<style>${stampStyles}</style><footer class="inv-footer"><section class="inv-payment-info"><h2>Payment Information</h2><div class="inv-payment-row"><strong>M-PESA</strong><span></span></div></section><div class="inv-footer-notes"><strong>Notes:</strong>${notes ? `<span>${escapeHtml(notes)}</span>` : ''}</div><div class="inv-footer-bottom"><div class="inv-footer-thank">${escapeHtml(footerText)}</div>${stampHtml}<div class="inv-authorised-sign">${sigHtml}<strong>Authorised Sign</strong></div></div></footer>`;
   };
 
   const headerFull = `<header class="inv-header">
