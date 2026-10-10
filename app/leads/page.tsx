@@ -3,16 +3,16 @@
 import React, { useState, useMemo, useCallback } from "react";
 import styles from "./page.module.scss";
 import SearchBar from "../../components/ui/SearchBar";
-import Select from "../../components/ui/Select";
+import SelectField from "../../components/forms/form_elements/select";
 import Button from "../../components/ui/Button";
 import Table from "../../components/ui/Table";
 import Pagination from "../../components/ui/Pagination";
 import Badge from "../../components/ui/Badge";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
-import Input from "../../components/ui/Input";
-import Textarea from "../../components/ui/Textarea";
-import Checkbox from "../../components/ui/Checkbox";
+import InputField from "../../components/forms/form_elements/input";
+import TextareaField from "../../components/forms/form_elements/textarea";
+import CheckboxField from "../../components/forms/form_elements/checkbox";
 import Icon from "../../components/ui/Icon";
 import RowActions from "../../components/ui/RowActions";
 import PageHeader from "../../components/ui/PageHeader";
@@ -311,39 +311,39 @@ export default function LeadsPage() {
     setForm: React.Dispatch<React.SetStateAction<typeof addForm>>,
   ) => (
     <>
-      <Input
+      <InputField
         label="Company Name"
         required
         value={form.company_name}
         onChange={(e) => setForm({ ...form, company_name: e.target.value })}
       />
       <div className={styles.formRow}>
-        <Input
+        <InputField
           label="Contact Person"
           value={form.contact_person}
           onChange={(e) => setForm({ ...form, contact_person: e.target.value })}
         />
-        <Input
+        <InputField
           label="Phone / WhatsApp"
           value={form.phone}
           onChange={(e) => setForm({ ...form, phone: e.target.value })}
         />
       </div>
       <div className={styles.formRow}>
-        <Input
+        <InputField
           label="Email"
           type="email"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
-        <Input
+        <InputField
           label="Location"
           value={form.location}
           onChange={(e) => setForm({ ...form, location: e.target.value })}
         />
       </div>
       <div className={styles.formRow}>
-        <Select
+        <SelectField
           label="Interested Service"
           options={serviceOptions}
           value={form.interested_service}
@@ -351,14 +351,14 @@ export default function LeadsPage() {
             setForm({ ...form, interested_service: e.target.value })
           }
         />
-        <Input
+        <InputField
           label="Lead Source"
           value={form.lead_source}
           onChange={(e) => setForm({ ...form, lead_source: e.target.value })}
         />
       </div>
       <div className={styles.formRow}>
-        <Select
+        <SelectField
           label="Status"
           options={statusOptions}
           value={form.status}
@@ -366,7 +366,7 @@ export default function LeadsPage() {
             setForm({ ...form, status: e.target.value as LeadStatus })
           }
         />
-        <Input
+        <InputField
           label="Last Contact Date"
           type="date"
           value={form.last_contact_date}
@@ -376,14 +376,14 @@ export default function LeadsPage() {
         />
       </div>
       <div className={styles.formRow}>
-        <Input
+        <InputField
           label="Follow-up Date"
           type="date"
           value={form.follow_up_date}
           onChange={(e) => setForm({ ...form, follow_up_date: e.target.value })}
         />
         <div className={styles.consentWrapper}>
-          <Checkbox
+          <CheckboxField
             label="Marketing consent granted"
             checked={form.marketing_consent}
             onChange={(e) =>
@@ -392,7 +392,7 @@ export default function LeadsPage() {
           />
         </div>
       </div>
-      <Textarea
+      <TextareaField
         label="Notes"
         rows={3}
         value={form.notes}
@@ -455,7 +455,7 @@ export default function LeadsPage() {
             onChange={handleSearch}
             className={styles.search}
           />
-          <Select
+          <SelectField
             options={[{ value: "", label: "All Statuses" }, ...statusOptions]}
             value={statusFilter}
             onChange={(e) => {
@@ -464,7 +464,7 @@ export default function LeadsPage() {
             }}
             className={styles.filter}
           />
-          <Select
+          <SelectField
             options={[{ value: "", label: "All Services" }, ...serviceOptions]}
             value={serviceFilter}
             onChange={(e) => {
@@ -473,7 +473,7 @@ export default function LeadsPage() {
             }}
             className={styles.filter}
           />
-          <Select
+          <SelectField
             options={sortOptions}
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}

@@ -10,8 +10,8 @@ import Icon from '../../components/ui/Icon';
 import Avatar from '../../components/ui/Avatar';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
-import Input from '../../components/ui/Input';
-import Textarea from '../../components/ui/Textarea';
+import InputField from '../../components/forms/form_elements/input';
+import TextareaField from '../../components/forms/form_elements/textarea';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { toast } from 'sonner';
 import {
@@ -522,7 +522,7 @@ function ReplySection({
   return (
     <div className={styles.replySection}>
       <span className={styles.detailLabel}>Reply</span>
-      <Textarea
+      <TextareaField
         value={replyText}
         onChange={(e) => setReplyText(e.target.value)}
         placeholder={placeholder}

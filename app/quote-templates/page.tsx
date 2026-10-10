@@ -3,14 +3,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
-import Select from '../../components/ui/Select';
+import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import Input from '../../components/ui/Input';
-import Textarea from '../../components/ui/Textarea';
+import InputField from '../../components/forms/form_elements/input';
+import TextareaField from '../../components/forms/form_elements/textarea';
 import Icon from '../../components/ui/Icon';
 import PageHeader from '../../components/ui/PageHeader';
 import RowActions from '../../components/ui/RowActions';
@@ -271,7 +271,7 @@ export default function QuoteTemplatesPage() {
       <div className={styles.toolbar}>
         <div className={styles.filters}>
           <SearchBar placeholder="Search templates..." value={search} onChange={handleSearch} className={styles.search} />
-          <Select
+          <SelectField
             options={[{ value: '', label: 'All Categories' }, ...categoryOptions]}
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
@@ -408,14 +408,14 @@ export default function QuoteTemplatesPage() {
       >
         <div className={styles.form}>
           <div className={styles.formTop}>
-            <Input
+            <InputField
               label="Template Name"
               required
               placeholder="e.g. Off-Grid Solar System"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
-            <Select
+            <SelectField
               label="Category"
               options={categoryOptions}
               value={form.category}
@@ -423,7 +423,7 @@ export default function QuoteTemplatesPage() {
             />
           </div>
 
-          <Textarea
+          <TextareaField
             label="Description"
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -446,21 +446,21 @@ export default function QuoteTemplatesPage() {
                 {form.items.map((item, index) => (
                   <div key={index} className={styles.itemRow}>
                     <div className={styles.itemProduct}>
-                      <Select
+                      <SelectField
                         options={productOptions}
                         placeholder="Select product"
                         value={item.productId}
                         onChange={(e) => updateItem(index, 'productId', e.target.value)}
                       />
                     </div>
-                    <Input
+                    <InputField
                       type="number"
                       placeholder="Qty"
                       value={item.quantity}
                       onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
                       className={styles.itemQty}
                     />
-                    <Input
+                    <InputField
                       type="number"
                       placeholder="Price"
                       value={item.unitPrice}
@@ -480,19 +480,19 @@ export default function QuoteTemplatesPage() {
           <div className={styles.formBottom}>
             <div className={styles.calcFields}>
               <div className={styles.calcRow}>
-                <Select
+                <SelectField
                   label="Discount Type"
                   options={[{ value: 'percentage', label: 'Percentage (%)' }, { value: 'fixed', label: 'Fixed Amount' }]}
                   value={form.discountType}
                   onChange={(e) => setForm({ ...form, discountType: e.target.value as 'percentage' | 'fixed' })}
                 />
-                <Input
+                <InputField
                   label="Discount"
                   type="number"
                   value={form.discount}
                   onChange={(e) => setForm({ ...form, discount: e.target.value })}
                 />
-                <Input
+                <InputField
                   label="Tax Rate (%)"
                   type="number"
                   value={form.taxRate}
@@ -508,7 +508,7 @@ export default function QuoteTemplatesPage() {
             </div>
           </div>
 
-          <Textarea
+          <TextareaField
             label="Notes"
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}

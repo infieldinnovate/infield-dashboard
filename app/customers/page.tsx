@@ -3,14 +3,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
-import Select from '../../components/ui/Select';
+import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
 import Pagination from '../../components/ui/Pagination';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import Input from '../../components/ui/Input';
+import InputField from '../../components/forms/form_elements/input';
 import Icon from '../../components/ui/Icon';
 import RowActions from '../../components/ui/RowActions';
 import PageHeader from '../../components/ui/PageHeader';
@@ -173,23 +173,23 @@ export default function CustomersPage() {
 
   const renderForm = (form: typeof addForm, setForm: React.Dispatch<React.SetStateAction<typeof addForm>>) => (
     <>
-      <Input label="Customer Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      <InputField label="Customer Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
       <div className={styles.formRow}>
-        <Input label="Email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <Input label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        <InputField label="Email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <InputField label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
       </div>
-      <Input label="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+      <InputField label="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
       <div className={styles.formRow}>
-        <Input label="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-        <Input label="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
-      </div>
-      <div className={styles.formRow}>
-        <Input label="Tax ID" value={form.taxId} onChange={(e) => setForm({ ...form, taxId: e.target.value })} />
-        <Input label="Credit Limit" type="number" value={form.creditLimit} onChange={(e) => setForm({ ...form, creditLimit: e.target.value })} />
+        <InputField label="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+        <InputField label="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
       </div>
       <div className={styles.formRow}>
-        <Select label="Type" options={typeOptions} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} />
-        <Select label="Status" options={statusOptions} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
+        <InputField label="Tax ID" value={form.taxId} onChange={(e) => setForm({ ...form, taxId: e.target.value })} />
+        <InputField label="Credit Limit" type="number" value={form.creditLimit} onChange={(e) => setForm({ ...form, creditLimit: e.target.value })} />
+      </div>
+      <div className={styles.formRow}>
+        <SelectField label="Type" options={typeOptions} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} />
+        <SelectField label="Status" options={statusOptions} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
       </div>
     </>
   );
@@ -204,7 +204,7 @@ export default function CustomersPage() {
       <div className={styles.toolbar}>
         <div className={styles.filters}>
           <SearchBar placeholder="Search customers..." value={search} onChange={handleSearch} className={styles.search} />
-          <Select options={sortOptions} value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={styles.filter} />
+          <SelectField options={sortOptions} value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={styles.filter} />
         </div>
       </div>
 

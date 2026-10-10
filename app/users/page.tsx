@@ -7,8 +7,8 @@ import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
+import InputField from '../../components/forms/form_elements/input';
+import SelectField from '../../components/forms/form_elements/select';
 import Icon from '../../components/ui/Icon';
 import Avatar from '../../components/ui/Avatar';
 import EmptyState from '../../components/ui/EmptyState';
@@ -100,14 +100,14 @@ export default function UsersPage() {
         <div className={styles.section}>
           <div className={styles.toolbar}>
             <div className={styles.filters}>
-              <Input
+              <InputField
                 placeholder="Search users..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 leftIcon={<Icon name="Search" size={16} />}
                 className={styles.searchInput}
               />
-              <Select
+              <SelectField
                 options={[
                   { value: '', label: 'All Roles' },
                   { value: 'admin', label: 'Administrator' },
@@ -119,7 +119,7 @@ export default function UsersPage() {
                 onChange={(e) => setRoleFilter(e.target.value)}
                 className={styles.filterSelect}
               />
-              <Select
+              <SelectField
                 options={[
                   { value: '', label: 'All Status' },
                   { value: 'active', label: 'Active' },
@@ -333,14 +333,14 @@ function ActivityLogSection({ logs }: { logs: ActivityLog[] }) {
     <div className={styles.section}>
       <div className={styles.toolbar}>
         <div className={styles.filters}>
-          <Input
+          <InputField
             placeholder="Search activity..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             leftIcon={<Icon name="Search" size={16} />}
             className={styles.searchInput}
           />
-          <Select
+          <SelectField
             options={[
               { value: '', label: 'All Categories' },
               { value: 'auth', label: 'Authentication' },

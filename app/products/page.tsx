@@ -3,15 +3,15 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
-import Select from '../../components/ui/Select';
+import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
 import Pagination from '../../components/ui/Pagination';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import Input from '../../components/ui/Input';
-import Textarea from '../../components/ui/Textarea';
+import InputField from '../../components/forms/form_elements/input';
+import TextareaField from '../../components/forms/form_elements/textarea';
 import Icon from '../../components/ui/Icon';
 import RowActions from '../../components/ui/RowActions';
 import PageHeader from '../../components/ui/PageHeader';
@@ -176,39 +176,39 @@ export default function ProductsPage() {
 
   const formFields = (
     <>
-      <Input label="Product Name" required value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} />
+      <InputField label="Product Name" required value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} />
       <div className={styles.formRow}>
-        <Input label="Price" type="number" required value={addForm.price} onChange={(e) => setAddForm({ ...addForm, price: e.target.value })} />
-        <Input label="Cost" type="number" required value={addForm.cost} onChange={(e) => setAddForm({ ...addForm, cost: e.target.value })} />
+        <InputField label="Price" type="number" required value={addForm.price} onChange={(e) => setAddForm({ ...addForm, price: e.target.value })} />
+        <InputField label="Cost" type="number" required value={addForm.cost} onChange={(e) => setAddForm({ ...addForm, cost: e.target.value })} />
       </div>
       <div className={styles.formRow}>
-        <Input label="Stock" type="number" required value={addForm.stock} onChange={(e) => setAddForm({ ...addForm, stock: e.target.value })} />
-        <Input label="Unit" required value={addForm.unit} onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })} />
+        <InputField label="Stock" type="number" required value={addForm.stock} onChange={(e) => setAddForm({ ...addForm, stock: e.target.value })} />
+        <InputField label="Unit" required value={addForm.unit} onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })} />
       </div>
       <div className={styles.formRow}>
-        <Input label="SKU" required value={addForm.sku} onChange={(e) => setAddForm({ ...addForm, sku: e.target.value })} />
-        <Select label="Category" options={categoryOptions.filter((o) => o.value !== '')} value={addForm.category} onChange={(e) => setAddForm({ ...addForm, category: e.target.value })} />
+        <InputField label="SKU" required value={addForm.sku} onChange={(e) => setAddForm({ ...addForm, sku: e.target.value })} />
+        <SelectField label="Category" options={categoryOptions.filter((o) => o.value !== '')} value={addForm.category} onChange={(e) => setAddForm({ ...addForm, category: e.target.value })} />
       </div>
-      <Textarea label="Description" value={addForm.description} onChange={(e) => setAddForm({ ...addForm, description: e.target.value })} />
+      <TextareaField label="Description" value={addForm.description} onChange={(e) => setAddForm({ ...addForm, description: e.target.value })} />
     </>
   );
 
   const editFormFields = (
     <>
-      <Input label="Product Name" required value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+      <InputField label="Product Name" required value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
       <div className={styles.formRow}>
-        <Input label="Price" type="number" required value={editForm.price} onChange={(e) => setEditForm({ ...editForm, price: e.target.value })} />
-        <Input label="Cost" type="number" required value={editForm.cost} onChange={(e) => setEditForm({ ...editForm, cost: e.target.value })} />
+        <InputField label="Price" type="number" required value={editForm.price} onChange={(e) => setEditForm({ ...editForm, price: e.target.value })} />
+        <InputField label="Cost" type="number" required value={editForm.cost} onChange={(e) => setEditForm({ ...editForm, cost: e.target.value })} />
       </div>
       <div className={styles.formRow}>
-        <Input label="Stock" type="number" required value={editForm.stock} onChange={(e) => setEditForm({ ...editForm, stock: e.target.value })} />
-        <Input label="Unit" required value={editForm.unit} onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })} />
+        <InputField label="Stock" type="number" required value={editForm.stock} onChange={(e) => setEditForm({ ...editForm, stock: e.target.value })} />
+        <InputField label="Unit" required value={editForm.unit} onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })} />
       </div>
       <div className={styles.formRow}>
-        <Input label="SKU" required value={editForm.sku} onChange={(e) => setEditForm({ ...editForm, sku: e.target.value })} />
-        <Select label="Category" options={categoryOptions.filter((o) => o.value !== '')} value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} />
+        <InputField label="SKU" required value={editForm.sku} onChange={(e) => setEditForm({ ...editForm, sku: e.target.value })} />
+        <SelectField label="Category" options={categoryOptions.filter((o) => o.value !== '')} value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} />
       </div>
-      <Textarea label="Description" value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
+      <TextareaField label="Description" value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
     </>
   );
 
@@ -222,8 +222,8 @@ export default function ProductsPage() {
       <div className={styles.toolbar}>
         <div className={styles.filters}>
           <SearchBar placeholder="Search products..." value={search} onChange={handleSearch} className={styles.search} />
-          <Select options={categoryOptions} value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }} className={styles.filter} />
-          <Select options={sortOptions} value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={styles.filter} />
+          <SelectField options={categoryOptions} value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }} className={styles.filter} />
+          <SelectField options={sortOptions} value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={styles.filter} />
         </div>
       </div>
 

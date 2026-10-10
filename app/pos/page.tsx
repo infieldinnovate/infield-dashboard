@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
-import Select from '../../components/ui/Select';
+import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Icon from '../../components/ui/Icon';
@@ -261,7 +261,7 @@ export default function POSPage() {
           {cart.length > 0 && (
             <div className={styles.cartFooter}>
               <div className={styles.discountRow}>
-                <Select
+                <SelectField
                   options={[
                     { value: 'percentage', label: 'Discount %' },
                     { value: 'fixed', label: 'Discount KSh' },

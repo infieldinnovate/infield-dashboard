@@ -8,8 +8,8 @@ import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
+import InputField from '../../components/forms/form_elements/input';
+import SelectField from '../../components/forms/form_elements/select';
 import Icon from '../../components/ui/Icon';
 import RowActions from '../../components/ui/RowActions';
 import PageHeader from '../../components/ui/PageHeader';
@@ -176,27 +176,27 @@ export default function SuppliersPage() {
 
   const renderForm = (form: typeof emptyForm, setForm: React.Dispatch<React.SetStateAction<typeof emptyForm>>) => (
     <>
-      <Input label="Supplier Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      <InputField label="Supplier Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
       <div className={styles.formRow}>
-        <Input label="Email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <Input label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        <InputField label="Email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <InputField label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
       </div>
-      <Input label="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+      <InputField label="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
       <div className={styles.formRow}>
-        <Input label="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-        <Input label="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
-      </div>
-      <div className={styles.formRow}>
-        <Input label="Tax ID" value={form.taxId} onChange={(e) => setForm({ ...form, taxId: e.target.value })} />
-        <Input label="Categories (comma-separated)" placeholder="Beverages, Food" value={form.categories} onChange={(e) => setForm({ ...form, categories: e.target.value })} />
+        <InputField label="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+        <InputField label="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
       </div>
       <div className={styles.formRow}>
-        <Select label="Payment Terms" options={paymentTermsOptions} value={form.paymentTerms} onChange={(e) => setForm({ ...form, paymentTerms: e.target.value })} />
-        <Input label="Lead Time (days)" type="number" value={form.leadTime} onChange={(e) => setForm({ ...form, leadTime: e.target.value })} />
+        <InputField label="Tax ID" value={form.taxId} onChange={(e) => setForm({ ...form, taxId: e.target.value })} />
+        <InputField label="Categories (comma-separated)" placeholder="Beverages, Food" value={form.categories} onChange={(e) => setForm({ ...form, categories: e.target.value })} />
       </div>
       <div className={styles.formRow}>
-        <Input label="Rating (0-5)" type="number" value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} />
-        <Select label="Status" options={statusOptions} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
+        <SelectField label="Payment Terms" options={paymentTermsOptions} value={form.paymentTerms} onChange={(e) => setForm({ ...form, paymentTerms: e.target.value })} />
+        <InputField label="Lead Time (days)" type="number" value={form.leadTime} onChange={(e) => setForm({ ...form, leadTime: e.target.value })} />
+      </div>
+      <div className={styles.formRow}>
+        <InputField label="Rating (0-5)" type="number" value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} />
+        <SelectField label="Status" options={statusOptions} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
       </div>
     </>
   );

@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
-import Select from '../../components/ui/Select';
+import SelectField from '../../components/forms/form_elements/select';
 import Table from '../../components/ui/Table';
 import Modal from '../../components/ui/Modal';
 import Icon from '../../components/ui/Icon';
@@ -202,7 +202,7 @@ export default function ReceiptsPage() {
       <div className={styles.toolbar}>
         <div className={styles.filters}>
           <SearchBar placeholder="Search receipts..." value={search} onChange={handleSearch} className={styles.search} />
-          <Select
+          <SelectField
             options={paymentFilterOptions}
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}

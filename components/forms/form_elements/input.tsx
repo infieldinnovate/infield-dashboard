@@ -1,5 +1,3 @@
-// components/forms/form_elements/InputField.tsx
-
 "use client";
 
 import React, { useId } from "react";
@@ -21,10 +19,9 @@ type InputFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   as?: "input" | "textarea";
   rows?: number;
   register?: UseFormRegister<TFieldValues>;
-  /** Make RegisterOptions generic so it matches the form value type */
   registerOptions?: RegisterOptions<TFieldValues, any>;
   control?: Control<TFieldValues>;
-  name: string;
+  name?: string;
   id?: string;
   defaultValue?: any;
   error?: FieldError | null;
@@ -42,6 +39,10 @@ type InputFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   inputWrapperClassName?: string;
   inputClassName?: string;
   ariaLabel?: string;
+  helperText?: string;
+  value?: string | number;
+  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  className?: string;
 };
 
 export default function InputField<
@@ -54,7 +55,7 @@ export default function InputField<
   register,
   registerOptions,
   control,
-  name,
+  name = "",
   id,
   defaultValue,
   error = null,
@@ -70,6 +71,10 @@ export default function InputField<
   inputWrapperClassName,
   inputClassName,
   ariaLabel,
+  helperText,
+  value,
+  onChange,
+  className,
 }: InputFieldProps<TFieldValues>) {
   const autoId = useId();
   const inputId = id || `${name}-${autoId}`;
@@ -95,15 +100,20 @@ export default function InputField<
     ...inputProps,
   };
 
-  // registerProps typed with generic registerOptions
   const registerProps = register
     ? (register(name as any, registerOptions) as Record<string, unknown>)
     : {};
+
+  const controlledProps =
+    onChange || value !== undefined
+      ? { value: value ?? "", onChange }
+      : {};
 
   const renderLabel = () =>
     label ? (
       <label htmlFor={inputId} className={styles.label}>
         {label}
+        {required && <span className={styles.required}>*</span>}
       </label>
     ) : null;
 
@@ -121,18 +131,33 @@ export default function InputField<
       </p>
     ) : null;
 
+  const renderHelperText = () =>
+    helperText && !error ? (
+      <span className={styles.helperText}>{helperText}</span>
+    ) : null;
+
+  const renderDatalist = () =>
+    datalistOptions ? (
+      <datalist id={datalistId}>
+        {datalistOptions.map((opt, i) => (
+          <option key={i} value={opt} />
+        ))}
+      </datalist>
+    ) : null;
+
+  const wrapperClass = clsx(
+    styles.container,
+    inputWrapperClassName,
+    className,
+    { [styles.hidden]: hidden },
+  );
+
   // Controlled branch (Controller)
   if (control) {
-    // File special-case for controlled usage
     if (type === "file") {
       return (
-        <div
-          className={clsx(styles.container, inputWrapperClassName, {
-            [styles.hidden]: hidden,
-          })}
-        >
+        <div className={wrapperClass}>
           {renderLabel()}
-
           <div
             className={clsx(styles.elementWrapper, {
               [styles.elementWrapperError]: !!error,
@@ -142,7 +167,6 @@ export default function InputField<
             <Controller
               name={name as any}
               control={control}
-              // defaultValue={defaultValue ?? null}
               render={({ field }) => (
                 <input
                   id={inputId}
@@ -155,29 +179,15 @@ export default function InputField<
               )}
             />
           </div>
-
           {renderError()}
-
-          {datalistOptions && type !== "file" && as !== "textarea" && (
-            <datalist id={datalistId}>
-              {datalistOptions.map((opt, i) => (
-                <option key={i} value={opt} />
-              ))}
-            </datalist>
-          )}
+          {renderDatalist()}
         </div>
       );
     }
 
-    // Non-file controlled inputs
     return (
-      <div
-        className={clsx(styles.container, inputWrapperClassName, {
-          [styles.hidden]: hidden,
-        })}
-      >
+      <div className={wrapperClass}>
         {renderLabel()}
-
         <div
           className={clsx(styles.elementWrapper, {
             [styles.elementWrapperError]: !!error,
@@ -187,7 +197,6 @@ export default function InputField<
           <Controller
             name={name as any}
             control={control}
-            // defaultValue={defaultValue ?? ""}
             render={({ field }) =>
               as === "textarea" ? (
                 <textarea rows={rows} {...field} {...commonProps} />
@@ -202,28 +211,16 @@ export default function InputField<
             }
           />
         </div>
-
         {renderError()}
-
-        {datalistOptions && as !== "textarea" && (
-          <datalist id={datalistId}>
-            {datalistOptions.map((opt, i) => (
-              <option key={i} value={opt} />
-            ))}
-          </datalist>
-        )}
+        {renderDatalist()}
       </div>
     );
   }
 
-  // Fallback: uncontrolled (register) or native input
+  // Uncontrolled (register) or controlled (value/onChange)
   if (as === "textarea") {
     return (
-      <div
-        className={clsx(styles.container, inputWrapperClassName, {
-          [styles.hidden]: hidden,
-        })}
-      >
+      <div className={wrapperClass}>
         {renderLabel()}
         <div
           className={clsx(styles.elementWrapper, {
@@ -233,53 +230,40 @@ export default function InputField<
           {renderIcon()}
           <textarea
             id={inputId}
-            // defaultValue={defaultValue ?? ""}
             rows={rows}
             {...commonProps}
+            {...controlledProps}
             {...(registerProps as any)}
           />
         </div>
-
         {renderError()}
+        {renderHelperText()}
       </div>
     );
   }
 
-  // input (including uncontrolled/register file)
   return (
-    <div
-      className={clsx(styles.container, inputWrapperClassName, {
-        [styles.hidden]: hidden,
-      })}
-    >
+    <div className={wrapperClass}>
       {renderLabel()}
-
       <div
         className={clsx(styles.elementWrapper, {
           [styles.elementWrapperError]: !!error,
         })}
       >
         {renderIcon()}
-
         <input
           id={inputId}
           type={type}
           defaultValue={type === "file" ? undefined : defaultValue}
           list={datalistId}
           {...commonProps}
+          {...controlledProps}
           {...(registerProps as any)}
         />
       </div>
-
       {renderError()}
-
-      {datalistOptions && (
-        <datalist id={datalistId}>
-          {datalistOptions.map((opt, i) => (
-            <option key={i} value={opt} />
-          ))}
-        </datalist>
-      )}
+      {renderHelperText()}
+      {renderDatalist()}
     </div>
   );
 }

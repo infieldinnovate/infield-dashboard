@@ -3,14 +3,14 @@
 import React, { useState, useMemo, useCallback } from "react";
 import styles from "./page.module.scss";
 import SearchBar from "../../components/ui/SearchBar";
-import Select from "../../components/ui/Select";
+import SelectField from "../../components/forms/form_elements/select";
 import Button from "../../components/ui/Button";
 import Table from "../../components/ui/Table";
 import Badge from "../../components/ui/Badge";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
-import Input from "../../components/ui/Input";
-import Textarea from "../../components/ui/Textarea";
+import InputField from "../../components/forms/form_elements/input";
+import TextareaField from "../../components/forms/form_elements/textarea";
 import Icon from "../../components/ui/Icon";
 import PageHeader from "../../components/ui/PageHeader";
 import RowActions from "../../components/ui/RowActions";
@@ -407,7 +407,7 @@ export default function QuotationsPage() {
             onChange={handleSearch}
             className={styles.search}
           />
-          <Select
+          <SelectField
             options={statusFilterOptions}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -489,7 +489,7 @@ export default function QuotationsPage() {
       >
         <div className={styles.form}>
           <div className={styles.formTop}>
-            <Select
+            <SelectField
               label="Customer"
               required
               options={customerOptions}
@@ -497,7 +497,7 @@ export default function QuotationsPage() {
               value={form.customerId}
               onChange={(e) => setForm({ ...form, customerId: e.target.value })}
             />
-            <Input
+            <InputField
               label="Valid Until"
               type="date"
               required
@@ -530,7 +530,7 @@ export default function QuotationsPage() {
                 {form.items.map((item, index) => (
                   <div key={index} className={styles.itemRow}>
                     <div className={styles.itemProduct}>
-                      <Select
+                      <SelectField
                         options={productOptions}
                         placeholder="Select product"
                         value={item.productId}
@@ -539,7 +539,7 @@ export default function QuotationsPage() {
                         }
                       />
                     </div>
-                    <Input
+                    <InputField
                       type="number"
                       placeholder="Qty"
                       value={item.quantity}
@@ -552,7 +552,7 @@ export default function QuotationsPage() {
                       }
                       className={styles.itemQty}
                     />
-                    <Input
+                    <InputField
                       type="number"
                       placeholder="Price"
                       value={item.unitPrice}
@@ -583,7 +583,7 @@ export default function QuotationsPage() {
           <div className={styles.formBottom}>
             <div className={styles.calcFields}>
               <div className={styles.calcRow}>
-                <Select
+                <SelectField
                   label="Discount Type"
                   options={[
                     { value: "percentage", label: "Percentage (%)" },
@@ -597,7 +597,7 @@ export default function QuotationsPage() {
                     })
                   }
                 />
-                <Input
+                <InputField
                   label="Discount"
                   type="number"
                   value={form.discount}
@@ -605,7 +605,7 @@ export default function QuotationsPage() {
                     setForm({ ...form, discount: e.target.value })
                   }
                 />
-                <Input
+                <InputField
                   label="Tax Rate (%)"
                   type="number"
                   value={form.taxRate}
@@ -635,7 +635,7 @@ export default function QuotationsPage() {
             </div>
           </div>
 
-          <Textarea
+          <TextareaField
             label="Notes"
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}

@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import Select from './Select';
+import SelectField from '../forms/form_elements/select';
 import Button from './Button';
 import Icon from './Icon';
-import Input from './Input';
+import InputField from '../forms/form_elements/input';
 import { ReportPeriod } from '../../types';
 import { reportPeriodOptions } from '../../data/reports';
 import styles from './ReportToolbar.module.scss';
@@ -35,20 +35,20 @@ export default function ReportToolbar({
   return (
     <div className={styles.toolbar}>
       <div className={styles.filters}>
-        <Select
+        <SelectField
           options={reportPeriodOptions}
           value={period}
           onChange={(e) => onPeriodChange(e.target.value as ReportPeriod)}
           className={styles.periodSelect}
         />
-        <Input
+        <InputField
           type="date"
           value={startDate}
           onChange={(e) => onStartDateChange(e.target.value)}
           className={styles.dateInput}
         />
         <span className={styles.dateSeparator}>to</span>
-        <Input
+        <InputField
           type="date"
           value={endDate}
           onChange={(e) => onEndDateChange(e.target.value)}

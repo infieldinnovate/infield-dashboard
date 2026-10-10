@@ -1,5 +1,3 @@
-// components/forms/form_elements/select.tsx
-
 "use client";
 
 import React, { forwardRef, useId } from "react";
@@ -19,14 +17,11 @@ type SelectOption = { value: string | number; label: string };
 
 type SelectFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   label?: string;
-  /** Option A: uncontrolled/register usage */
   register?: UseFormRegister<TFieldValues>;
   registerOptions?: RegisterOptions<TFieldValues, any>;
-  /** Option B: controlled via react-hook-form Controller */
   control?: Control<TFieldValues>;
-  name: string;
+  name?: string;
   id?: string;
-  /** widened to any to avoid the strict PathValueImpl mismatch */
   defaultValue?: any;
   error?: FieldError | null;
   hidden?: boolean;
@@ -38,6 +33,10 @@ type SelectFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   required?: boolean;
   selectWrapperClassName?: string;
   selectClassName?: string;
+  helperText?: string;
+  value?: string | number;
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>;
+  className?: string;
 };
 
 const UncontrolledSelect = forwardRef<
@@ -57,7 +56,7 @@ export default function SelectField<
   register,
   registerOptions,
   control,
-  name,
+  name = "",
   id,
   defaultValue,
   error = null,
@@ -70,6 +69,10 @@ export default function SelectField<
   required = false,
   selectWrapperClassName,
   selectClassName,
+  helperText,
+  value,
+  onChange,
+  className,
 }: SelectFieldProps<TFieldValues>) {
   const autoId = useId();
   const selectId = id || `${name}-${autoId}`;
@@ -79,10 +82,16 @@ export default function SelectField<
     ? (register(name as any, registerOptions) as Record<string, unknown>)
     : {};
 
+  const controlledProps =
+    onChange || value !== undefined
+      ? { value: value ?? "", onChange }
+      : {};
+
   const renderLabel = () =>
     label ? (
       <label htmlFor={selectId} className={styles.label}>
         {label}
+        {required && <span className={styles.required}>*</span>}
       </label>
     ) : null;
 
@@ -103,28 +112,47 @@ export default function SelectField<
       </p>
     ) : null;
 
+  const renderHelperText = () =>
+    helperText && !error ? (
+      <span className={styles.helperText}>{helperText}</span>
+    ) : null;
+
   const selectClassNames = clsx(styles.element, selectClassName);
+  const wrapperClass = clsx(
+    styles.container,
+    selectWrapperClassName,
+    className,
+    { [styles.hidden]: hidden },
+  );
+
+  const renderOptions = () => (
+    <>
+      {placeholder && (
+        <option value="" disabled hidden>
+          {placeholder}
+        </option>
+      )}
+      {options.map((opt) => (
+        <option key={String(opt.value)} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </>
+  );
 
   return (
-    <div
-      className={clsx(styles.container, selectWrapperClassName, {
-        [styles.hidden]: hidden,
-      })}
-    >
+    <div className={wrapperClass}>
       {renderLabel()}
-
       <div
         className={clsx(styles.elementWrapper, {
           [styles.elementWrapperError]: !!error,
         })}
       >
         {renderIcon()}
-
         {control ? (
           <Controller
             name={name as any}
             control={control}
-            // cast to any to satisfy the Controller generic constraint
             defaultValue={(defaultValue ?? "") as any}
             render={({ field }) => (
               <select
@@ -137,16 +165,7 @@ export default function SelectField<
                 aria-describedby={error ? errorId : undefined}
                 {...selectProps}
               >
-                {placeholder && (
-                  <option value="" disabled hidden>
-                    {placeholder}
-                  </option>
-                )}
-                {options.map((opt) => (
-                  <option key={String(opt.value)} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
+                {renderOptions()}
               </select>
             )}
           />
@@ -159,24 +178,16 @@ export default function SelectField<
             required={required}
             aria-invalid={!!error}
             aria-describedby={error ? errorId : undefined}
+            {...controlledProps}
             {...(registerProps as any)}
             {...selectProps}
           >
-            {placeholder && (
-              <option value="" disabled hidden>
-                {placeholder}
-              </option>
-            )}
-            {options.map((opt) => (
-              <option key={String(opt.value)} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
+            {renderOptions()}
           </UncontrolledSelect>
         )}
       </div>
-
       {renderError()}
+      {renderHelperText()}
     </div>
   );
 }

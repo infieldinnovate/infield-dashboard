@@ -3,14 +3,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
-import Select from '../../components/ui/Select';
+import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import Input from '../../components/ui/Input';
-import Textarea from '../../components/ui/Textarea';
+import InputField from '../../components/forms/form_elements/input';
+import TextareaField from '../../components/forms/form_elements/textarea';
 import Icon from '../../components/ui/Icon';
 import PageHeader from '../../components/ui/PageHeader';
 import RowActions from '../../components/ui/RowActions';
@@ -379,7 +379,7 @@ export default function DeliveryNotesPage() {
       <div className={styles.toolbar}>
         <div className={styles.filters}>
           <SearchBar placeholder="Search delivery notes..." value={search} onChange={handleSearch} className={styles.search} />
-          <Select options={statusFilterOptions} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.filter} />
+          <SelectField options={statusFilterOptions} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.filter} />
         </div>
       </div>
 
@@ -421,7 +421,7 @@ export default function DeliveryNotesPage() {
       >
         <div className={styles.form}>
           <div className={styles.formRow}>
-            <Select
+            <SelectField
               label="Invoice (Optional)"
               options={[{ value: '', label: 'Select invoice...' }, ...invoiceOptions]}
               value={form.invoiceId}
@@ -431,12 +431,12 @@ export default function DeliveryNotesPage() {
           </div>
 
           <div className={styles.formGrid}>
-            <Input label="Customer Name" required value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} />
-            <Input label="Recipient" required value={form.recipient} onChange={(e) => setForm({ ...form, recipient: e.target.value })} />
+            <InputField label="Customer Name" required value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} />
+            <InputField label="Recipient" required value={form.recipient} onChange={(e) => setForm({ ...form, recipient: e.target.value })} />
           </div>
 
-          <Input label="Delivery Address" required value={form.customerAddress} onChange={(e) => setForm({ ...form, customerAddress: e.target.value })} />
-          <Input label="Recipient Phone" value={form.recipientPhone} onChange={(e) => setForm({ ...form, recipientPhone: e.target.value })} />
+          <InputField label="Delivery Address" required value={form.customerAddress} onChange={(e) => setForm({ ...form, customerAddress: e.target.value })} />
+          <InputField label="Recipient Phone" value={form.recipientPhone} onChange={(e) => setForm({ ...form, recipientPhone: e.target.value })} />
 
           <div className={styles.itemsSection}>
             <div className={styles.itemsHeader}>
@@ -453,15 +453,15 @@ export default function DeliveryNotesPage() {
                 {form.items.map((item, index) => (
                   <div key={index} className={styles.itemRow}>
                     <div className={styles.itemProduct}>
-                      <Select options={productOptions} placeholder="Select product" value={item.productId} onChange={(e) => {
+                      <SelectField options={productOptions} placeholder="Select product" value={item.productId} onChange={(e) => {
                         const product = products.find((p) => p.id === e.target.value);
                         const updated = [...form.items];
                         updated[index] = { ...item, productId: e.target.value, productName: product?.name || '' };
                         setForm({ ...form, items: updated });
                       }} />
                     </div>
-                    <Input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)} className={styles.itemQty} />
-                    <Input type="number" placeholder="Delivered" value={item.quantityDelivered} onChange={(e) => updateItem(index, 'quantityDelivered', parseInt(e.target.value) || 0)} className={styles.itemQty} />
+                    <InputField type="number" placeholder="Qty" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)} className={styles.itemQty} />
+                    <InputField type="number" placeholder="Delivered" value={item.quantityDelivered} onChange={(e) => updateItem(index, 'quantityDelivered', parseInt(e.target.value) || 0)} className={styles.itemQty} />
                     <button className={styles.removeItem} onClick={() => removeItem(index)}><Icon name="X" size={16} /></button>
                   </div>
                 ))}
@@ -470,17 +470,17 @@ export default function DeliveryNotesPage() {
           </div>
 
           <div className={styles.formGrid}>
-            <Select label="Status" options={[{ value: 'pending', label: 'Pending' }, { value: 'shipped', label: 'Shipped' }, { value: 'delivered', label: 'Delivered' }, { value: 'returned', label: 'Returned' }]} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as DeliveryNote['status'] })} />
-            <Select label="Carrier" options={[{ value: '', label: 'Select carrier...' }, ...carrierOptions]} value={form.carrier} onChange={(e) => setForm({ ...form, carrier: e.target.value })} />
+            <SelectField label="Status" options={[{ value: 'pending', label: 'Pending' }, { value: 'shipped', label: 'Shipped' }, { value: 'delivered', label: 'Delivered' }, { value: 'returned', label: 'Returned' }]} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as DeliveryNote['status'] })} />
+            <SelectField label="Carrier" options={[{ value: '', label: 'Select carrier...' }, ...carrierOptions]} value={form.carrier} onChange={(e) => setForm({ ...form, carrier: e.target.value })} />
           </div>
 
           <div className={styles.formGrid}>
-            <Input type="date" label="Ship Date" required value={form.shipDate} onChange={(e) => setForm({ ...form, shipDate: e.target.value })} />
-            <Input type="date" label="Delivery Date" value={form.deliveryDate} onChange={(e) => setForm({ ...form, deliveryDate: e.target.value })} />
+            <InputField type="date" label="Ship Date" required value={form.shipDate} onChange={(e) => setForm({ ...form, shipDate: e.target.value })} />
+            <InputField type="date" label="Delivery Date" value={form.deliveryDate} onChange={(e) => setForm({ ...form, deliveryDate: e.target.value })} />
           </div>
 
-          <Input label="Tracking Number" value={form.trackingNumber} onChange={(e) => setForm({ ...form, trackingNumber: e.target.value })} placeholder="Enter tracking number or leave as PENDING" />
-          <Textarea label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Add delivery instructions or notes..." />
+          <InputField label="Tracking Number" value={form.trackingNumber} onChange={(e) => setForm({ ...form, trackingNumber: e.target.value })} placeholder="Enter tracking number or leave as PENDING" />
+          <TextareaField label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Add delivery instructions or notes..." />
         </div>
       </Modal>
 

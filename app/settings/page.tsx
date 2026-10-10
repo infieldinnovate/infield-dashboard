@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import styles from './page.module.scss';
 import Card from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
-import Textarea from '../../components/ui/Textarea';
-import Select from '../../components/ui/Select';
+import InputField from '../../components/forms/form_elements/input';
+import TextareaField from '../../components/forms/form_elements/textarea';
+import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Icon from '../../components/ui/Icon';
@@ -125,26 +125,26 @@ function BusinessSection({
   return (
     <SectionCard title="Business Information" description="This appears on your invoices, quotations, and receipts" icon="Building2">
       <div className={styles.form}>
-        <Input
+        <InputField
           label="Business Name"
           required
           value={b.businessName}
           onChange={(e) => update('business', { ...b, businessName: e.target.value })}
         />
-        <Textarea
+        <TextareaField
           label="Address"
           rows={2}
           value={b.address}
           onChange={(e) => update('business', { ...b, address: e.target.value })}
         />
         <div className={styles.formRow}>
-          <Input
+          <InputField
             label="Phone"
             leftIcon={<Icon name="Phone" size={16} />}
             value={b.phone}
             onChange={(e) => update('business', { ...b, phone: e.target.value })}
           />
-          <Input
+          <InputField
             label="Email"
             type="email"
             leftIcon={<Icon name="Mail" size={16} />}
@@ -152,7 +152,7 @@ function BusinessSection({
             onChange={(e) => update('business', { ...b, email: e.target.value })}
           />
         </div>
-        <Input
+        <InputField
           label="Website"
           leftIcon={<Icon name="Globe" size={16} />}
           value={b.website}
@@ -295,12 +295,12 @@ function NumberingCard({
         <span className={styles.numberingLabel}>{label}</span>
       </div>
       <div className={styles.numberingFields}>
-        <Input
+        <InputField
           label="Prefix"
           value={prefix}
           onChange={(e) => onPrefixChange(e.target.value)}
         />
-        <Input
+        <InputField
           label="Next Number"
           type="number"
           value={String(nextNumber)}
@@ -328,7 +328,7 @@ function TaxSection({
     <SectionCard title="Tax" description="Default tax rate applied to your products and documents" icon="Percent">
       <div className={styles.form}>
         <div className={styles.formRow}>
-          <Input
+          <InputField
             label="Default Tax Rate"
             type="number"
             leftIcon={<Icon name="Percent" size={16} />}
@@ -336,7 +336,7 @@ function TaxSection({
             onChange={(e) => update('tax', { ...t, taxRate: parseFloat(e.target.value) || 0 })}
             helperText="Applied as a percentage (e.g. 10 = 10%)"
           />
-          <Input
+          <InputField
             label="Tax ID / VAT Number"
             value={t.taxId}
             onChange={(e) => update('tax', { ...t, taxId: e.target.value })}
@@ -367,19 +367,19 @@ function CurrencySection({
   return (
     <SectionCard title="Currency" description="How monetary values are displayed across the app" icon="Coins">
       <div className={styles.form}>
-        <Select
+        <SelectField
           label="Currency"
           options={currencyOptions}
           value={c.currency}
           onChange={(e) => update('currency', { ...c, currency: e.target.value })}
         />
         <div className={styles.formRow}>
-          <Input
+          <InputField
             label="Currency Symbol"
             value={c.currencySymbol}
             onChange={(e) => update('currency', { ...c, currencySymbol: e.target.value })}
           />
-          <Select
+          <SelectField
             label="Symbol Position"
             options={[
               { value: 'before', label: 'Before amount ($10)' },
@@ -390,13 +390,13 @@ function CurrencySection({
           />
         </div>
         <div className={styles.formRow}>
-          <Input
+          <InputField
             label="Decimal Places"
             type="number"
             value={String(c.decimalPlaces)}
             onChange={(e) => update('currency', { ...c, decimalPlaces: parseInt(e.target.value) || 0 })}
           />
-          <Input
+          <InputField
             label="Thousand Separator"
             value={c.thousandSeparator}
             onChange={(e) => update('currency', { ...c, thousandSeparator: e.target.value })}
@@ -515,7 +515,7 @@ function PrintSection({
     <SectionCard title="Print Settings" description="Defaults for printing invoices, quotations, and receipts" icon="Printer">
       <div className={styles.form}>
         <div className={styles.formRow}>
-          <Select
+          <SelectField
             label="Page Size"
             options={[
               { value: 'a4', label: 'A4 (210 × 297 mm)' },
@@ -524,7 +524,7 @@ function PrintSection({
             value={p.pageSize}
             onChange={(e) => update('print', { ...p, pageSize: e.target.value as 'a4' | 'letter' })}
           />
-          <Select
+          <SelectField
             label="Orientation"
             options={[
               { value: 'portrait', label: 'Portrait' },
@@ -566,7 +566,7 @@ function PrintSection({
           </div>
         </div>
 
-        <Textarea
+        <TextareaField
           label="Footer Text"
           rows={2}
           value={p.footerText}

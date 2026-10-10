@@ -3,14 +3,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
-import Select from '../../components/ui/Select';
+import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import Input from '../../components/ui/Input';
-import Textarea from '../../components/ui/Textarea';
+import InputField from '../../components/forms/form_elements/input';
+import TextareaField from '../../components/forms/form_elements/textarea';
 import Icon from '../../components/ui/Icon';
 import PageHeader from '../../components/ui/PageHeader';
 import RowActions from '../../components/ui/RowActions';
@@ -353,7 +353,7 @@ export default function InvoicesPage() {
       <div className={styles.toolbar}>
         <div className={styles.filters}>
           <SearchBar placeholder="Search invoices..." value={search} onChange={handleSearch} className={styles.search} />
-          <Select options={statusFilterOptions} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.filter} />
+          <SelectField options={statusFilterOptions} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.filter} />
         </div>
       </div>
 
@@ -403,9 +403,9 @@ export default function InvoicesPage() {
       >
         <div className={styles.form}>
           <div className={styles.formTop}>
-            <Select label="Customer" required options={customerOptions} placeholder="Select customer" value={form.customerId} onChange={(e) => setForm({ ...form, customerId: e.target.value })} />
-            <Input label="Issue Date" type="date" required value={form.issueDate} onChange={(e) => setForm({ ...form, issueDate: e.target.value })} />
-            <Input label="Due Date" type="date" required value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} />
+            <SelectField label="Customer" required options={customerOptions} placeholder="Select customer" value={form.customerId} onChange={(e) => setForm({ ...form, customerId: e.target.value })} />
+            <InputField label="Issue Date" type="date" required value={form.issueDate} onChange={(e) => setForm({ ...form, issueDate: e.target.value })} />
+            <InputField label="Due Date" type="date" required value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} />
           </div>
 
           <div className={styles.itemsSection}>
@@ -425,11 +425,11 @@ export default function InvoicesPage() {
                 {form.items.map((item, index) => (
                   <div key={index} className={styles.itemRow}>
                     <div className={styles.itemProduct}>
-                      <Select options={productOptions} placeholder="Select product" value={item.productId} onChange={(e) => updateItem(index, 'productId', e.target.value)} />
+                      <SelectField options={productOptions} placeholder="Select product" value={item.productId} onChange={(e) => updateItem(index, 'productId', e.target.value)} />
                     </div>
-                    <Input placeholder="Description" value={item.description} onChange={(e) => updateItem(index, 'description', e.target.value)} className={styles.itemDesc} />
-                    <Input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)} className={styles.itemQty} />
-                    <Input type="number" placeholder="Price" value={item.unitPrice} onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)} className={styles.itemPrice} />
+                    <InputField placeholder="Description" value={item.description} onChange={(e) => updateItem(index, 'description', e.target.value)} className={styles.itemDesc} />
+                    <InputField type="number" placeholder="Qty" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)} className={styles.itemQty} />
+                    <InputField type="number" placeholder="Price" value={item.unitPrice} onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)} className={styles.itemPrice} />
                     <div className={styles.itemTotal}>{formatCurrency(item.total)}</div>
                     <button className={styles.removeItem} onClick={() => removeItem(index)}>
                       <Icon name="X" size={16} />
@@ -443,7 +443,7 @@ export default function InvoicesPage() {
           <div className={styles.formBottom}>
             <div className={styles.calcFields}>
               <div className={styles.calcRow}>
-                <Select
+                <SelectField
                   label="Discount Type"
                   options={[
                     { value: 'percentage', label: 'Percentage (%)' },
@@ -452,8 +452,8 @@ export default function InvoicesPage() {
                   value={form.discountType}
                   onChange={(e) => setForm({ ...form, discountType: e.target.value as 'percentage' | 'fixed' })}
                 />
-                <Input label="Discount" type="number" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} />
-                <Input label="Tax Rate (%)" type="number" value={form.taxRate} onChange={(e) => setForm({ ...form, taxRate: e.target.value })} />
+                <InputField label="Discount" type="number" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} />
+                <InputField label="Tax Rate (%)" type="number" value={form.taxRate} onChange={(e) => setForm({ ...form, taxRate: e.target.value })} />
               </div>
             </div>
             <div className={styles.summary}>
@@ -476,7 +476,7 @@ export default function InvoicesPage() {
             </div>
           </div>
 
-          <Textarea label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Add any notes for the customer..." />
+          <TextareaField label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Add any notes for the customer..." />
         </div>
       </Modal>
 
@@ -507,7 +507,7 @@ export default function InvoicesPage() {
                 <span className={styles.paymentValue}>{formatCurrency(paymentModal.balance)}</span>
               </div>
             </div>
-            <Input
+            <InputField
               label="Payment Amount"
               type="number"
               value={paymentAmount}
