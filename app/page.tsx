@@ -1,5 +1,9 @@
 // app\page.tsx
 
 export default function HomePage() {
-  return null;
+  return (
+    <div>
+      <h1>EMPTY DASHBOARD</h1>
+    </div>
+  );
 }
