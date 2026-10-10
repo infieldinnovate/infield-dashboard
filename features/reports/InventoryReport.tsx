@@ -4,7 +4,7 @@ import React from 'react';
 import StatCard from '../../components/ui/StatCard';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
-import { ChartCard, BarTrend, CategoryPie } from '../../components/ui/ReportCharts';
+import Card from '../../components/ui/Card';
 import { formatCurrency } from '../../lib/documentUtils';
 import { inventoryReportData } from '../../data/reports';
 import { InventoryReportData } from '../../types';
@@ -78,22 +78,20 @@ export default function InventoryReport({ onRegisterActions }: InventoryReportPr
         <StatCard title="Out of Stock" value={String(data.outOfStockCount)} icon="XCircle" iconColor="error" />
       </div>
 
-      <div className={styles.chartsGrid}>
-        <ChartCard title="Stock Value by Category" icon="BarChart3">
-          <BarTrend data={data.byCategory.map((c) => ({ label: c.category.replace(' Solutions', '').replace(' Services', '').replace(' Installations', ''), value: c.value }))} label="Value" colorIndex={1} />
-        </ChartCard>
-        <ChartCard title="Category Distribution" icon="PieChart">
-          <CategoryPie data={data.byCategory.map((c) => ({ category: c.category, value: c.value, count: c.items }))} />
-        </ChartCard>
-      </div>
-
-      <ChartCard title="Inventory by Category" icon="Layers">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Inventory by Category</h3>
+        </div>
         <Table columns={categoryColumns} data={data.byCategory} keyExtractor={(row) => row.category} />
-      </ChartCard>
+      </Card>
 
-      <ChartCard title="Stock Levels" subtitle="All products" icon="Package">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Stock Levels</h3>
+          <span className={styles.cardSubtitle}>All products</span>
+        </div>
         <Table columns={stockLevelColumns} data={data.stockLevels.slice(0, 10)} keyExtractor={(row) => row.name} />
-      </ChartCard>
+      </Card>
     </div>
   );
 }

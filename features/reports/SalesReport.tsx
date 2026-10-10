@@ -4,9 +4,9 @@ import React from 'react';
 import StatCard from '../../components/ui/StatCard';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
-import { ChartCard, AreaTrend, CategoryPie } from '../../components/ui/ReportCharts';
+import Card from '../../components/ui/Card';
 import { formatCurrency } from '../../lib/documentUtils';
-import { salesReportData, getTimeSeries } from '../../data/reports';
+import { salesReportData } from '../../data/reports';
 import { ReportPeriod, SalesReportData } from '../../types';
 import { downloadCSV, printReport, formatPercent } from '../../lib/reportUtils';
 import styles from './SalesReport.module.scss';
@@ -18,7 +18,6 @@ interface SalesReportProps {
 
 export default function SalesReport({ period, onRegisterActions }: SalesReportProps) {
   const data = salesReportData;
-  const timeSeries = getTimeSeries(period);
 
   const handlePrint = () => {
     const statsHtml = data.topCustomers.map((c) => `<tr><td>${c.name}</td><td>${c.orders}</td><td>${formatCurrency(c.totalSpent)}</td></tr>`).join('');
@@ -61,22 +60,17 @@ export default function SalesReport({ period, onRegisterActions }: SalesReportPr
         <StatCard title="Payment Methods" value={String(data.byPaymentMethod.length)} icon="CreditCard" iconColor="info" />
       </div>
 
-      <div className={styles.chartsGrid}>
-        <ChartCard title="Sales Trend" subtitle={period} icon="TrendingUp">
-          <AreaTrend data={timeSeries} label="Sales" />
-        </ChartCard>
-        <ChartCard title="Sales by Payment Method" icon="CreditCard">
-          <CategoryPie data={data.byPaymentMethod} />
-        </ChartCard>
-      </div>
-
-      <ChartCard title="Top Customers" subtitle="By total spent" icon="Users">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Top Customers</h3>
+          <span className={styles.cardSubtitle}>By total spent</span>
+        </div>
         <Table
           columns={topCustomerColumns}
           data={data.topCustomers}
           keyExtractor={(row) => row.name}
         />
-      </ChartCard>
+      </Card>
     </div>
   );
 }

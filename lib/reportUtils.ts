@@ -1,12 +1,3 @@
-import { formatCurrency } from "./documentUtils";
-
-export function formatCompactCurrency(amount: number): string {
-  if (Math.abs(amount) >= 1000000)
-    return `KSh ${(amount / 1000000).toFixed(1)}M`;
-  if (Math.abs(amount) >= 1000) return `KSh ${(amount / 1000).toFixed(0)}K`;
-  return formatCurrency(amount);
-}
-
 export function formatPercent(value: number): string {
   return `${value.toFixed(1)}%`;
 }

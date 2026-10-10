@@ -4,7 +4,7 @@ import React from 'react';
 import StatCard from '../../components/ui/StatCard';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
-import { ChartCard, BarTrend, CategoryPie } from '../../components/ui/ReportCharts';
+import Card from '../../components/ui/Card';
 import { formatCurrency } from '../../lib/documentUtils';
 import { customerReportData } from '../../data/reports';
 import { CustomerReportData } from '../../types';
@@ -70,18 +70,13 @@ export default function CustomersReport({ onRegisterActions }: CustomersReportPr
         <StatCard title="Avg Balance" value={formatCurrency(data.averageBalance)} change={-3.2} icon="Wallet" iconColor="warning" />
       </div>
 
-      <div className={styles.chartsGrid}>
-        <ChartCard title="Customer Types" icon="Users">
-          <CategoryPie data={data.byType} />
-        </ChartCard>
-        <ChartCard title="Top Spenders" subtitle="By total spent" icon="TrendingUp">
-          <BarTrend data={data.topSpenders.map((c) => ({ label: c.name.split(' ').slice(0, 2).join(' '), value: c.totalSpent }))} label="Spent" colorIndex={2} />
-        </ChartCard>
-      </div>
-
-      <ChartCard title="Outstanding Balances" subtitle="Customers with unpaid balances" icon="AlertCircle">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Outstanding Balances</h3>
+          <span className={styles.cardSubtitle}>Customers with unpaid balances</span>
+        </div>
         <Table columns={balanceColumns} data={data.outstandingBalances} keyExtractor={(row) => row.name} />
-      </ChartCard>
+      </Card>
     </div>
   );
 }

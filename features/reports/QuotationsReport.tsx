@@ -4,9 +4,9 @@ import React from 'react';
 import StatCard from '../../components/ui/StatCard';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
-import { ChartCard, LineTrend, CategoryPie } from '../../components/ui/ReportCharts';
+import Card from '../../components/ui/Card';
 import { formatCurrency, formatDateShort } from '../../lib/documentUtils';
-import { quotationReportData, getTimeSeries } from '../../data/reports';
+import { quotationReportData } from '../../data/reports';
 import { QuotationReportData, ReportPeriod } from '../../types';
 import { downloadCSV, printReport, formatPercent } from '../../lib/reportUtils';
 import styles from './QuotationsReport.module.scss';
@@ -26,7 +26,6 @@ const statusVariantMap: Record<string, 'success' | 'info' | 'warning' | 'error' 
 
 export default function QuotationsReport({ period, onRegisterActions }: QuotationsReportProps) {
   const data = quotationReportData;
-  const timeSeries = getTimeSeries(period);
 
   const handlePrint = () => {
     const rows = data.recentQuotations.map((q) => `<tr><td>${q.id}</td><td>${q.customer}</td><td>${formatCurrency(q.amount)}</td><td>${q.status}</td><td>${q.date}</td></tr>`).join('');
@@ -74,22 +73,20 @@ export default function QuotationsReport({ period, onRegisterActions }: Quotatio
         <StatCard title="Total Quoted Value" value={formatCurrency(data.totalQuotedValue)} change={12.8} icon="Banknote" iconColor="secondary" />
       </div>
 
-      <div className={styles.chartsGrid}>
-        <ChartCard title="Quotation Trend" subtitle={period} icon="TrendingUp">
-          <LineTrend data={timeSeries} label="Quoted Value" />
-        </ChartCard>
-        <ChartCard title="Quotation Status" icon="PieChart">
-          <CategoryPie data={data.byStatus} />
-        </ChartCard>
-      </div>
-
-      <ChartCard title="Status Summary" icon="BarChart3">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Status Summary</h3>
+        </div>
         <Table columns={statusColumns} data={data.byStatus} keyExtractor={(row) => row.category} />
-      </ChartCard>
+      </Card>
 
-      <ChartCard title="Recent Quotations" subtitle="All quotations" icon="FileText">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Recent Quotations</h3>
+          <span className={styles.cardSubtitle}>All quotations</span>
+        </div>
         <Table columns={quotationColumns} data={data.recentQuotations} keyExtractor={(row) => row.id} />
-      </ChartCard>
+      </Card>
     </div>
   );
 }

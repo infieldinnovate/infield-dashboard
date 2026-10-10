@@ -4,9 +4,9 @@ import React from 'react';
 import StatCard from '../../components/ui/StatCard';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
-import { ChartCard, AreaTrend, BarTrend } from '../../components/ui/ReportCharts';
+import Card from '../../components/ui/Card';
 import { formatCurrency, formatDateShort } from '../../lib/documentUtils';
-import { invoiceReportData, getTimeSeries } from '../../data/reports';
+import { invoiceReportData } from '../../data/reports';
 import { InvoiceReportData, ReportPeriod } from '../../types';
 import { downloadCSV, printReport } from '../../lib/reportUtils';
 import styles from './InvoicesReport.module.scss';
@@ -25,7 +25,6 @@ const statusVariantMap: Record<string, 'success' | 'warning' | 'error' | 'info'>
 
 export default function InvoicesReport({ period, onRegisterActions }: InvoicesReportProps) {
   const data = invoiceReportData;
-  const timeSeries = getTimeSeries(period);
 
   const handlePrint = () => {
     const rows = data.recentInvoices.map((inv) => `<tr><td>${inv.number}</td><td>${inv.customer}</td><td>${formatCurrency(inv.amount)}</td><td>${inv.status}</td><td>${inv.date}</td></tr>`).join('');
@@ -73,22 +72,20 @@ export default function InvoicesReport({ period, onRegisterActions }: InvoicesRe
         <StatCard title="Overdue" value={formatCurrency(data.overdueAmount)} change={-2.1} icon="AlertCircle" iconColor="error" />
       </div>
 
-      <div className={styles.chartsGrid}>
-        <ChartCard title="Invoice Trend" subtitle={period} icon="TrendingUp">
-          <AreaTrend data={timeSeries} label="Invoiced" />
-        </ChartCard>
-        <ChartCard title="Invoices by Status" icon="BarChart3">
-          <BarTrend data={data.byStatus.map((s) => ({ label: s.category, value: s.value }))} label="Count" colorIndex={3} />
-        </ChartCard>
-      </div>
-
-      <ChartCard title="Status Summary" icon="PieChart">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Status Summary</h3>
+        </div>
         <Table columns={statusColumns} data={data.byStatus} keyExtractor={(row) => row.category} />
-      </ChartCard>
+      </Card>
 
-      <ChartCard title="Recent Invoices" subtitle="All invoices" icon="FileSpreadsheet">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Recent Invoices</h3>
+          <span className={styles.cardSubtitle}>All invoices</span>
+        </div>
         <Table columns={invoiceColumns} data={data.recentInvoices} keyExtractor={(row) => row.number} />
-      </ChartCard>
+      </Card>
     </div>
   );
 }

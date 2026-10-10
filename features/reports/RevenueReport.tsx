@@ -4,9 +4,9 @@ import React from 'react';
 import StatCard from '../../components/ui/StatCard';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
-import { ChartCard, AreaTrend, DualBarTrend, CategoryPie } from '../../components/ui/ReportCharts';
+import Card from '../../components/ui/Card';
 import { formatCurrency } from '../../lib/documentUtils';
-import { revenueReportData, getTimeSeries } from '../../data/reports';
+import { revenueReportData } from '../../data/reports';
 import { RevenueReportData, ReportPeriod } from '../../types';
 import { downloadCSV, printReport, formatPercent } from '../../lib/reportUtils';
 import styles from './RevenueReport.module.scss';
@@ -18,7 +18,6 @@ interface RevenueReportProps {
 
 export default function RevenueReport({ period, onRegisterActions }: RevenueReportProps) {
   const data = revenueReportData;
-  const timeSeries = getTimeSeries(period);
 
   const handlePrint = () => {
     const rows = data.monthlyComparison.map((m) => `<tr><td>${m.month}</td><td>${formatCurrency(m.revenue)}</td><td>${formatCurrency(m.profit)}</td></tr>`).join('');
@@ -69,26 +68,19 @@ export default function RevenueReport({ period, onRegisterActions }: RevenueRepo
         <StatCard title="Revenue Growth" value={formatPercent(data.revenueGrowth)} change={3.8} icon="ArrowUpRight" iconColor="secondary" />
       </div>
 
-      <div className={styles.chartsGrid}>
-        <ChartCard title="Revenue Trend" subtitle={period} icon="TrendingUp">
-          <AreaTrend data={timeSeries} label="Revenue" />
-        </ChartCard>
-        <ChartCard title="Revenue by Category" icon="PieChart">
-          <CategoryPie data={data.byCategory} />
-        </ChartCard>
-      </div>
-
-      <ChartCard title="Revenue vs Profit" subtitle="Monthly comparison" icon="BarChart3">
-        <DualBarTrend data={data.monthlyComparison} />
-      </ChartCard>
-
       <div className={styles.tablesGrid}>
-        <ChartCard title="Revenue by Category" icon="Layers">
+        <Card padding="none">
+          <div className={styles.cardHeader}>
+            <h3 className={styles.cardTitle}>Revenue by Category</h3>
+          </div>
           <Table columns={categoryColumns} data={data.byCategory} keyExtractor={(row) => row.category} />
-        </ChartCard>
-        <ChartCard title="Monthly Breakdown" icon="Calendar">
+        </Card>
+        <Card padding="none">
+          <div className={styles.cardHeader}>
+            <h3 className={styles.cardTitle}>Monthly Breakdown</h3>
+          </div>
           <Table columns={monthlyColumns} data={data.monthlyComparison} keyExtractor={(row) => row.month} />
-        </ChartCard>
+        </Card>
       </div>
     </div>
   );

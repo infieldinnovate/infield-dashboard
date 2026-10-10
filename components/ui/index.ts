@@ -19,5 +19,4 @@ export { default as Textarea } from './Textarea';
 export { default as PageHeader } from './PageHeader';
 export { default as RowActions } from './RowActions';
 export { default as ReportToolbar } from './ReportToolbar';
-export { ChartCard, AreaTrend, BarTrend, DualBarTrend, LineTrend, CategoryPie } from './ReportCharts';
 export * from './Loaders';

@@ -4,7 +4,7 @@ import React from 'react';
 import StatCard from '../../components/ui/StatCard';
 import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
-import { ChartCard, BarTrend, CategoryPie } from '../../components/ui/ReportCharts';
+import Card from '../../components/ui/Card';
 import { formatCurrency } from '../../lib/documentUtils';
 import { productReportData } from '../../data/reports';
 import { ProductReportData } from '../../types';
@@ -77,22 +77,21 @@ export default function ProductsReport({ onRegisterActions }: ProductsReportProp
         <StatCard title="Categories" value={String(data.categoryPerformance.length)} icon="Layers" iconColor="info" />
       </div>
 
-      <div className={styles.chartsGrid}>
-        <ChartCard title="Revenue by Category" icon="BarChart3">
-          <BarTrend data={data.categoryPerformance.map((c) => ({ label: c.category.replace(' Solutions', '').replace(' Services', '').replace(' Installations', ''), value: c.value }))} label="Revenue" />
-        </ChartCard>
-        <ChartCard title="Category Distribution" icon="PieChart">
-          <CategoryPie data={data.categoryPerformance} />
-        </ChartCard>
-      </div>
-
-      <ChartCard title="Top Products" subtitle="By revenue" icon="TrendingUp">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Top Products</h3>
+          <span className={styles.cardSubtitle}>By revenue</span>
+        </div>
         <Table columns={topProductColumns} data={data.topProducts} keyExtractor={(row) => row.name} />
-      </ChartCard>
+      </Card>
 
-      <ChartCard title="Low Stock Alert" subtitle="Items needing restock" icon="AlertTriangle">
+      <Card padding="none">
+        <div className={styles.cardHeader}>
+          <h3 className={styles.cardTitle}>Low Stock Alert</h3>
+          <span className={styles.cardSubtitle}>Items needing restock</span>
+        </div>
         <Table columns={lowStockColumns} data={data.lowStock} keyExtractor={(row) => row.name} />
-      </ChartCard>
+      </Card>
     </div>
   );
 }
