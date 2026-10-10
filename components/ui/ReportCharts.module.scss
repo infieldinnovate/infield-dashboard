@@ -46,6 +46,65 @@
   width: 100%;
 }
 
+.svgWrap {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+.dot {
+  cursor: pointer;
+  transition: r 0.15s ease;
+
+  &:hover {
+    r: 6;
+  }
+}
+
+.bar {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.slice {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: var(--neutral-0);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  pointer-events: none;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.tooltipLabel {
+  font-size: 11px;
+  color: var(--neutral-500);
+  margin-bottom: 2px;
+}
+
+.tooltipValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
 @media (max-width: 767px) {
   .header {
     flex-direction: column;
