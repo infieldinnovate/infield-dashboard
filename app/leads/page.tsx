@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import styles from "./page.module.scss";
 import SearchBar from "../../components/ui/SearchBar";
 import Select from "../../components/ui/Select";
@@ -17,8 +17,8 @@ import Icon from "../../components/ui/Icon";
 import RowActions from "../../components/ui/RowActions";
 import PageHeader from "../../components/ui/PageHeader";
 import StatCard from "../../components/ui/StatCard";
+import { leads as initialLeads } from "../../data/leads";
 import { Lead, LeadStatus } from "../../types";
-import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 8;
@@ -82,8 +82,7 @@ export default function LeadsPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [serviceFilter, setServiceFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [leadList, setLeadList] = useState<Lead[]>(initialLeads);
 
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
   const [editLead, setEditLead] = useState<Lead | null>(null);
@@ -93,26 +92,8 @@ export default function LeadsPage() {
   const [addForm, setAddForm] = useState(emptyForm);
   const [editForm, setEditForm] = useState(emptyForm);
 
-  const fetchLeads = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("leads")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
-      toast.error("Failed to load leads");
-    } else {
-      setLeads((data ?? []) as Lead[]);
-    }
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchLeads();
-  }, [fetchLeads]);
-
   const filtered = useMemo(() => {
-    let data = [...leads];
+    let data = [...leadList];
     if (search.trim()) {
       const q = search.toLowerCase();
       data = data.filter(
@@ -141,7 +122,7 @@ export default function LeadsPage() {
       return dir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
     });
     return data;
-  }, [leads, search, sortBy, statusFilter, serviceFilter]);
+  }, [leadList, search, sortBy, statusFilter, serviceFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice(
@@ -172,83 +153,65 @@ export default function LeadsPage() {
     });
   };
 
-  const handleAddSave = async () => {
+  const handleAddSave = () => {
     if (!addForm.company_name.trim()) {
       toast.error("Company name is required");
       return;
     }
-    const payload = {
+    const now = new Date().toISOString();
+    const newLead: Lead = {
+      id: `lead-${Date.now()}`,
       ...addForm,
       last_contact_date: addForm.last_contact_date || null,
       follow_up_date: addForm.follow_up_date || null,
+      created_at: now,
+      updated_at: now,
     };
-    const { data, error } = await supabase
-      .from("leads")
-      .insert(payload)
-      .select()
-      .single();
-    if (error) {
-      toast.error("Failed to add lead");
-      return;
-    }
-    setLeads((prev) => [data as Lead, ...prev]);
+    setLeadList((prev) => [newLead, ...prev]);
     setAddForm(emptyForm);
     setIsAddOpen(false);
     toast.success("Lead added successfully");
   };
 
-  const handleEditSave = async () => {
+  const handleEditSave = () => {
     if (!editLead) return;
-    const payload = {
-      ...editForm,
-      last_contact_date: editForm.last_contact_date || null,
-      follow_up_date: editForm.follow_up_date || null,
-    };
-    const { data, error } = await supabase
-      .from("leads")
-      .update(payload)
-      .eq("id", editLead.id)
-      .select()
-      .single();
-    if (error) {
-      toast.error("Failed to update lead");
-      return;
-    }
-    setLeads((prev) =>
-      prev.map((l) => (l.id === editLead.id ? (data as Lead) : l)),
+    setLeadList((prev) =>
+      prev.map((l) =>
+        l.id === editLead.id
+          ? {
+              ...l,
+              ...editForm,
+              last_contact_date: editForm.last_contact_date || null,
+              follow_up_date: editForm.follow_up_date || null,
+              updated_at: new Date().toISOString(),
+            }
+          : l,
+      ),
     );
     setEditLead(null);
     toast.success("Lead updated successfully");
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (!deleteLead) return;
-    const { error } = await supabase
-      .from("leads")
-      .delete()
-      .eq("id", deleteLead.id);
-    if (error) {
-      toast.error("Failed to delete lead");
-      return;
-    }
-    setLeads((prev) => prev.filter((l) => l.id !== deleteLead.id));
+    setLeadList((prev) => prev.filter((l) => l.id !== deleteLead.id));
     setDeleteLead(null);
     toast.success("Lead deleted successfully");
   };
 
   const stats = useMemo(() => {
-    const total = leads.length;
-    const won = leads.filter((l) => l.status === "won").length;
-    const active = leads.filter(
+    const total = leadList.length;
+    const won = leadList.filter((l) => l.status === "won").length;
+    const active = leadList.filter(
       (l) => !["won", "lost"].includes(l.status),
     ).length;
-    const followUps = leads.filter(
+    const followUps = leadList.filter(
       (l) =>
         l.follow_up_date &&
         new Date(l.follow_up_date) >= new Date("2026-09-01"),
     ).length;
     return { total, won, active, followUps };
-  }, [leads]);
+  }, [leadList]);
 
   const columns = [
     {
@@ -437,21 +400,6 @@ export default function LeadsPage() {
       />
     </>
   );
-
-  if (loading) {
-    return (
-      <div className={styles.page}>
-        <PageHeader
-          title="Lead Portfolios"
-          subtitle="Track potential clients and manage your sales pipeline"
-        />
-        <div className={styles.loadingState}>
-          <Icon name="Loader2" size={32} />
-          <span>Loading leads...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.page}>
