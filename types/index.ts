@@ -40,23 +40,6 @@ export interface NavItem {
   icon: string;
 }
 
-export interface StatCard {
-  id: string;
-  title: string;
-  value: string;
-  change: number;
-  icon: string;
-}
-
-export interface RecentTransaction {
-  id: string;
-  customer: string;
-  amount: number;
-  status: 'completed' | 'pending' | 'failed';
-  date: string;
-  items: number;
-}
-
 export interface Customer {
   id: string;
   name: string;
