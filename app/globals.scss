@@ -1,4 +1,161 @@
-@use '../styles/variables.scss';
+:root {
+  /* Primary - Blue */
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+  --primary-900: #1e3a8a;
+
+  /* Secondary - Teal */
+  --secondary-50: #f0fdfa;
+  --secondary-100: #ccfbf1;
+  --secondary-600: #0d9488;
+  --secondary-700: #0f766e;
+
+  /* Accent - Amber */
+  --accent-200: #fde68a;
+  --accent-800: #92400e;
+
+  /* Neutral - Slate */
+  --neutral-0: #ffffff;
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1e293b;
+  --neutral-900: #0f172a;
+
+  /* Success - Emerald */
+  --success-50: #ecfdf5;
+  --success-100: #d1fae5;
+  --success-500: #10b981;
+  --success-600: #059669;
+  --success-700: #047857;
+  --success-800: #065f46;
+
+  /* Warning - Orange */
+  --warning-50: #fff7ed;
+  --warning-100: #ffedd5;
+  --warning-400: #fb923c;
+  --warning-500: #f97316;
+  --warning-600: #ea580c;
+  --warning-700: #c2410c;
+
+  /* Error - Rose */
+  --error-50: #fff1f2;
+  --error-100: #ffe4e6;
+  --error-200: #fecdd3;
+  --error-400: #fb7185;
+  --error-500: #f43f5e;
+  --error-600: #e11d48;
+  --error-700: #be123c;
+
+  /* Info - Sky */
+  --info-50: #f0f9ff;
+  --info-100: #e0f2fe;
+  --info-600: #0284c7;
+  --info-700: #0369a1;
+
+  /* Semantic colors (from abstracts) */
+  --color-primary: #0f6cbd;
+  --color-primary-dark: #0a4d8c;
+  --color-primary-50: #eef7ff;
+  --color-primary-100: #d6ecff;
+  --color-primary-900: #063059;
+  --color-secondary-50: #f0fdfa;
+  --color-success: #16a34a;
+  --color-success-light: #dcfce7;
+  --color-error: #dc2626;
+  --color-error-light: #fee2e2;
+  --color-white: #ffffff;
+  --color-gray-100: #f1f5f9;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-text: #171d27;
+  --color-text-muted: #565c69;
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 80px;
+  --container-max: 1280px;
+  --container-narrow: 800px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* Typography */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Font sizes */
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-xl: 22px;
+
+  /* Alt font scale (from abstracts) */
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+
+  /* Line heights */
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+
+  /* Alt leading scale (from abstracts) */
+  --lh-tight: 1.2;
+  --lh-snug: 1.35;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.625;
+
+  /* Font weights */
+  --font-bold: 700;
+
+  /* Alt weight scale (from abstracts) */
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  /* Spacing scale (8px base) */
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-12: 48px;
+
+  /* Z-index */
+  --z-toast: 600;
+}
 
 * {
   margin: 0;
