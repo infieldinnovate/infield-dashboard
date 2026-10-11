@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
 import SelectField from '../../components/forms/form_elements/select';
@@ -17,8 +19,9 @@ import RowActions from '../../components/ui/RowActions';
 import { deliveryNotes as initialDeliveryNotes } from '../../data/deliveryNotes';
 import { invoices } from '../../data/invoices';
 import { products } from '../../data/products';
-import { DeliveryNote, DeliveryItem } from '../../types';
+import { DeliveryNote } from '../../types';
 import DeliveryNoteDocument, { printDeliveryNote, downloadDeliveryNotePDF } from '../../components/DeliveryNoteDocument';
+import { deliveryNoteFormSchema, DeliveryNoteFormData } from '../../schema/formSchema';
 import { toast } from 'sonner';
 
 const statusVariant: Record<string, 'primary' | 'success' | 'warning' | 'error' | 'secondary'> = {
@@ -45,6 +48,13 @@ const carrierOptions = [
   { value: 'Other', label: 'Other' },
 ];
 
+const statusOptions = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'shipped', label: 'Shipped' },
+  { value: 'delivered', label: 'Delivered' },
+  { value: 'returned', label: 'Returned' },
+];
+
 function generateDeliveryNumber(existingNotes: DeliveryNote[]): string {
   const year = new Date().getFullYear();
   const numbers = existingNotes
@@ -56,6 +66,23 @@ function generateDeliveryNumber(existingNotes: DeliveryNote[]): string {
   return `DN-${year}-${String(nextNum).padStart(4, '0')}`;
 }
 
+function getDefaultValues(): DeliveryNoteFormData {
+  return {
+    invoiceId: '',
+    customerName: '',
+    customerAddress: '',
+    recipient: '',
+    recipientPhone: '',
+    items: [],
+    status: 'pending',
+    shipDate: new Date().toISOString().split('T')[0],
+    deliveryDate: '',
+    carrier: '',
+    trackingNumber: '',
+    notes: '',
+  };
+}
+
 export default function DeliveryNotesPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -65,19 +92,15 @@ export default function DeliveryNotesPage() {
   const [deleteNote, setDeleteNote] = useState<DeliveryNote | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const [form, setForm] = useState({
-    invoiceId: '',
-    customerName: '',
-    customerAddress: '',
-    recipient: '',
-    recipientPhone: '',
-    items: [] as DeliveryItem[],
-    status: 'pending' as 'pending' | 'shipped' | 'delivered' | 'returned',
-    shipDate: '',
-    deliveryDate: '',
-    carrier: '',
-    trackingNumber: '',
-    notes: '',
+  const { register, handleSubmit, reset, control, setValue, formState: { errors } } =
+    useForm<DeliveryNoteFormData>({
+      resolver: zodResolver(deliveryNoteFormSchema),
+      defaultValues: getDefaultValues(),
+    });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'items',
   });
 
   const filtered = useMemo(() => {
@@ -109,26 +132,13 @@ export default function DeliveryNotesPage() {
 
   const openCreate = () => {
     setEditNote(null);
-    setForm({
-      invoiceId: '',
-      customerName: '',
-      customerAddress: '',
-      recipient: '',
-      recipientPhone: '',
-      items: [],
-      status: 'pending',
-      shipDate: new Date().toISOString().split('T')[0],
-      deliveryDate: '',
-      carrier: '',
-      trackingNumber: '',
-      notes: '',
-    });
+    reset(getDefaultValues());
     setIsFormOpen(true);
   };
 
   const openEdit = (dn: DeliveryNote) => {
     setEditNote(dn);
-    setForm({
+    reset({
       invoiceId: dn.invoiceId,
       customerName: dn.customerName,
       customerAddress: dn.customerAddress,
@@ -147,7 +157,7 @@ export default function DeliveryNotesPage() {
 
   const duplicateNote = (dn: DeliveryNote) => {
     setEditNote(null);
-    setForm({
+    reset({
       invoiceId: dn.invoiceId,
       customerName: dn.customerName,
       customerAddress: dn.customerAddress,
@@ -168,62 +178,50 @@ export default function DeliveryNotesPage() {
   const handleInvoiceSelect = (invoiceId: string) => {
     const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice) {
-      setForm((prev) => ({
-        ...prev,
-        invoiceId,
-        customerName: invoice.customerName,
-        customerAddress: invoice.customerName === 'Acme Corporation' ? '123 Industrial Parkway, Suite 400, Austin, USA' :
-                         invoice.customerName === 'Bright Solutions Ltd' ? '45 Baker Street, London, UK' :
-                         invoice.customerName === 'Delta Logistics GmbH' ? 'Industriestraße 12, Munich, Germany' :
-                         invoice.customerName === 'Fresh Foods Inc' ? '890 Market Street, San Francisco, USA' :
-                         invoice.customerName === 'Elena Rossi' ? 'Via Roma 15, Milan, Italy' : 'Unknown Address',
-        items: invoice.items.map((item) => ({
-          productId: item.productId,
-          productName: item.productName,
-          quantity: item.quantity,
-          quantityDelivered: 0,
-        })),
-      }));
+      setValue('invoiceId', invoiceId);
+      setValue('customerName', invoice.customerName);
+      setValue(
+        'customerAddress',
+        invoice.customerName === 'Acme Corporation' ? '123 Industrial Parkway, Suite 400, Austin, USA' :
+          invoice.customerName === 'Bright Solutions Ltd' ? '45 Baker Street, London, UK' :
+            invoice.customerName === 'Delta Logistics GmbH' ? 'Industriestraße 12, Munich, Germany' :
+              invoice.customerName === 'Fresh Foods Inc' ? '890 Market Street, San Francisco, USA' :
+                invoice.customerName === 'Elena Rossi' ? 'Via Roma 15, Milan, Italy' : 'Unknown Address'
+      );
+      setValue('items', invoice.items.map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        quantityDelivered: 0,
+      })));
     }
   };
 
-  const updateItem = (index: number, field: keyof DeliveryItem, value: string | number) => {
-    setForm((prev) => {
-      const items = [...prev.items];
-      items[index] = { ...items[index], [field]: value };
-      return { ...prev, items };
-    });
+  const onProductChange = (index: number, productId: string) => {
+    const product = products.find((p) => p.id === productId);
+    setValue(`items.${index}.productName`, product?.name || '');
   };
 
   const addItem = () => {
-    setForm((prev) => ({
-      ...prev,
-      items: [...prev.items, { productId: '', productName: '', quantity: 1, quantityDelivered: 0 }],
-    }));
+    append({ productId: '', productName: '', quantity: 1, quantityDelivered: 0 });
   };
 
-  const removeItem = (index: number) => {
-    setForm((prev) => ({ ...prev, items: prev.items.filter((_, i) => i !== index) }));
-  };
-
-  const handleSave = () => {
-    if (!form.customerName || form.items.length === 0) return;
-
+  const onSubmit = (data: DeliveryNoteFormData) => {
     const noteData: DeliveryNote = {
       id: editNote?.id || `dn-${Date.now()}`,
-      invoiceId: form.invoiceId,
+      invoiceId: data.invoiceId,
       deliveryNumber: editNote?.deliveryNumber || generateDeliveryNumber(deliveryNoteList),
-      customerName: form.customerName,
-      customerAddress: form.customerAddress,
-      recipient: form.recipient,
-      recipientPhone: form.recipientPhone,
-      items: form.items,
-      status: form.status,
-      shipDate: form.shipDate,
-      deliveryDate: form.deliveryDate || undefined,
-      carrier: form.carrier,
-      trackingNumber: form.trackingNumber || 'PENDING',
-      notes: form.notes,
+      customerName: data.customerName,
+      customerAddress: data.customerAddress,
+      recipient: data.recipient,
+      recipientPhone: data.recipientPhone,
+      items: data.items,
+      status: data.status,
+      shipDate: data.shipDate,
+      deliveryDate: data.deliveryDate || undefined,
+      carrier: data.carrier,
+      trackingNumber: data.trackingNumber || 'PENDING',
+      notes: data.notes,
     };
 
     if (editNote) {
@@ -241,11 +239,11 @@ export default function DeliveryNotesPage() {
       prev.map((note) =>
         note.id === dn.id
           ? {
-              ...note,
-              status: newStatus,
-              deliveryDate: newStatus === 'delivered' ? new Date().toISOString().split('T')[0] : note.deliveryDate,
-              items: newStatus === 'delivered' ? note.items.map((i) => ({ ...i, quantityDelivered: i.quantity })) : note.items,
-            }
+            ...note,
+            status: newStatus,
+            deliveryDate: newStatus === 'delivered' ? new Date().toISOString().split('T')[0] : note.deliveryDate,
+            items: newStatus === 'delivered' ? note.items.map((i) => ({ ...i, quantityDelivered: i.quantity })) : note.items,
+          }
           : note
       )
     );
@@ -415,54 +413,125 @@ export default function DeliveryNotesPage() {
         footer={
           <>
             <Button variant="ghost" onClick={() => { setIsFormOpen(false); setEditNote(null); }}>Cancel</Button>
-            <Button onClick={handleSave}>{editNote ? 'Save Changes' : 'Create Delivery Note'}</Button>
+            <Button onClick={handleSubmit(onSubmit)}>{editNote ? 'Save Changes' : 'Create Delivery Note'}</Button>
           </>
         }
       >
         <div className={styles.form}>
           <div className={styles.formRow}>
-            <SelectField
-              label="Invoice (Optional)"
-              options={[{ value: '', label: 'Select invoice...' }, ...invoiceOptions]}
-              value={form.invoiceId}
-              onChange={(e) => handleInvoiceSelect(e.target.value)}
-              placeholder="Auto-fill from invoice"
+            <Controller
+              control={control}
+              name="invoiceId"
+              render={({ field }) => (
+                <SelectField
+                  label="Invoice (Optional)"
+                  options={[{ value: '', label: 'Select invoice...' }, ...invoiceOptions]}
+                  value={field.value}
+                  onChange={(e) => {
+                    field.onChange(e.target.value);
+                    handleInvoiceSelect(e.target.value);
+                  }}
+                  placeholder="Auto-fill from invoice"
+                />
+              )}
             />
           </div>
 
           <div className={styles.formGrid}>
-            <InputField label="Customer Name" required value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} />
-            <InputField label="Recipient" required value={form.recipient} onChange={(e) => setForm({ ...form, recipient: e.target.value })} />
+            <InputField
+              label="Customer Name"
+              required
+              register={register}
+              name="customerName"
+              error={errors.customerName ?? null}
+            />
+            <InputField
+              label="Recipient"
+              required
+              register={register}
+              name="recipient"
+              error={errors.recipient ?? null}
+            />
           </div>
 
-          <InputField label="Delivery Address" required value={form.customerAddress} onChange={(e) => setForm({ ...form, customerAddress: e.target.value })} />
-          <InputField label="Recipient Phone" value={form.recipientPhone} onChange={(e) => setForm({ ...form, recipientPhone: e.target.value })} />
+          <InputField
+            label="Delivery Address"
+            required
+            register={register}
+            name="customerAddress"
+            error={errors.customerAddress ?? null}
+          />
+          <InputField
+            label="Recipient Phone"
+            register={register}
+            name="recipientPhone"
+            error={errors.recipientPhone ?? null}
+          />
 
           <div className={styles.itemsSection}>
             <div className={styles.itemsHeader}>
               <h4 className={styles.sectionTitle}>Items</h4>
               <Button size="sm" variant="ghost" leftIcon={<Icon name="Plus" size={14} />} onClick={addItem}>Add Item</Button>
             </div>
-            {form.items.length === 0 ? (
+            {errors.items?.message && (
+              <p style={{ color: 'var(--color-error, #dc2626)', fontSize: '0.875rem', margin: '0 0 0.5rem 0' }}>{String(errors.items.message)}</p>
+            )}
+            {fields.length === 0 ? (
               <div className={styles.emptyItems}>
                 <Icon name="Package" size={24} />
                 <p>No items added yet. Click &ldquo;Add Item&rdquo; to get started.</p>
               </div>
             ) : (
               <div className={styles.itemsList}>
-                {form.items.map((item, index) => (
-                  <div key={index} className={styles.itemRow}>
+                {fields.map((item, index) => (
+                  <div key={item.id} className={styles.itemRow}>
                     <div className={styles.itemProduct}>
-                      <SelectField options={productOptions} placeholder="Select product" value={item.productId} onChange={(e) => {
-                        const product = products.find((p) => p.id === e.target.value);
-                        const updated = [...form.items];
-                        updated[index] = { ...item, productId: e.target.value, productName: product?.name || '' };
-                        setForm({ ...form, items: updated });
-                      }} />
+                      <Controller
+                        control={control}
+                        name={`items.${index}.productId`}
+                        render={({ field, fieldState }) => (
+                          <SelectField
+                            options={productOptions}
+                            placeholder="Select product"
+                            value={field.value}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              onProductChange(index, e.target.value);
+                            }}
+                            error={fieldState.error ?? null}
+                          />
+                        )}
+                      />
                     </div>
-                    <InputField type="number" placeholder="Qty" value={item.quantity} onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)} className={styles.itemQty} />
-                    <InputField type="number" placeholder="Delivered" value={item.quantityDelivered} onChange={(e) => updateItem(index, 'quantityDelivered', parseInt(e.target.value) || 0)} className={styles.itemQty} />
-                    <button className={styles.removeItem} onClick={() => removeItem(index)}><Icon name="X" size={16} /></button>
+                    <Controller
+                      control={control}
+                      name={`items.${index}.quantity`}
+                      render={({ field, fieldState }) => (
+                        <InputField
+                          type="number"
+                          placeholder="Qty"
+                          value={field.value}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          error={fieldState.error ?? null}
+                          className={styles.itemQty}
+                        />
+                      )}
+                    />
+                    <Controller
+                      control={control}
+                      name={`items.${index}.quantityDelivered`}
+                      render={({ field, fieldState }) => (
+                        <InputField
+                          type="number"
+                          placeholder="Delivered"
+                          value={field.value}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          error={fieldState.error ?? null}
+                          className={styles.itemQty}
+                        />
+                      )}
+                    />
+                    <button className={styles.removeItem} onClick={() => remove(index)}><Icon name="X" size={16} /></button>
                   </div>
                 ))}
               </div>
@@ -470,17 +539,64 @@ export default function DeliveryNotesPage() {
           </div>
 
           <div className={styles.formGrid}>
-            <SelectField label="Status" options={[{ value: 'pending', label: 'Pending' }, { value: 'shipped', label: 'Shipped' }, { value: 'delivered', label: 'Delivered' }, { value: 'returned', label: 'Returned' }]} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as DeliveryNote['status'] })} />
-            <SelectField label="Carrier" options={[{ value: '', label: 'Select carrier...' }, ...carrierOptions]} value={form.carrier} onChange={(e) => setForm({ ...form, carrier: e.target.value })} />
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <SelectField
+                  label="Status"
+                  options={statusOptions}
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="carrier"
+              render={({ field }) => (
+                <SelectField
+                  label="Carrier"
+                  options={[{ value: '', label: 'Select carrier...' }, ...carrierOptions]}
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
+            />
           </div>
 
           <div className={styles.formGrid}>
-            <InputField type="date" label="Ship Date" required value={form.shipDate} onChange={(e) => setForm({ ...form, shipDate: e.target.value })} />
-            <InputField type="date" label="Delivery Date" value={form.deliveryDate} onChange={(e) => setForm({ ...form, deliveryDate: e.target.value })} />
+            <InputField
+              type="date"
+              label="Ship Date"
+              required
+              register={register}
+              name="shipDate"
+              error={errors.shipDate ?? null}
+            />
+            <InputField
+              type="date"
+              label="Delivery Date"
+              register={register}
+              name="deliveryDate"
+              error={errors.deliveryDate ?? null}
+            />
           </div>
 
-          <InputField label="Tracking Number" value={form.trackingNumber} onChange={(e) => setForm({ ...form, trackingNumber: e.target.value })} placeholder="Enter tracking number or leave as PENDING" />
-          <TextareaField label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Add delivery instructions or notes..." />
+          <InputField
+            label="Tracking Number"
+            register={register}
+            name="trackingNumber"
+            error={errors.trackingNumber ?? null}
+            placeholder="Enter tracking number or leave as PENDING"
+          />
+          <TextareaField
+            label="Notes"
+            register={register}
+            name="notes"
+            error={errors.notes ?? null}
+            placeholder="Add delivery instructions or notes..."
+          />
         </div>
       </Modal>
 
