@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Toaster } from "sonner";
-import "./globals.scss";
+import "/styles/globals.scss";
 import DashboardLayout from "../components/Layout/DashboardLayout";
 
 export const metadata = {
