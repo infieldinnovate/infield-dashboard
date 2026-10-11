@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import styles from "./page.module.scss";
 import SearchBar from "../../components/ui/SearchBar";
 import SelectField from "../../components/forms/form_elements/select";
@@ -19,6 +21,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import StatCard from "../../components/ui/StatCard";
 import { leads as initialLeads } from "../../data/leads";
 import { Lead, LeadStatus } from "../../types";
+import { leadFormSchema, LeadFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 8;
@@ -61,7 +64,7 @@ const statusVariant: Record<
   lost: "error",
 };
 
-const emptyForm = {
+const defaultValues: LeadFormData = {
   company_name: "",
   contact_person: "",
   phone: "",
@@ -69,7 +72,7 @@ const emptyForm = {
   location: "",
   interested_service: "Solar",
   lead_source: "",
-  status: "new" as LeadStatus,
+  status: "new",
   last_contact_date: "",
   follow_up_date: "",
   notes: "",
@@ -89,8 +92,11 @@ export default function LeadsPage() {
   const [deleteLead, setDeleteLead] = useState<Lead | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
 
-  const [addForm, setAddForm] = useState(emptyForm);
-  const [editForm, setEditForm] = useState(emptyForm);
+  const { register, handleSubmit, reset, formState: { errors } } =
+    useForm<LeadFormData>({
+      resolver: zodResolver(leadFormSchema),
+      defaultValues,
+    });
 
   const filtered = useMemo(() => {
     let data = [...leadList];
@@ -135,15 +141,20 @@ export default function LeadsPage() {
     setCurrentPage(1);
   }, []);
 
+  const openAdd = () => {
+    reset(defaultValues);
+    setIsAddOpen(true);
+  };
+
   const openEdit = (lead: Lead) => {
     setEditLead(lead);
-    setEditForm({
+    reset({
       company_name: lead.company_name,
       contact_person: lead.contact_person,
       phone: lead.phone,
       email: lead.email,
       location: lead.location,
-      interested_service: lead.interested_service,
+      interested_service: lead.interested_service as LeadFormData["interested_service"],
       lead_source: lead.lead_source,
       status: lead.status,
       last_contact_date: lead.last_contact_date ?? "",
@@ -153,36 +164,31 @@ export default function LeadsPage() {
     });
   };
 
-  const handleAddSave = () => {
-    if (!addForm.company_name.trim()) {
-      toast.error("Company name is required");
-      return;
-    }
+  const onAddSubmit = (data: LeadFormData) => {
     const now = new Date().toISOString();
     const newLead: Lead = {
       id: `lead-${Date.now()}`,
-      ...addForm,
-      last_contact_date: addForm.last_contact_date || null,
-      follow_up_date: addForm.follow_up_date || null,
+      ...data,
+      last_contact_date: data.last_contact_date || null,
+      follow_up_date: data.follow_up_date || null,
       created_at: now,
       updated_at: now,
     };
     setLeadList((prev) => [newLead, ...prev]);
-    setAddForm(emptyForm);
     setIsAddOpen(false);
     toast.success("Lead added successfully");
   };
 
-  const handleEditSave = () => {
+  const onEditSubmit = (data: LeadFormData) => {
     if (!editLead) return;
     setLeadList((prev) =>
       prev.map((l) =>
         l.id === editLead.id
           ? {
               ...l,
-              ...editForm,
-              last_contact_date: editForm.last_contact_date || null,
-              follow_up_date: editForm.follow_up_date || null,
+              ...data,
+              last_contact_date: data.last_contact_date || null,
+              follow_up_date: data.follow_up_date || null,
               updated_at: new Date().toISOString(),
             }
           : l,
@@ -306,97 +312,98 @@ export default function LeadsPage() {
     },
   ];
 
-  const renderForm = (
-    form: typeof addForm,
-    setForm: React.Dispatch<React.SetStateAction<typeof addForm>>,
-  ) => (
+  const renderForm = () => (
     <>
       <InputField
         label="Company Name"
         required
-        value={form.company_name}
-        onChange={(e) => setForm({ ...form, company_name: e.target.value })}
+        register={register}
+        name="company_name"
+        error={errors.company_name ?? null}
       />
       <div className={styles.formRow}>
         <InputField
           label="Contact Person"
-          value={form.contact_person}
-          onChange={(e) => setForm({ ...form, contact_person: e.target.value })}
+          register={register}
+          name="contact_person"
+          error={errors.contact_person ?? null}
         />
         <InputField
           label="Phone / WhatsApp"
-          value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          register={register}
+          name="phone"
+          error={errors.phone ?? null}
         />
       </div>
       <div className={styles.formRow}>
         <InputField
           label="Email"
           type="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          register={register}
+          name="email"
+          error={errors.email ?? null}
         />
         <InputField
           label="Location"
-          value={form.location}
-          onChange={(e) => setForm({ ...form, location: e.target.value })}
+          register={register}
+          name="location"
+          error={errors.location ?? null}
         />
       </div>
       <div className={styles.formRow}>
         <SelectField
           label="Interested Service"
           options={serviceOptions}
-          value={form.interested_service}
-          onChange={(e) =>
-            setForm({ ...form, interested_service: e.target.value })
-          }
+          register={register}
+          name="interested_service"
+          error={errors.interested_service ?? null}
         />
         <InputField
           label="Lead Source"
-          value={form.lead_source}
-          onChange={(e) => setForm({ ...form, lead_source: e.target.value })}
+          register={register}
+          name="lead_source"
+          error={errors.lead_source ?? null}
         />
       </div>
       <div className={styles.formRow}>
         <SelectField
           label="Status"
           options={statusOptions}
-          value={form.status}
-          onChange={(e) =>
-            setForm({ ...form, status: e.target.value as LeadStatus })
-          }
+          register={register}
+          name="status"
+          error={errors.status ?? null}
         />
         <InputField
           label="Last Contact Date"
           type="date"
-          value={form.last_contact_date}
-          onChange={(e) =>
-            setForm({ ...form, last_contact_date: e.target.value })
-          }
+          register={register}
+          name="last_contact_date"
+          error={errors.last_contact_date ?? null}
         />
       </div>
       <div className={styles.formRow}>
         <InputField
           label="Follow-up Date"
           type="date"
-          value={form.follow_up_date}
-          onChange={(e) => setForm({ ...form, follow_up_date: e.target.value })}
+          register={register}
+          name="follow_up_date"
+          error={errors.follow_up_date ?? null}
         />
         <div className={styles.consentWrapper}>
           <CheckboxField
             label="Marketing consent granted"
-            checked={form.marketing_consent}
-            onChange={(e) =>
-              setForm({ ...form, marketing_consent: e.target.checked })
-            }
+            register={register}
+            name="marketing_consent"
+            error={errors.marketing_consent ?? null}
           />
         </div>
       </div>
       <TextareaField
         label="Notes"
         rows={3}
-        value={form.notes}
-        onChange={(e) => setForm({ ...form, notes: e.target.value })}
+        register={register}
+        name="notes"
+        error={errors.notes ?? null}
       />
     </>
   );
@@ -409,7 +416,7 @@ export default function LeadsPage() {
         actions={
           <Button
             leftIcon={<Icon name="Plus" size={16} />}
-            onClick={() => setIsAddOpen(true)}
+            onClick={openAdd}
           >
             Add Lead
           </Button>
@@ -603,11 +610,11 @@ export default function LeadsPage() {
             <Button variant="ghost" onClick={() => setIsAddOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddSave}>Save Lead</Button>
+            <Button onClick={handleSubmit(onAddSubmit)}>Save Lead</Button>
           </>
         }
       >
-        <div className={styles.form}>{renderForm(addForm, setAddForm)}</div>
+        <div className={styles.form}>{renderForm()}</div>
       </Modal>
 
       {/* Edit Modal */}
@@ -621,11 +628,11 @@ export default function LeadsPage() {
             <Button variant="ghost" onClick={() => setEditLead(null)}>
               Cancel
             </Button>
-            <Button onClick={handleEditSave}>Save Changes</Button>
+            <Button onClick={handleSubmit(onEditSubmit)}>Save Changes</Button>
           </>
         }
       >
-        <div className={styles.form}>{renderForm(editForm, setEditForm)}</div>
+        <div className={styles.form}>{renderForm()}</div>
       </Modal>
 
       {/* Delete Confirm */}
