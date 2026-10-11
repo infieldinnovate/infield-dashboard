@@ -7,7 +7,6 @@ import styles from './page.module.scss';
 import Card from '../../../components/ui/Card';
 import Badge from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
-import InputField from '../../../components/forms/form_elements/input';
 import Icon from '../../../components/ui/Icon';
 import Avatar from '../../../components/ui/Avatar';
 import EmptyState from '../../../components/ui/EmptyState';

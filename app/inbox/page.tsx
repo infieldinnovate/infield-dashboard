@@ -10,7 +10,6 @@ import Icon from '../../components/ui/Icon';
 import Avatar from '../../components/ui/Avatar';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
-import InputField from '../../components/forms/form_elements/input';
 import TextareaField from '../../components/forms/form_elements/textarea';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { toast } from 'sonner';
