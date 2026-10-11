@@ -439,7 +439,7 @@ export default function QuoteTemplatesPage() {
             {form.items.length === 0 ? (
               <div className={styles.emptyItems}>
                 <Icon name="Package" size={24} />
-                <p>No items added yet. Click "Add Item" to get started.</p>
+                <p>No items added yet. Click &ldquo;Add Item&rdquo; to get started.</p>
               </div>
             ) : (
               <div className={styles.itemsList}>

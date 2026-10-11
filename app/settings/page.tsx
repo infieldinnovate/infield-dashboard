@@ -9,6 +9,7 @@ import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Icon from '../../components/ui/Icon';
+import { Phone, Mail, Globe, Percent } from 'lucide-react';
 import { defaultSettings, currencyOptions, themeColorOptions } from '../../data/settings';
 import type { AppSettings } from '../../types';
 import { toast } from 'sonner';
@@ -140,21 +141,21 @@ function BusinessSection({
         <div className={styles.formRow}>
           <InputField
             label="Phone"
-            leftIcon={<Icon name="Phone" size={16} />}
+            icon={Phone}
             value={b.phone}
             onChange={(e) => update('business', { ...b, phone: e.target.value })}
           />
           <InputField
             label="Email"
             type="email"
-            leftIcon={<Icon name="Mail" size={16} />}
+            icon={Mail}
             value={b.email}
             onChange={(e) => update('business', { ...b, email: e.target.value })}
           />
         </div>
         <InputField
           label="Website"
-          leftIcon={<Icon name="Globe" size={16} />}
+          icon={Globe}
           value={b.website}
           onChange={(e) => update('business', { ...b, website: e.target.value })}
         />
@@ -331,7 +332,7 @@ function TaxSection({
           <InputField
             label="Default Tax Rate"
             type="number"
-            leftIcon={<Icon name="Percent" size={16} />}
+            icon={Percent}
             value={String(t.taxRate)}
             onChange={(e) => update('tax', { ...t, taxRate: parseFloat(e.target.value) || 0 })}
             helperText="Applied as a percentage (e.g. 10 = 10%)"

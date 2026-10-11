@@ -10,6 +10,7 @@ import Table from '../../components/ui/Table';
 import InputField from '../../components/forms/form_elements/input';
 import SelectField from '../../components/forms/form_elements/select';
 import Icon from '../../components/ui/Icon';
+import { Search } from 'lucide-react';
 import Avatar from '../../components/ui/Avatar';
 import EmptyState from '../../components/ui/EmptyState';
 import { users as initialUsers } from '../../data/users';
@@ -104,7 +105,7 @@ export default function UsersPage() {
                 placeholder="Search users..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                leftIcon={<Icon name="Search" size={16} />}
+                icon={Search}
                 className={styles.searchInput}
               />
               <SelectField
@@ -337,7 +338,7 @@ function ActivityLogSection({ logs }: { logs: ActivityLog[] }) {
             placeholder="Search activity..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            leftIcon={<Icon name="Search" size={16} />}
+            icon={Search}
             className={styles.searchInput}
           />
           <SelectField

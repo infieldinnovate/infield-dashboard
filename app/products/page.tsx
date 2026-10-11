@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
 import SelectField from '../../components/forms/form_elements/select';
@@ -18,6 +20,7 @@ import PageHeader from '../../components/ui/PageHeader';
 import { products } from '../../data/products';
 import { categories } from '../../data/categories';
 import { Product } from '../../types';
+import { productFormSchema, ProductFormData } from '../../schema/formSchema';
 import { formatCurrency } from '../../lib/documentUtils';
 import { toast } from 'sonner';
 
@@ -49,8 +52,19 @@ export default function ProductsPage() {
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
 
-  const [addForm, setAddForm] = useState({ name: '', price: '', cost: '', stock: '', category: '', sku: '', unit: '', description: '' });
-  const [editForm, setEditForm] = useState({ name: '', price: '', cost: '', stock: '', category: '', sku: '', unit: '', description: '' });
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductFormData>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: {
+      name: '',
+      price: '',
+      cost: '',
+      stock: '',
+      category: '',
+      sku: '',
+      unit: '',
+      description: '',
+    },
+  });
 
   const filtered = useMemo(() => {
     let data = [...productList];
@@ -91,7 +105,7 @@ export default function ProductsPage() {
 
   const openEdit = (product: Product) => {
     setEditProduct(product);
-    setEditForm({
+    reset({
       name: product.name,
       price: String(product.price),
       cost: String(product.cost),
@@ -103,21 +117,35 @@ export default function ProductsPage() {
     });
   };
 
-  const handleEditSave = () => {
+  const openAdd = () => {
+    reset({
+      name: '',
+      price: '',
+      cost: '',
+      stock: '',
+      category: '',
+      sku: '',
+      unit: '',
+      description: '',
+    });
+    setIsAddOpen(true);
+  };
+
+  const onEditSubmit = (data: ProductFormData) => {
     if (!editProduct) return;
     setProductList((prev) =>
       prev.map((p) =>
         p.id === editProduct.id
           ? {
               ...p,
-              name: editForm.name,
-              price: parseFloat(editForm.price) || 0,
-              cost: parseFloat(editForm.cost) || 0,
-              stock: parseInt(editForm.stock) || 0,
-              category: editForm.category,
-              sku: editForm.sku,
-              unit: editForm.unit,
-              description: editForm.description,
+              name: data.name,
+              price: parseFloat(data.price) || 0,
+              cost: parseFloat(data.cost) || 0,
+              stock: parseInt(data.stock) || 0,
+              category: data.category,
+              sku: data.sku,
+              unit: data.unit,
+              description: data.description,
             }
           : p
       )
@@ -126,21 +154,20 @@ export default function ProductsPage() {
     toast.success('Product updated successfully');
   };
 
-  const handleAddSave = () => {
+  const onAddSubmit = (data: ProductFormData) => {
     const newProduct: Product = {
       id: `prod-${Date.now()}`,
-      name: addForm.name,
-      price: parseFloat(addForm.price) || 0,
-      cost: parseFloat(addForm.cost) || 0,
-      stock: parseInt(addForm.stock) || 0,
-      category: addForm.category || 'Uncategorized',
-      sku: addForm.sku,
-      unit: addForm.unit,
-      description: addForm.description,
+      name: data.name,
+      price: parseFloat(data.price) || 0,
+      cost: parseFloat(data.cost) || 0,
+      stock: parseInt(data.stock) || 0,
+      category: data.category || 'Uncategorized',
+      sku: data.sku,
+      unit: data.unit,
+      description: data.description,
       image: '/images/placeholder.jpg',
     };
     setProductList((prev) => [newProduct, ...prev]);
-    setAddForm({ name: '', price: '', cost: '', stock: '', category: '', sku: '', unit: '', description: '' });
     setIsAddOpen(false);
     toast.success('Product added successfully');
   };
@@ -174,41 +201,22 @@ export default function ProductsPage() {
     )},
   ];
 
-  const formFields = (
+  const renderForm = () => (
     <>
-      <InputField label="Product Name" required value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} />
+      <InputField label="Product Name" required register={register} name="name" error={errors.name ?? null} />
       <div className={styles.formRow}>
-        <InputField label="Price" type="number" required value={addForm.price} onChange={(e) => setAddForm({ ...addForm, price: e.target.value })} />
-        <InputField label="Cost" type="number" required value={addForm.cost} onChange={(e) => setAddForm({ ...addForm, cost: e.target.value })} />
+        <InputField label="Price" type="number" required register={register} name="price" error={errors.price ?? null} />
+        <InputField label="Cost" type="number" required register={register} name="cost" error={errors.cost ?? null} />
       </div>
       <div className={styles.formRow}>
-        <InputField label="Stock" type="number" required value={addForm.stock} onChange={(e) => setAddForm({ ...addForm, stock: e.target.value })} />
-        <InputField label="Unit" required value={addForm.unit} onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })} />
+        <InputField label="Stock" type="number" required register={register} name="stock" error={errors.stock ?? null} />
+        <InputField label="Unit" required register={register} name="unit" error={errors.unit ?? null} />
       </div>
       <div className={styles.formRow}>
-        <InputField label="SKU" required value={addForm.sku} onChange={(e) => setAddForm({ ...addForm, sku: e.target.value })} />
-        <SelectField label="Category" options={categoryOptions.filter((o) => o.value !== '')} value={addForm.category} onChange={(e) => setAddForm({ ...addForm, category: e.target.value })} />
+        <InputField label="SKU" required register={register} name="sku" error={errors.sku ?? null} />
+        <SelectField label="Category" options={categoryOptions.filter((o) => o.value !== '')} register={register} name="category" error={errors.category ?? null} />
       </div>
-      <TextareaField label="Description" value={addForm.description} onChange={(e) => setAddForm({ ...addForm, description: e.target.value })} />
-    </>
-  );
-
-  const editFormFields = (
-    <>
-      <InputField label="Product Name" required value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
-      <div className={styles.formRow}>
-        <InputField label="Price" type="number" required value={editForm.price} onChange={(e) => setEditForm({ ...editForm, price: e.target.value })} />
-        <InputField label="Cost" type="number" required value={editForm.cost} onChange={(e) => setEditForm({ ...editForm, cost: e.target.value })} />
-      </div>
-      <div className={styles.formRow}>
-        <InputField label="Stock" type="number" required value={editForm.stock} onChange={(e) => setEditForm({ ...editForm, stock: e.target.value })} />
-        <InputField label="Unit" required value={editForm.unit} onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })} />
-      </div>
-      <div className={styles.formRow}>
-        <InputField label="SKU" required value={editForm.sku} onChange={(e) => setEditForm({ ...editForm, sku: e.target.value })} />
-        <SelectField label="Category" options={categoryOptions.filter((o) => o.value !== '')} value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} />
-      </div>
-      <TextareaField label="Description" value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
+      <TextareaField label="Description" register={register} name="description" error={errors.description ?? null} />
     </>
   );
 
@@ -217,7 +225,7 @@ export default function ProductsPage() {
       <PageHeader
         title="Products"
         subtitle="Manage your product catalog and inventory"
-        actions={<Button leftIcon={<Icon name="Plus" size={16} />} onClick={() => setIsAddOpen(true)}>Add Product</Button>}
+        actions={<Button leftIcon={<Icon name="Plus" size={16} />} onClick={openAdd}>Add Product</Button>}
       />
       <div className={styles.toolbar}>
         <div className={styles.filters}>
@@ -267,20 +275,20 @@ export default function ProductsPage() {
       <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Product" size="md" footer={
         <>
           <Button variant="ghost" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddSave}>Save Product</Button>
+          <Button onClick={handleSubmit(onAddSubmit)}>Save Product</Button>
         </>
       }>
-        <div className={styles.form}>{formFields}</div>
+        <div className={styles.form}>{renderForm()}</div>
       </Modal>
 
       {/* Edit Modal */}
       <Modal isOpen={!!editProduct} onClose={() => setEditProduct(null)} title="Edit Product" size="md" footer={
         <>
           <Button variant="ghost" onClick={() => setEditProduct(null)}>Cancel</Button>
-          <Button onClick={handleEditSave}>Save Changes</Button>
+          <Button onClick={handleSubmit(onEditSubmit)}>Save Changes</Button>
         </>
       }>
-        <div className={styles.form}>{editFormFields}</div>
+        <div className={styles.form}>{renderForm()}</div>
       </Modal>
 
       {/* Delete Confirm */}

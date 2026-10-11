@@ -249,7 +249,7 @@ export default function ReceiptsPage() {
         }
       >
         {deleteReceipt && (
-          <p>Are you sure you want to delete receipt "{deleteReceipt.receiptNumber}"? This action cannot be undone.</p>
+          <p>Are you sure you want to delete receipt &ldquo;{deleteReceipt.receiptNumber}&rdquo;? This action cannot be undone.</p>
         )}
       </Modal>
 
