@@ -65,96 +65,83 @@
   --info-600: #0284c7;
   --info-700: #0369a1;
 
-  /* Semantic colors (from abstracts) */
-  --color-primary: #0f6cbd;
-  --color-primary-dark: #0a4d8c;
-  --color-primary-50: #eef7ff;
-  --color-primary-100: #d6ecff;
-  --color-primary-900: #063059;
-  --color-secondary-50: #f0fdfa;
-  --color-success: #16a34a;
-  --color-success-light: #dcfce7;
-  --color-error: #dc2626;
-  --color-error-light: #fee2e2;
-  --color-white: #ffffff;
-  --color-gray-100: #f1f5f9;
-  --color-gray-300: #cbd5e1;
-  --color-gray-400: #94a3b8;
-  --color-text: #171d27;
-  --color-text-muted: #565c69;
-  --color-background: #ffffff;
-  --color-surface: #ffffff;
-  --color-border: #e2e8f0;
+  /* Semantic colors — derived from _variables.scss */
+  --color-primary: #{$color-primary};
+  --color-primary-dark: #{$color-primary-dark};
+  --color-primary-50: #{$color-primary-50};
+  --color-primary-100: #{$color-primary-100};
+  --color-primary-900: #{$color-primary-900};
+  --color-secondary-50: #{$color-secondary-50};
+  --color-success: #{$color-success};
+  --color-success-light: #{$color-success-light};
+  --color-error: #{$color-error};
+  --color-error-light: #{$color-error-light};
+  --color-white: #{$color-neutral-0};
+  --color-gray-100: #{$color-neutral-100};
+  --color-gray-300: #{$color-neutral-300};
+  --color-gray-400: #{$color-neutral-400};
+  --color-text: #{$color-text};
+  --color-text-muted: #{$color-text-muted};
+  --color-background: #{$color-background};
+  --color-surface: #{$color-surface};
+  --color-border: #{$color-border};
 
-  /* Layout */
-  --sidebar-width: 260px;
-  --sidebar-collapsed-width: 72px;
-  --header-height: 80px;
-  --container-max: 1280px;
-  --container-narrow: 800px;
+  /* Layout — derived from _variables.scss */
+  --sidebar-width: #{$sidebar-width};
+  --sidebar-collapsed-width: #{$sidebar-collapsed-width};
+  --header-height: #{$header-height};
+  --container-max: #{$container-xl};
+  --container-narrow: #{$container-narrow};
 
-  /* Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-  --radius-full: 9999px;
+  /* Radius — derived from _variables.scss */
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --radius-xl: #{$radius-xl};
+  --radius-full: #{$radius-full};
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  /* Shadows — derived from _variables.scss */
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+  --shadow-xl: #{$shadow-xl};
 
-  /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-base: 250ms ease;
-  --transition-slow: 350ms ease;
+  /* Transitions — derived from _variables.scss */
+  --transition-fast: #{$transition-fast};
+  --transition-base: #{$transition-base};
+  --transition-slow: #{$transition-slow};
 
-  /* Typography */
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-heading: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  /* Typography — derived from _variables.scss */
+  --font-sans: #{$font-sans};
+  --font-heading: #{$font-heading};
+  --font-mono: #{$font-mono};
 
-  /* Font sizes */
-  --text-xs: 11px;
-  --text-sm: 12px;
-  --text-base: 14px;
-  --text-xl: 22px;
+  /* Font sizes — derived from _variables.scss */
+  --text-xs: #{$fs-xs};
+  --text-sm: #{$fs-sm};
+  --text-base: #{$fs-base};
+  --text-xl: #{$fs-3xl};
 
-  /* Alt font scale (from abstracts) */
-  --fs-xs: 0.75rem;
-  --fs-sm: 0.875rem;
-  --fs-base: 1rem;
+  /* Line heights — derived from _variables.scss */
+  --leading-tight: #{$lh-tight};
+  --leading-normal: #{$lh-normal};
 
-  /* Line heights */
-  --leading-tight: 1.2;
-  --leading-normal: 1.5;
+  /* Font weights — derived from _variables.scss */
+  --font-bold: #{$fw-bold};
+  --fw-semibold: #{$fw-semibold};
+  --fw-bold: #{$fw-bold};
+  --fw-extrabold: #{$fw-extrabold};
 
-  /* Alt leading scale (from abstracts) */
-  --lh-tight: 1.2;
-  --lh-snug: 1.35;
-  --lh-normal: 1.5;
-  --lh-relaxed: 1.625;
+  /* Spacing scale — derived from _variables.scss */
+  --space-2: #{$space-2};
+  --space-3: #{$space-3};
+  --space-4: #{$space-4};
+  --space-5: #{$space-5};
+  --space-6: #{$space-6};
+  --space-12: #{$space-12};
 
-  /* Font weights */
-  --font-bold: 700;
-
-  /* Alt weight scale (from abstracts) */
-  --fw-semibold: 600;
-  --fw-bold: 700;
-  --fw-extrabold: 800;
-
-  /* Spacing scale (8px base) */
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-12: 48px;
-
-  /* Z-index */
-  --z-toast: 600;
+  /* Z-index — derived from _variables.scss */
+  --z-toast: #{$z-toast};
 }
 
 * {
