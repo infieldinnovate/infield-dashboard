@@ -1,0 +1,227 @@
+// =====================================================================
+// _variables.scss
+// SCSS compile-time variables — complements the CSS custom properties
+// defined in globals.scss. Available in every .module.scss file via
+// next.config.js sassOptions.prependData.
+// =====================================================================
+
+// ----------------------------------------------------------------
+// Breakpoints — mobile-first (min-width)
+// ----------------------------------------------------------------
+$bp-xs: 480px;
+$bp-sm: 640px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+$bp-2xl: 1536px;
+
+$breakpoints: (
+  xs: $bp-xs,
+  sm: $bp-sm,
+  md: $bp-md,
+  lg: $bp-lg,
+  xl: $bp-xl,
+  2xl: $bp-2xl,
+);
+
+// ----------------------------------------------------------------
+// Spacing — 8px base system
+// ----------------------------------------------------------------
+$space-0: 0;
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+$space-12: 48px;
+$space-16: 64px;
+$space-20: 80px;
+$space-24: 96px;
+
+$spacing-scale: (
+  0: $space-0,
+  1: $space-1,
+  2: $space-2,
+  3: $space-3,
+  4: $space-4,
+  5: $space-5,
+  6: $space-6,
+  8: $space-8,
+  10: $space-10,
+  12: $space-12,
+  16: $space-16,
+  20: $space-20,
+  24: $space-24,
+);
+
+// ----------------------------------------------------------------
+// Container widths
+// ----------------------------------------------------------------
+$container-sm: 640px;
+$container-md: 768px;
+$container-lg: 1024px;
+$container-xl: 1280px;
+$container-2xl: 1400px;
+
+// ----------------------------------------------------------------
+// Typography
+// ----------------------------------------------------------------
+$font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$font-heading: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+$fs-2xs: 10px;
+$fs-xs: 11px;
+$fs-sm: 12px;
+$fs-base: 14px;
+$fs-md: 15px;
+$fs-lg: 16px;
+$fs-xl: 18px;
+$fs-2xl: 20px;
+$fs-3xl: 24px;
+$fs-4xl: 28px;
+$fs-5xl: 32px;
+$fs-6xl: 40px;
+
+$lh-tight: 1.2;
+$lh-snug: 1.35;
+$lh-normal: 1.5;
+$lh-relaxed: 1.625;
+$lh-loose: 1.8;
+
+$fw-normal: 400;
+$fw-medium: 500;
+$fw-semibold: 600;
+$fw-bold: 700;
+$fw-extrabold: 800;
+
+// ----------------------------------------------------------------
+// Border radius
+// ----------------------------------------------------------------
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 14px;
+$radius-xl: 20px;
+$radius-2xl: 28px;
+$radius-full: 9999px;
+
+$radius-scale: (
+  sm: $radius-sm,
+  md: $radius-md,
+  lg: $radius-lg,
+  xl: $radius-xl,
+  2xl: $radius-2xl,
+  full: $radius-full,
+);
+
+// ----------------------------------------------------------------
+// Shadows
+// ----------------------------------------------------------------
+$shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+$shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+$shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+$shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+$shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+$shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+// ----------------------------------------------------------------
+// Transitions
+// ----------------------------------------------------------------
+$transition-fast: 150ms ease;
+$transition-base: 250ms ease;
+$transition-slow: 350ms ease;
+$transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+// ----------------------------------------------------------------
+// Layout dimensions
+// ----------------------------------------------------------------
+$sidebar-width: 260px;
+$sidebar-collapsed-width: 72px;
+$header-height: 80px;
+$header-height-mobile: 64px;
+$content-padding-mobile: 16px;
+$content-padding-desktop: 24px;
+
+// ----------------------------------------------------------------
+// Z-index scale
+// ----------------------------------------------------------------
+$z-base: 1;
+$z-dropdown: 40;
+$z-sticky: 50;
+$z-sidebar: 50;
+$z-overlay: 90;
+$z-modal: 100;
+$z-popover: 110;
+$z-toast: 600;
+$z-tooltip: 700;
+
+// ----------------------------------------------------------------
+// SCSS color tokens — for compile-time use in mixins
+// Runtime values come from CSS custom properties in globals.scss
+// ----------------------------------------------------------------
+$color-primary: #0f6cbd;
+$color-primary-dark: #0a4d8c;
+$color-primary-light: #3b82f6;
+$color-primary-50: #eef7ff;
+$color-primary-100: #d6ecff;
+
+$color-secondary: #0d9488;
+$color-secondary-dark: #0f766e;
+$color-secondary-light: #14b8a6;
+
+$color-success: #16a34a;
+$color-success-light: #dcfce7;
+$color-success-50: #ecfdf5;
+
+$color-warning: #ea580c;
+$color-warning-light: #f97316;
+$color-warning-50: #fff7ed;
+
+$color-error: #dc2626;
+$color-error-light: #f43f5e;
+$color-error-50: #fff1f2;
+
+$color-info: #0284c7;
+$color-info-light: #38bdf8;
+$color-info-50: #f0f9ff;
+
+$color-neutral-0: #ffffff;
+$color-neutral-50: #f8fafc;
+$color-neutral-100: #f1f5f9;
+$color-neutral-200: #e2e8f0;
+$color-neutral-300: #cbd5e1;
+$color-neutral-400: #94a3b8;
+$color-neutral-500: #64748b;
+$color-neutral-600: #475569;
+$color-neutral-700: #334155;
+$color-neutral-800: #1e293b;
+$color-neutral-900: #0f172a;
+
+$color-text: #171d27;
+$color-text-muted: #565c69;
+$color-text-inverse: #ffffff;
+$color-background: #ffffff;
+$color-surface: #ffffff;
+$color-border: #e2e8f0;
+
+$colors: (
+  primary: $color-primary,
+  primary-dark: $color-primary-dark,
+  primary-light: $color-primary-light,
+  secondary: $color-secondary,
+  secondary-dark: $color-secondary-dark,
+  secondary-light: $color-secondary-light,
+  success: $color-success,
+  success-light: $color-success-light,
+  warning: $color-warning,
+  warning-light: $color-warning-light,
+  error: $color-error,
+  error-light: $color-error-light,
+  info: $color-info,
+  info-light: $color-info-light,
+  white: $color-neutral-0,
+  black: $color-neutral-900,
+);
