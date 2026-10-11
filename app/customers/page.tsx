@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
 import SelectField from '../../components/forms/form_elements/select';
@@ -18,6 +20,7 @@ import { customers as initialCustomers } from '../../data/customers';
 import { invoices } from '../../data/invoices';
 import { receipts } from '../../data/receipts';
 import { Customer, Invoice, Receipt } from '../../types';
+import { customerFormSchema, CustomerFormData } from '../../schema/formSchema';
 import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 5;
@@ -54,8 +57,21 @@ export default function CustomersPage() {
   const [deleteCustomer, setDeleteCustomer] = useState<Customer | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
 
-  const [addForm, setAddForm] = useState({ name: '', email: '', phone: '', address: '', city: '', country: '', taxId: '', creditLimit: '', type: 'individual', status: 'active' });
-  const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', address: '', city: '', country: '', taxId: '', creditLimit: '', type: 'individual', status: 'active' });
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<CustomerFormData>({
+    resolver: zodResolver(customerFormSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      country: '',
+      taxId: '',
+      creditLimit: '',
+      type: 'individual',
+      status: 'active',
+    },
+  });
 
   const filtered = useMemo(() => {
     let data = [...customerList];
@@ -88,7 +104,7 @@ export default function CustomersPage() {
 
   const openEdit = (customer: Customer) => {
     setEditCustomer(customer);
-    setEditForm({
+    reset({
       name: customer.name,
       email: customer.email,
       phone: customer.phone,
@@ -102,12 +118,28 @@ export default function CustomersPage() {
     });
   };
 
-  const handleEditSave = () => {
+  const openAdd = () => {
+    reset({
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      city: '',
+      country: '',
+      taxId: '',
+      creditLimit: '',
+      type: 'individual',
+      status: 'active',
+    });
+    setIsAddOpen(true);
+  };
+
+  const onEditSubmit = (data: CustomerFormData) => {
     if (!editCustomer) return;
     setCustomerList((prev) =>
       prev.map((c) =>
         c.id === editCustomer.id
-          ? { ...c, name: editForm.name, email: editForm.email, phone: editForm.phone, address: editForm.address, city: editForm.city, country: editForm.country, taxId: editForm.taxId, creditLimit: parseFloat(editForm.creditLimit) || 0, type: editForm.type as 'individual' | 'business', status: editForm.status as 'active' | 'inactive' }
+          ? { ...c, name: data.name, email: data.email, phone: data.phone, address: data.address, city: data.city, country: data.country, taxId: data.taxId, creditLimit: parseFloat(data.creditLimit) || 0, type: data.type, status: data.status }
           : c
       )
     );
@@ -115,24 +147,23 @@ export default function CustomersPage() {
     toast.success('Customer updated successfully');
   };
 
-  const handleAddSave = () => {
+  const onAddSubmit = (data: CustomerFormData) => {
     const newCustomer: Customer = {
       id: `cust-${Date.now()}`,
-      name: addForm.name,
-      email: addForm.email,
-      phone: addForm.phone,
-      address: addForm.address,
-      city: addForm.city,
-      country: addForm.country,
-      taxId: addForm.taxId,
-      creditLimit: parseFloat(addForm.creditLimit) || 0,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      address: data.address,
+      city: data.city,
+      country: data.country,
+      taxId: data.taxId,
+      creditLimit: parseFloat(data.creditLimit) || 0,
       balance: 0,
-      status: addForm.status as 'active' | 'inactive',
+      status: data.status,
       createdAt: new Date().toISOString().split('T')[0],
-      type: addForm.type as 'individual' | 'business',
+      type: data.type,
     };
     setCustomerList((prev) => [newCustomer, ...prev]);
-    setAddForm({ name: '', email: '', phone: '', address: '', city: '', country: '', taxId: '', creditLimit: '', type: 'individual', status: 'active' });
     setIsAddOpen(false);
     toast.success('Customer added successfully');
   };
@@ -171,25 +202,25 @@ export default function CustomersPage() {
     )},
   ];
 
-  const renderForm = (form: typeof addForm, setForm: React.Dispatch<React.SetStateAction<typeof addForm>>) => (
+  const renderForm = () => (
     <>
-      <InputField label="Customer Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      <InputField label="Customer Name" required register={register} name="name" error={errors.name ?? null} />
       <div className={styles.formRow}>
-        <InputField label="Email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <InputField label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        <InputField label="Email" type="email" required register={register} name="email" error={errors.email ?? null} />
+        <InputField label="Phone" register={register} name="phone" error={errors.phone ?? null} />
       </div>
-      <InputField label="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+      <InputField label="Address" register={register} name="address" error={errors.address ?? null} />
       <div className={styles.formRow}>
-        <InputField label="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-        <InputField label="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
-      </div>
-      <div className={styles.formRow}>
-        <InputField label="Tax ID" value={form.taxId} onChange={(e) => setForm({ ...form, taxId: e.target.value })} />
-        <InputField label="Credit Limit" type="number" value={form.creditLimit} onChange={(e) => setForm({ ...form, creditLimit: e.target.value })} />
+        <InputField label="City" register={register} name="city" error={errors.city ?? null} />
+        <InputField label="Country" register={register} name="country" error={errors.country ?? null} />
       </div>
       <div className={styles.formRow}>
-        <SelectField label="Type" options={typeOptions} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} />
-        <SelectField label="Status" options={statusOptions} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
+        <InputField label="Tax ID" register={register} name="taxId" error={errors.taxId ?? null} />
+        <InputField label="Credit Limit" type="number" register={register} name="creditLimit" error={errors.creditLimit ?? null} />
+      </div>
+      <div className={styles.formRow}>
+        <SelectField label="Type" options={typeOptions} register={register} name="type" error={errors.type ?? null} />
+        <SelectField label="Status" options={statusOptions} register={register} name="status" error={errors.status ?? null} />
       </div>
     </>
   );
@@ -199,7 +230,7 @@ export default function CustomersPage() {
       <PageHeader
         title="Customers"
         subtitle="Manage customer accounts and track balances"
-        actions={<Button leftIcon={<Icon name="Plus" size={16} />} onClick={() => setIsAddOpen(true)}>Add Customer</Button>}
+        actions={<Button leftIcon={<Icon name="Plus" size={16} />} onClick={openAdd}>Add Customer</Button>}
       />
       <div className={styles.toolbar}>
         <div className={styles.filters}>
@@ -308,20 +339,20 @@ export default function CustomersPage() {
       <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Customer" size="md" footer={
         <>
           <Button variant="ghost" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddSave}>Save Customer</Button>
+          <Button onClick={handleSubmit(onAddSubmit)}>Save Customer</Button>
         </>
       }>
-        <div className={styles.form}>{renderForm(addForm, setAddForm)}</div>
+        <div className={styles.form}>{renderForm()}</div>
       </Modal>
 
       {/* Edit Modal */}
       <Modal isOpen={!!editCustomer} onClose={() => setEditCustomer(null)} title="Edit Customer" size="md" footer={
         <>
           <Button variant="ghost" onClick={() => setEditCustomer(null)}>Cancel</Button>
-          <Button onClick={handleEditSave}>Save Changes</Button>
+          <Button onClick={handleSubmit(onEditSubmit)}>Save Changes</Button>
         </>
       }>
-        <div className={styles.form}>{renderForm(editForm, setEditForm)}</div>
+        <div className={styles.form}>{renderForm()}</div>
       </Modal>
 
       {/* Delete Confirm */}
