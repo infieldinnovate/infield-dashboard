@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
 import Button from '../../components/ui/Button';
@@ -17,6 +19,7 @@ import { suppliers as initialSuppliers } from '../../data/suppliers';
 import { products } from '../../data/products';
 import { Supplier } from '../../types';
 import { formatCurrency } from '../../lib/documentUtils';
+import { supplierFormSchema, SupplierFormData } from '../../schema/formSchema';
 import { toast } from 'sonner';
 
 const statusVariant: Record<string, 'success' | 'error'> = {
@@ -38,7 +41,7 @@ const statusOptions = [
   { value: 'inactive', label: 'Inactive' },
 ];
 
-const emptyForm = { name: '', email: '', phone: '', address: '', city: '', country: '', taxId: '', paymentTerms: 'Net 30', leadTime: '', status: 'active', rating: '', categories: '' };
+const emptyForm: SupplierFormData = { name: '', email: '', phone: '', address: '', city: '', country: '', taxId: '', paymentTerms: 'Net 30', leadTime: '', status: 'active', rating: '', categories: '' };
 
 export default function SuppliersPage() {
   const [search, setSearch] = useState('');
@@ -47,8 +50,11 @@ export default function SuppliersPage() {
   const [editSupplier, setEditSupplier] = useState<Supplier | null>(null);
   const [deleteSupplier, setDeleteSupplier] = useState<Supplier | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [addForm, setAddForm] = useState(emptyForm);
-  const [editForm, setEditForm] = useState(emptyForm);
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<SupplierFormData>({
+    resolver: zodResolver(supplierFormSchema),
+    defaultValues: emptyForm,
+  });
 
   const filtered = useMemo(() => {
     if (!search.trim()) return supplierList;
@@ -65,7 +71,7 @@ export default function SuppliersPage() {
 
   const openEdit = (supplier: Supplier) => {
     setEditSupplier(supplier);
-    setEditForm({
+    reset({
       name: supplier.name,
       email: supplier.email,
       phone: supplier.phone,
@@ -81,25 +87,30 @@ export default function SuppliersPage() {
     });
   };
 
-  const handleEditSave = () => {
+  const openAdd = () => {
+    reset(emptyForm);
+    setIsAddOpen(true);
+  };
+
+  const onEditSubmit = (data: SupplierFormData) => {
     if (!editSupplier) return;
     setSupplierList((prev) =>
       prev.map((s) =>
         s.id === editSupplier.id
           ? {
               ...s,
-              name: editForm.name,
-              email: editForm.email,
-              phone: editForm.phone,
-              address: editForm.address,
-              city: editForm.city,
-              country: editForm.country,
-              taxId: editForm.taxId,
-              paymentTerms: editForm.paymentTerms,
-              leadTime: parseInt(editForm.leadTime) || 0,
-              status: editForm.status as 'active' | 'inactive',
-              rating: parseFloat(editForm.rating) || 0,
-              categories: editForm.categories.split(',').map((c) => c.trim()).filter(Boolean),
+              name: data.name,
+              email: data.email,
+              phone: data.phone,
+              address: data.address,
+              city: data.city,
+              country: data.country,
+              taxId: data.taxId,
+              paymentTerms: data.paymentTerms,
+              leadTime: parseInt(data.leadTime) || 0,
+              status: data.status,
+              rating: parseFloat(data.rating) || 0,
+              categories: data.categories.split(',').map((c) => c.trim()).filter(Boolean),
             }
           : s
       )
@@ -108,24 +119,23 @@ export default function SuppliersPage() {
     toast.success('Supplier updated successfully');
   };
 
-  const handleAddSave = () => {
+  const onAddSubmit = (data: SupplierFormData) => {
     const newSupplier: Supplier = {
       id: `sup-${Date.now()}`,
-      name: addForm.name,
-      email: addForm.email,
-      phone: addForm.phone,
-      address: addForm.address,
-      city: addForm.city,
-      country: addForm.country,
-      taxId: addForm.taxId,
-      paymentTerms: addForm.paymentTerms,
-      leadTime: parseInt(addForm.leadTime) || 0,
-      status: addForm.status as 'active' | 'inactive',
-      rating: parseFloat(addForm.rating) || 0,
-      categories: addForm.categories.split(',').map((c) => c.trim()).filter(Boolean),
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      address: data.address,
+      city: data.city,
+      country: data.country,
+      taxId: data.taxId,
+      paymentTerms: data.paymentTerms,
+      leadTime: parseInt(data.leadTime) || 0,
+      status: data.status,
+      rating: parseFloat(data.rating) || 0,
+      categories: data.categories.split(',').map((c) => c.trim()).filter(Boolean),
     };
     setSupplierList((prev) => [newSupplier, ...prev]);
-    setAddForm(emptyForm);
     setIsAddOpen(false);
     toast.success('Supplier added successfully');
   };
@@ -174,29 +184,29 @@ export default function SuppliersPage() {
     )},
   ];
 
-  const renderForm = (form: typeof emptyForm, setForm: React.Dispatch<React.SetStateAction<typeof emptyForm>>) => (
+  const renderForm = () => (
     <>
-      <InputField label="Supplier Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      <InputField label="Supplier Name" required register={register} name="name" error={errors.name ?? null} />
       <div className={styles.formRow}>
-        <InputField label="Email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <InputField label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        <InputField label="Email" type="email" required register={register} name="email" error={errors.email ?? null} />
+        <InputField label="Phone" register={register} name="phone" error={errors.phone ?? null} />
       </div>
-      <InputField label="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+      <InputField label="Address" register={register} name="address" error={errors.address ?? null} />
       <div className={styles.formRow}>
-        <InputField label="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-        <InputField label="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
-      </div>
-      <div className={styles.formRow}>
-        <InputField label="Tax ID" value={form.taxId} onChange={(e) => setForm({ ...form, taxId: e.target.value })} />
-        <InputField label="Categories (comma-separated)" placeholder="Beverages, Food" value={form.categories} onChange={(e) => setForm({ ...form, categories: e.target.value })} />
+        <InputField label="City" register={register} name="city" error={errors.city ?? null} />
+        <InputField label="Country" register={register} name="country" error={errors.country ?? null} />
       </div>
       <div className={styles.formRow}>
-        <SelectField label="Payment Terms" options={paymentTermsOptions} value={form.paymentTerms} onChange={(e) => setForm({ ...form, paymentTerms: e.target.value })} />
-        <InputField label="Lead Time (days)" type="number" value={form.leadTime} onChange={(e) => setForm({ ...form, leadTime: e.target.value })} />
+        <InputField label="Tax ID" register={register} name="taxId" error={errors.taxId ?? null} />
+        <InputField label="Categories (comma-separated)" placeholder="Beverages, Food" register={register} name="categories" error={errors.categories ?? null} />
       </div>
       <div className={styles.formRow}>
-        <InputField label="Rating (0-5)" type="number" value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} />
-        <SelectField label="Status" options={statusOptions} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
+        <SelectField label="Payment Terms" options={paymentTermsOptions} register={register} name="paymentTerms" error={errors.paymentTerms ?? null} />
+        <InputField label="Lead Time (days)" type="number" register={register} name="leadTime" error={errors.leadTime ?? null} />
+      </div>
+      <div className={styles.formRow}>
+        <InputField label="Rating (0-5)" type="number" register={register} name="rating" error={errors.rating ?? null} />
+        <SelectField label="Status" options={statusOptions} register={register} name="status" error={errors.status ?? null} />
       </div>
     </>
   );
@@ -206,7 +216,7 @@ export default function SuppliersPage() {
       <PageHeader
         title="Suppliers"
         subtitle="Manage vendor relationships and purchase terms"
-        actions={<Button leftIcon={<Icon name="Plus" size={16} />} onClick={() => setIsAddOpen(true)}>Add Supplier</Button>}
+        actions={<Button leftIcon={<Icon name="Plus" size={16} />} onClick={openAdd}>Add Supplier</Button>}
       />
       <div className={styles.toolbar}>
         <SearchBar placeholder="Search suppliers..." value={search} onChange={handleSearch} className={styles.search} />
@@ -289,20 +299,20 @@ export default function SuppliersPage() {
       <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Supplier" size="md" footer={
         <>
           <Button variant="ghost" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddSave}>Save Supplier</Button>
+          <Button onClick={handleSubmit(onAddSubmit)}>Save Supplier</Button>
         </>
       }>
-        <div className={styles.form}>{renderForm(addForm, setAddForm)}</div>
+        <div className={styles.form}>{renderForm()}</div>
       </Modal>
 
       {/* Edit Modal */}
       <Modal isOpen={!!editSupplier} onClose={() => setEditSupplier(null)} title="Edit Supplier" size="md" footer={
         <>
           <Button variant="ghost" onClick={() => setEditSupplier(null)}>Cancel</Button>
-          <Button onClick={handleEditSave}>Save Changes</Button>
+          <Button onClick={handleSubmit(onEditSubmit)}>Save Changes</Button>
         </>
       }>
-        <div className={styles.form}>{renderForm(editForm, setEditForm)}</div>
+        <div className={styles.form}>{renderForm()}</div>
       </Modal>
 
       {/* Delete Confirm */}
