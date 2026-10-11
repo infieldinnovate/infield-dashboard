@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import styles from "./page.module.scss";
 import SearchBar from "../../components/ui/SearchBar";
 import SelectField from "../../components/forms/form_elements/select";
@@ -20,6 +22,7 @@ import { products } from "../../data/products";
 import { Quotation, QuotationItem } from "../../types";
 import QuotationDocument, { printQuotation, downloadQuotationPDF } from "../../components/QuotationDocument";
 import { formatCurrency } from "../../lib/documentUtils";
+import { quotationFormSchema, QuotationFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
 const statusVariant: Record<
@@ -36,25 +39,10 @@ const statusVariant: Record<
 const customerOptions = customers.map((c) => ({ value: c.id, label: c.name }));
 const productOptions = products.map((p) => ({ value: p.id, label: p.name }));
 
-interface FormState {
-  customerId: string;
-  items: QuotationItem[];
-  discount: string;
-  discountType: "percentage" | "fixed";
-  taxRate: string;
-  validUntil: string;
-  notes: string;
-}
-
-const emptyForm: FormState = {
-  customerId: "",
-  items: [],
-  discount: "0",
-  discountType: "percentage",
-  taxRate: "10",
-  validUntil: "",
-  notes: "",
-};
+const discountTypeOptions = [
+  { value: "percentage", label: "Percentage (%)" },
+  { value: "fixed", label: "Fixed Amount" },
+];
 
 function calcTotals(
   items: QuotationItem[],
@@ -71,6 +59,20 @@ function calcTotals(
   return { subtotal, discountAmount, tax, total };
 }
 
+function getDefaultValues(): QuotationFormData {
+  return {
+    customerId: "",
+    items: [],
+    discount: "0",
+    discountType: "percentage",
+    taxRate: "16",
+    validUntil: new Date(Date.now() + 14 * 86400000)
+      .toISOString()
+      .split("T")[0],
+    notes: "",
+  };
+}
+
 export default function QuotationsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -84,7 +86,29 @@ export default function QuotationsPage() {
     null,
   );
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [form, setForm] = useState<FormState>(emptyForm);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<QuotationFormData>({
+    resolver: zodResolver(quotationFormSchema),
+    defaultValues: getDefaultValues(),
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "items",
+  });
+
+  const watchedItems = watch("items");
+  const watchedDiscount = watch("discount");
+  const watchedDiscountType = watch("discountType");
+  const watchedTaxRate = watch("taxRate");
 
   React.useEffect(() => {
     const pending = sessionStorage.getItem("generateQuotationFromTemplate");
@@ -93,7 +117,7 @@ export default function QuotationsPage() {
       try {
         const data = JSON.parse(pending);
         setEditQuotation(null);
-        setForm({
+        reset({
           customerId: "",
           items: data.items || [],
           discount: data.discount || "0",
@@ -112,7 +136,7 @@ export default function QuotationsPage() {
         toast.error("Failed to load template data");
       }
     }
-  }, []);
+  }, [reset]);
 
   const filtered = useMemo(() => {
     let data = [...quotationList];
@@ -132,20 +156,25 @@ export default function QuotationsPage() {
 
   const handleSearch = useCallback((value: string) => setSearch(value), []);
 
+  const totals = useMemo(() => {
+    const items = (watchedItems || []) as QuotationItem[];
+    return calcTotals(
+      items,
+      parseFloat(watchedDiscount) || 0,
+      (watchedDiscountType ?? "percentage") as "percentage" | "fixed",
+      parseFloat(watchedTaxRate) || 0,
+    );
+  }, [watchedItems, watchedDiscount, watchedDiscountType, watchedTaxRate]);
+
   const openCreate = () => {
     setEditQuotation(null);
-    setForm({
-      ...emptyForm,
-      validUntil: new Date(Date.now() + 14 * 86400000)
-        .toISOString()
-        .split("T")[0],
-    });
+    reset(getDefaultValues());
     setIsFormOpen(true);
   };
 
   const openEdit = (qt: Quotation) => {
     setEditQuotation(qt);
-    setForm({
+    reset({
       customerId: qt.customerId,
       items: qt.items.map((i) => ({ ...i })),
       discount: String(qt.discount),
@@ -171,73 +200,52 @@ export default function QuotationsPage() {
   };
 
   const addItem = () => {
-    setForm((prev) => ({
-      ...prev,
-      items: [
-        ...prev.items,
-        { productId: "", productName: "", quantity: 1, unitPrice: 0, total: 0 },
-      ],
-    }));
+    append({ productId: "", productName: "", quantity: 1, unitPrice: 0, total: 0 });
   };
 
-  const updateItem = (
-    index: number,
-    field: keyof QuotationItem,
-    value: string | number,
-  ) => {
-    setForm((prev) => {
-      const items = [...prev.items];
-      const item = { ...items[index] };
-      if (field === "productId") {
-        const product = products.find((p) => p.id === value);
-        item.productId = value as string;
-        item.productName = product?.name || "";
-        item.unitPrice = product?.price || 0;
-      } else {
-        (item as Record<keyof QuotationItem, unknown>)[field] = value;
-      }
-      item.total = item.quantity * item.unitPrice;
-      items[index] = item;
-      return { ...prev, items };
-    });
+  const onProductChange = (index: number, productId: string) => {
+    const product = products.find((p) => p.id === productId);
+    setValue(`items.${index}.productName`, product?.name || "");
+    const unitPrice = product?.price || 0;
+    setValue(`items.${index}.unitPrice`, unitPrice);
+    const qty = watchedItems?.[index]?.quantity ?? 0;
+    setValue(`items.${index}.total`, unitPrice * qty);
   };
 
-  const removeItem = (index: number) => {
-    setForm((prev) => ({
-      ...prev,
-      items: prev.items.filter((_, i) => i !== index),
-    }));
+  const onQtyChange = (index: number, rawValue: string) => {
+    const qty = parseInt(rawValue) || 0;
+    const price = watchedItems?.[index]?.unitPrice ?? 0;
+    setValue(`items.${index}.total`, qty * price);
+    return qty;
   };
 
-  const totals = useMemo(() => {
-    return calcTotals(
-      form.items,
-      parseFloat(form.discount) || 0,
-      form.discountType,
-      parseFloat(form.taxRate) || 0,
-    );
-  }, [form]);
+  const onPriceChange = (index: number, rawValue: string) => {
+    const price = parseFloat(rawValue) || 0;
+    const qty = watchedItems?.[index]?.quantity ?? 0;
+    setValue(`items.${index}.total`, qty * price);
+    return price;
+  };
 
-  const handleSave = () => {
-    const customer = customers.find((c) => c.id === form.customerId);
-    if (!customer || form.items.length === 0) return;
+  const onSubmit = (data: QuotationFormData) => {
+    const customer = customers.find((c) => c.id === data.customerId);
+    if (!customer) return;
 
     const qtData: Quotation = {
       id: editQuotation?.id || `qt-${Date.now()}`,
-      customerId: form.customerId,
+      customerId: data.customerId,
       customerName: customer.name,
-      items: form.items,
+      items: data.items,
       subtotal: totals.subtotal,
-      discount: parseFloat(form.discount) || 0,
-      discountType: form.discountType,
+      discount: parseFloat(data.discount) || 0,
+      discountType: data.discountType,
       tax: totals.tax,
-      taxRate: parseFloat(form.taxRate) || 0,
+      taxRate: parseFloat(data.taxRate) || 0,
       total: totals.total,
       status: editQuotation?.status || "draft",
-      validUntil: form.validUntil,
+      validUntil: data.validUntil,
       createdAt:
         editQuotation?.createdAt || new Date().toISOString().split("T")[0],
-      notes: form.notes,
+      notes: data.notes,
     };
 
     if (editQuotation) {
@@ -248,7 +256,6 @@ export default function QuotationsPage() {
       setQuotationList((prev) => [qtData, ...prev]);
     }
     setIsFormOpen(false);
-    setForm(emptyForm);
     setEditQuotation(null);
     toast.success(
       editQuotation
@@ -481,7 +488,7 @@ export default function QuotationsPage() {
             >
               Cancel
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={handleSubmit(onSubmit)}>
               {editQuotation ? "Save Changes" : "Create Quotation"}
             </Button>
           </>
@@ -494,15 +501,17 @@ export default function QuotationsPage() {
               required
               options={customerOptions}
               placeholder="Select customer"
-              value={form.customerId}
-              onChange={(e) => setForm({ ...form, customerId: e.target.value })}
+              register={register}
+              name="customerId"
+              error={errors.customerId ?? null}
             />
             <InputField
               label="Valid Until"
               type="date"
               required
-              value={form.validUntil}
-              onChange={(e) => setForm({ ...form, validUntil: e.target.value })}
+              register={register}
+              name="validUntil"
+              error={errors.validUntil ?? null}
             />
           </div>
 
@@ -518,7 +527,10 @@ export default function QuotationsPage() {
                 Add Item
               </Button>
             </div>
-            {form.items.length === 0 ? (
+            {errors.items?.message && (
+              <p style={{ color: "var(--color-error, #dc2626)", fontSize: "0.875rem", margin: "0 0 0.5rem 0" }}>{String(errors.items.message)}</p>
+            )}
+            {fields.length === 0 ? (
               <div className={styles.emptyItems}>
                 <Icon name="Package" size={24} />
                 <p>
@@ -527,50 +539,60 @@ export default function QuotationsPage() {
               </div>
             ) : (
               <div className={styles.itemsList}>
-                {form.items.map((item, index) => (
-                  <div key={index} className={styles.itemRow}>
+                {fields.map((item, index) => (
+                  <div key={item.id} className={styles.itemRow}>
                     <div className={styles.itemProduct}>
-                      <SelectField
-                        options={productOptions}
-                        placeholder="Select product"
-                        value={item.productId}
-                        onChange={(e) =>
-                          updateItem(index, "productId", e.target.value)
-                        }
+                      <Controller
+                        control={control}
+                        name={`items.${index}.productId`}
+                        render={({ field, fieldState }) => (
+                          <SelectField
+                            options={productOptions}
+                            placeholder="Select product"
+                            value={field.value}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              onProductChange(index, e.target.value);
+                            }}
+                            error={fieldState.error ?? null}
+                          />
+                        )}
                       />
                     </div>
-                    <InputField
-                      type="number"
-                      placeholder="Qty"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        updateItem(
-                          index,
-                          "quantity",
-                          parseInt(e.target.value) || 0,
-                        )
-                      }
-                      className={styles.itemQty}
+                    <Controller
+                      control={control}
+                      name={`items.${index}.quantity`}
+                      render={({ field, fieldState }) => (
+                        <InputField
+                          type="number"
+                          placeholder="Qty"
+                          value={field.value}
+                          onChange={(e) => field.onChange(onQtyChange(index, e.target.value))}
+                          error={fieldState.error ?? null}
+                          className={styles.itemQty}
+                        />
+                      )}
                     />
-                    <InputField
-                      type="number"
-                      placeholder="Price"
-                      value={item.unitPrice}
-                      onChange={(e) =>
-                        updateItem(
-                          index,
-                          "unitPrice",
-                          parseFloat(e.target.value) || 0,
-                        )
-                      }
-                      className={styles.itemPrice}
+                    <Controller
+                      control={control}
+                      name={`items.${index}.unitPrice`}
+                      render={({ field, fieldState }) => (
+                        <InputField
+                          type="number"
+                          placeholder="Price"
+                          value={field.value}
+                          onChange={(e) => field.onChange(onPriceChange(index, e.target.value))}
+                          error={fieldState.error ?? null}
+                          className={styles.itemPrice}
+                        />
+                      )}
                     />
                     <div className={styles.itemTotal}>
-                      {formatCurrency(item.total)}
+                      {formatCurrency(watchedItems?.[index]?.total ?? 0)}
                     </div>
                     <button
                       className={styles.removeItem}
-                      onClick={() => removeItem(index)}
+                      onClick={() => remove(index)}
                     >
                       <Icon name="X" size={16} />
                     </button>
@@ -585,33 +607,24 @@ export default function QuotationsPage() {
               <div className={styles.calcRow}>
                 <SelectField
                   label="Discount Type"
-                  options={[
-                    { value: "percentage", label: "Percentage (%)" },
-                    { value: "fixed", label: "Fixed Amount" },
-                  ]}
-                  value={form.discountType}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      discountType: e.target.value as "percentage" | "fixed",
-                    })
-                  }
+                  options={discountTypeOptions}
+                  register={register}
+                  name="discountType"
+                  error={errors.discountType ?? null}
                 />
                 <InputField
                   label="Discount"
                   type="number"
-                  value={form.discount}
-                  onChange={(e) =>
-                    setForm({ ...form, discount: e.target.value })
-                  }
+                  register={register}
+                  name="discount"
+                  error={errors.discount ?? null}
                 />
                 <InputField
                   label="Tax Rate (%)"
                   type="number"
-                  value={form.taxRate}
-                  onChange={(e) =>
-                    setForm({ ...form, taxRate: e.target.value })
-                  }
+                  register={register}
+                  name="taxRate"
+                  error={errors.taxRate ?? null}
                 />
               </div>
             </div>
@@ -625,7 +638,7 @@ export default function QuotationsPage() {
                 <span>-{formatCurrency(totals.discountAmount)}</span>
               </div>
               <div className={styles.summaryRow}>
-                <span>Tax ({form.taxRate || 0}%)</span>
+                <span>Tax ({watchedTaxRate || 0}%)</span>
                 <span>{formatCurrency(totals.tax)}</span>
               </div>
               <div className={styles.summaryTotal}>
@@ -637,8 +650,9 @@ export default function QuotationsPage() {
 
           <TextareaField
             label="Notes"
-            value={form.notes}
-            onChange={(e) => setForm({ ...form, notes: e.target.value })}
+            register={register}
+            name="notes"
+            error={errors.notes ?? null}
             placeholder="Add any notes for the customer..."
           />
         </div>
