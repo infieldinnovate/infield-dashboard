@@ -13,16 +13,9 @@ import RowActions from '../../components/ui/RowActions';
 import PageHeader from '../../components/ui/PageHeader';
 import SupplierForm from '../../components/forms/SupplierForm';
 import { suppliers as initialSuppliers } from '../../data/suppliers';
-import { products } from '../../data/products';
 import { Supplier } from '../../types';
-import { formatCurrency } from '../../lib/documentUtils';
 import { SupplierFormData } from '../../schema/formSchema';
 import { toast } from 'sonner';
-
-const statusVariant: Record<string, 'success' | 'error'> = {
-  active: 'success',
-  inactive: 'error',
-};
 
 export default function SuppliersPage() {
   const [search, setSearch] = useState('');
@@ -35,15 +28,10 @@ export default function SuppliersPage() {
   const filtered = useMemo(() => {
     if (!search.trim()) return supplierList;
     const q = search.toLowerCase();
-    return supplierList.filter((s) => s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q) || s.city.toLowerCase().includes(q) || s.categories.some((c) => c.toLowerCase().includes(q)));
+    return supplierList.filter((s) => s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q) || s.city.toLowerCase().includes(q) || s.categories.toLowerCase().includes(q));
   }, [supplierList, search]);
 
   const handleSearch = useCallback((value: string) => setSearch(value), []);
-
-  const suppliedProducts = useMemo(() => {
-    if (!detailSupplier) return [];
-    return products.filter((p) => detailSupplier.categories.some((cat) => p.category === cat || p.category.includes(cat)));
-  }, [detailSupplier]);
 
   const openEdit = (supplier: Supplier) => {
     setEditSupplier(supplier);
@@ -63,15 +51,11 @@ export default function SuppliersPage() {
               name: data.name,
               email: data.email,
               phone: data.phone,
+              phone2: data.phone2,
               address: data.address,
               city: data.city,
               country: data.country,
-              taxId: data.taxId,
-              paymentTerms: data.paymentTerms,
-              leadTime: parseInt(data.leadTime) || 0,
-              status: data.status,
-              rating: parseFloat(data.rating) || 0,
-              categories: data.categories.split(',').map((c) => c.trim()).filter(Boolean),
+              categories: data.categories,
             }
           : s
       )
@@ -86,15 +70,11 @@ export default function SuppliersPage() {
       name: data.name,
       email: data.email,
       phone: data.phone,
+      phone2: data.phone2,
       address: data.address,
       city: data.city,
       country: data.country,
-      taxId: data.taxId,
-      paymentTerms: data.paymentTerms,
-      leadTime: parseInt(data.leadTime) || 0,
-      status: data.status,
-      rating: parseFloat(data.rating) || 0,
-      categories: data.categories.split(',').map((c) => c.trim()).filter(Boolean),
+      categories: data.categories,
     };
     setSupplierList((prev) => [newSupplier, ...prev]);
     setIsAddOpen(false);
@@ -109,13 +89,6 @@ export default function SuppliersPage() {
     }
   };
 
-  const renderRating = (rating: number) => (
-    <div className={styles.rating}>
-      <Icon name="Star" size={14} className={styles.starIcon} />
-      <span>{rating.toFixed(1)}</span>
-    </div>
-  );
-
   const columns = [
     { key: 'name', header: 'Supplier', render: (row: Supplier) => (
       <div className={styles.supplierCell}>
@@ -126,16 +99,16 @@ export default function SuppliersPage() {
         </div>
       </div>
     )},
-    { key: 'categories', header: 'Categories', render: (row: Supplier) => (
-      <div className={styles.categoryBadges}>
-        {row.categories.map((cat) => <Badge key={cat} size="sm" variant="secondary">{cat}</Badge>)}
+    { key: 'phone', header: 'Phone', render: (row: Supplier) => (
+      <div className={styles.phoneCell}>
+        <span>{row.phone}</span>
+        {row.phone2 && <span className={styles.phone2}>{row.phone2}</span>}
       </div>
     )},
+    { key: 'categories', header: 'Categories', render: (row: Supplier) => (
+      <div className={styles.categoriesText}>{row.categories}</div>
+    )},
     { key: 'location', header: 'Location', render: (row: Supplier) => <span className={styles.location}>{row.city}, {row.country}</span> },
-    { key: 'paymentTerms', header: 'Terms', render: (row: Supplier) => <span className={styles.terms}>{row.paymentTerms}</span> },
-    { key: 'leadTime', header: 'Lead Time', align: 'center' as const, render: (row: Supplier) => <span className={styles.leadTime}>{row.leadTime} days</span> },
-    { key: 'rating', header: 'Rating', align: 'center' as const, render: (row: Supplier) => renderRating(row.rating) },
-    { key: 'status', header: 'Status', align: 'center' as const, render: (row: Supplier) => <Badge variant={statusVariant[row.status]} size="sm">{row.status}</Badge> },
     { key: 'actions', header: '', align: 'right' as const, render: (row: Supplier) => (
       <RowActions actions={[
         { icon: 'Eye', label: 'View', onClick: (e) => { e.stopPropagation(); setDetailSupplier(row); } },
@@ -149,7 +122,7 @@ export default function SuppliersPage() {
     <div className={styles.page}>
       <PageHeader
         title="Suppliers"
-        subtitle="Manage vendor relationships and purchase terms"
+        subtitle="Manage vendor relationships and supplied categories"
         actions={<Button leftIcon={<Icon name="Plus" size={16} />} onClick={openAdd}>Add Supplier</Button>}
       />
       <div className={styles.toolbar}>
@@ -163,67 +136,26 @@ export default function SuppliersPage() {
       <div className={styles.results}>{filtered.length} suppliers found</div>
 
       {/* Detail Modal */}
-      <Modal isOpen={!!detailSupplier} onClose={() => setDetailSupplier(null)} title="Supplier Details" size="lg">
+      <Modal isOpen={!!detailSupplier} onClose={() => setDetailSupplier(null)} title="Supplier Details" size="md">
         {detailSupplier && (
           <div className={styles.detail}>
             <div className={styles.detailHeader}>
               <div className={styles.detailAvatar}>{detailSupplier.name.charAt(0)}</div>
               <div className={styles.detailInfo}>
                 <h3 className={styles.detailName}>{detailSupplier.name}</h3>
-                <div className={styles.detailBadges}>
-                  <Badge variant={statusVariant[detailSupplier.status]} size="sm">{detailSupplier.status}</Badge>
-                  {renderRating(detailSupplier.rating)}
-                </div>
               </div>
             </div>
             <div className={styles.detailGrid}>
               <div className={styles.detailField}><span className={styles.detailLabel}>Email</span><span>{detailSupplier.email}</span></div>
               <div className={styles.detailField}><span className={styles.detailLabel}>Phone</span><span>{detailSupplier.phone}</span></div>
-              <div className={styles.detailField}><span className={styles.detailLabel}>Tax ID</span><span>{detailSupplier.taxId}</span></div>
+              <div className={styles.detailField}><span className={styles.detailLabel}>Phone 2</span><span>{detailSupplier.phone2 || '—'}</span></div>
               <div className={styles.detailField}><span className={styles.detailLabel}>Address</span><span>{detailSupplier.address}</span></div>
               <div className={styles.detailField}><span className={styles.detailLabel}>City</span><span>{detailSupplier.city}</span></div>
               <div className={styles.detailField}><span className={styles.detailLabel}>Country</span><span>{detailSupplier.country}</span></div>
-              <div className={styles.detailField}><span className={styles.detailLabel}>Payment Terms</span><span>{detailSupplier.paymentTerms}</span></div>
-              <div className={styles.detailField}><span className={styles.detailLabel}>Lead Time</span><span>{detailSupplier.leadTime} days</span></div>
-              <div className={styles.detailField}><span className={styles.detailLabel}>Rating</span><span>{detailSupplier.rating.toFixed(1)} / 5</span></div>
             </div>
             <div className={styles.categoriesSection}>
-              <span className={styles.detailLabel}>Supplied Categories</span>
-              <div className={styles.categoryBadges}>
-                {detailSupplier.categories.map((cat) => <Badge key={cat} variant="secondary">{cat}</Badge>)}
-              </div>
-            </div>
-
-            <div className={styles.productsSection}>
-              <h4 className={styles.historyTitle}>Products Supplied</h4>
-              {suppliedProducts.length === 0 ? (
-                <p className={styles.emptyHistory}>No matching products found in inventory.</p>
-              ) : (
-                <div className={styles.historyTable}>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Product</th>
-                        <th>SKU</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {suppliedProducts.map((p) => (
-                        <tr key={p.id}>
-                          <td><span className={styles.productName}>{p.name}</span></td>
-                          <td>{p.sku}</td>
-                          <td><Badge size="sm">{p.category}</Badge></td>
-                          <td className={styles.amount}>{formatCurrency(p.price)}</td>
-                          <td>{p.stock}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              <span className={styles.detailLabel}>Categories</span>
+              <span className={styles.categoriesDetail}>{detailSupplier.categories}</span>
             </div>
           </div>
         )}

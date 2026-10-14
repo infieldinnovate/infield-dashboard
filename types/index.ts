@@ -61,15 +61,11 @@ export interface Supplier {
   name: string;
   email: string;
   phone: string;
+  phone2: string;
   address: string;
   city: string;
   country: string;
-  taxId: string;
-  paymentTerms: string;
-  leadTime: number;
-  status: 'active' | 'inactive';
-  rating: number;
-  categories: string[];
+  categories: string;
 }
 
 export interface Quotation {

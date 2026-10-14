@@ -64,40 +64,28 @@
   color: var(--neutral-400);
 }
 
-.categoryBadges {
+.phoneCell {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--neutral-600);
+}
+
+.phone2 {
+  font-size: 11px;
+  color: var(--neutral-400);
+}
+
+.categoriesText {
+  font-size: 13px;
+  color: var(--neutral-600);
+  white-space: normal;
 }
 
 .location {
   font-size: 13px;
   color: var(--neutral-600);
-}
-
-.terms {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--neutral-700);
-}
-
-.leadTime {
-  font-size: 13px;
-  color: var(--neutral-600);
-}
-
-.rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--warning-600);
-}
-
-.starIcon {
-  fill: var(--warning-400);
-  color: var(--warning-400);
 }
 
 /* Detail modal */
@@ -140,12 +128,6 @@
   margin: 0;
 }
 
-.detailBadges {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .detailGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -172,76 +154,10 @@
   gap: 8px;
 }
 
-.productsSection {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.historyTitle {
+.categoriesDetail {
   font-size: 14px;
-  font-weight: 700;
-  color: var(--neutral-800);
-  margin: 0;
-}
-
-.emptyHistory {
-  font-size: 13px;
-  color: var(--neutral-400);
-  padding: 16px;
-  text-align: center;
-  background: var(--neutral-50);
-  border-radius: var(--radius-md);
-  margin: 0;
-}
-
-.historyTable {
-  overflow-x: auto;
-  border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-md);
-}
-
-.historyTable table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.historyTable thead th {
-  text-align: left;
-  padding: 10px 14px;
-  font-weight: 600;
-  color: var(--neutral-500);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: var(--neutral-50);
-  border-bottom: 1px solid var(--neutral-200);
-  white-space: nowrap;
-}
-
-.historyTable tbody tr {
-  border-bottom: 1px solid var(--neutral-100);
-}
-
-.historyTable tbody tr:last-child {
-  border-bottom: none;
-}
-
-.historyTable tbody td {
-  padding: 10px 14px;
   color: var(--neutral-700);
-  white-space: nowrap;
-}
-
-.productName {
-  font-weight: 600;
-  color: var(--neutral-800);
-}
-
-.amount {
-  font-weight: 600;
-  color: var(--neutral-900);
+  line-height: 1.5;
 }
 
 /* Responsive */
