@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import styles from "./page.module.scss";
 import SearchBar from "../../components/ui/SearchBar";
 import SelectField from "../../components/forms/form_elements/select";
@@ -12,16 +10,14 @@ import Pagination from "../../components/ui/Pagination";
 import Badge from "../../components/ui/Badge";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
-import InputField from "../../components/forms/form_elements/input";
-import TextareaField from "../../components/forms/form_elements/textarea";
-import CheckboxField from "../../components/forms/form_elements/checkbox";
 import Icon from "../../components/ui/Icon";
 import RowActions from "../../components/ui/RowActions";
 import PageHeader from "../../components/ui/PageHeader";
 import StatCard from "../../components/ui/StatCard";
+import LeadForm from "../../components/forms/LeadForm";
 import { leads as initialLeads } from "../../data/leads";
 import { Lead, LeadStatus } from "../../types";
-import { leadFormSchema, LeadFormData } from "../../schema/formSchema";
+import { LeadFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 8;
@@ -64,21 +60,6 @@ const statusVariant: Record<
   lost: "error",
 };
 
-const defaultValues: LeadFormData = {
-  company_name: "",
-  contact_person: "",
-  phone: "",
-  email: "",
-  location: "",
-  interested_service: "Solar",
-  lead_source: "",
-  status: "new",
-  last_contact_date: "",
-  follow_up_date: "",
-  notes: "",
-  marketing_consent: false,
-};
-
 export default function LeadsPage() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("created_at-desc");
@@ -91,12 +72,6 @@ export default function LeadsPage() {
   const [editLead, setEditLead] = useState<Lead | null>(null);
   const [deleteLead, setDeleteLead] = useState<Lead | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
-
-  const { register, handleSubmit, reset, formState: { errors } } =
-    useForm<LeadFormData>({
-      resolver: zodResolver(leadFormSchema),
-      defaultValues,
-    });
 
   const filtered = useMemo(() => {
     let data = [...leadList];
@@ -142,26 +117,11 @@ export default function LeadsPage() {
   }, []);
 
   const openAdd = () => {
-    reset(defaultValues);
     setIsAddOpen(true);
   };
 
   const openEdit = (lead: Lead) => {
     setEditLead(lead);
-    reset({
-      company_name: lead.company_name,
-      contact_person: lead.contact_person,
-      phone: lead.phone,
-      email: lead.email,
-      location: lead.location,
-      interested_service: lead.interested_service as LeadFormData["interested_service"],
-      lead_source: lead.lead_source,
-      status: lead.status,
-      last_contact_date: lead.last_contact_date ?? "",
-      follow_up_date: lead.follow_up_date ?? "",
-      notes: lead.notes,
-      marketing_consent: lead.marketing_consent,
-    });
   };
 
   const onAddSubmit = (data: LeadFormData) => {
@@ -311,102 +271,6 @@ export default function LeadsPage() {
       ),
     },
   ];
-
-  const renderForm = () => (
-    <>
-      <InputField
-        label="Company Name"
-        required
-        register={register}
-        name="company_name"
-        error={errors.company_name ?? null}
-      />
-      <div className={styles.formRow}>
-        <InputField
-          label="Contact Person"
-          register={register}
-          name="contact_person"
-          error={errors.contact_person ?? null}
-        />
-        <InputField
-          label="Phone / WhatsApp"
-          register={register}
-          name="phone"
-          error={errors.phone ?? null}
-        />
-      </div>
-      <div className={styles.formRow}>
-        <InputField
-          label="Email"
-          type="email"
-          register={register}
-          name="email"
-          error={errors.email ?? null}
-        />
-        <InputField
-          label="Location"
-          register={register}
-          name="location"
-          error={errors.location ?? null}
-        />
-      </div>
-      <div className={styles.formRow}>
-        <SelectField
-          label="Interested Service"
-          options={serviceOptions}
-          register={register}
-          name="interested_service"
-          error={errors.interested_service ?? null}
-        />
-        <InputField
-          label="Lead Source"
-          register={register}
-          name="lead_source"
-          error={errors.lead_source ?? null}
-        />
-      </div>
-      <div className={styles.formRow}>
-        <SelectField
-          label="Status"
-          options={statusOptions}
-          register={register}
-          name="status"
-          error={errors.status ?? null}
-        />
-        <InputField
-          label="Last Contact Date"
-          type="date"
-          register={register}
-          name="last_contact_date"
-          error={errors.last_contact_date ?? null}
-        />
-      </div>
-      <div className={styles.formRow}>
-        <InputField
-          label="Follow-up Date"
-          type="date"
-          register={register}
-          name="follow_up_date"
-          error={errors.follow_up_date ?? null}
-        />
-        <div className={styles.consentWrapper}>
-          <CheckboxField
-            label="Marketing consent granted"
-            register={register}
-            name="marketing_consent"
-            error={errors.marketing_consent ?? null}
-          />
-        </div>
-      </div>
-      <TextareaField
-        label="Notes"
-        rows={3}
-        register={register}
-        name="notes"
-        error={errors.notes ?? null}
-      />
-    </>
-  );
 
   return (
     <div className={styles.page}>
@@ -605,16 +469,8 @@ export default function LeadsPage() {
         onClose={() => setIsAddOpen(false)}
         title="Add Lead"
         size="lg"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setIsAddOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit(onAddSubmit)}>Save Lead</Button>
-          </>
-        }
       >
-        <div className={styles.form}>{renderForm()}</div>
+        <LeadForm mode="add" onSubmit={onAddSubmit} onCancel={() => setIsAddOpen(false)} />
       </Modal>
 
       {/* Edit Modal */}
@@ -623,16 +479,8 @@ export default function LeadsPage() {
         onClose={() => setEditLead(null)}
         title="Edit Lead"
         size="lg"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setEditLead(null)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit(onEditSubmit)}>Save Changes</Button>
-          </>
-        }
       >
-        <div className={styles.form}>{renderForm()}</div>
+        <LeadForm mode="edit" initialValues={editLead} onSubmit={onEditSubmit} onCancel={() => setEditLead(null)} />
       </Modal>
 
       {/* Delete Confirm */}
