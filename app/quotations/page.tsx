@@ -341,9 +341,6 @@ export default function QuotationsPage() {
             className={styles.filter}
           />
         </div>
-        <Button leftIcon={<Icon name="Plus" size={16} />} onClick={openCreate}>
-          Create Quotation
-        </Button>
       </div>
 
       <div className={styles.tableCard}>
