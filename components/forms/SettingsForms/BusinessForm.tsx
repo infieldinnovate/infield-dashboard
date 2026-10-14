@@ -7,6 +7,7 @@ import Button from '../../ui/Button';
 import Icon from '../../ui/Icon';
 import { Phone, Mail, Globe } from 'lucide-react';
 import type { AppSettings } from '../../../types';
+import { ImageWithFallback } from '../../ui/ImageWithFallback';
 import SectionCard from './SectionCard';
 import styles from './SettingsForms.module.scss';
 
@@ -60,7 +61,13 @@ export default function BusinessForm({ settings, update }: BusinessFormProps) {
           <div className={styles.logoArea}>
             <div className={styles.logoPreview}>
               {b.logo ? (
-                <img src={b.logo} alt="Business logo" className={styles.logoImage} />
+                <ImageWithFallback
+                  src={b.logo}
+                  alt="Business logo"
+                  fill
+                  animation="none"
+                  className={styles.logoImage}
+                />
               ) : (
                 <div className={styles.logoPlaceholder}>
                   <Icon name="Image" size={28} />
@@ -86,7 +93,13 @@ export default function BusinessForm({ settings, update }: BusinessFormProps) {
           <div className={styles.logoArea}>
             <div className={styles.logoPreview}>
               {b.signature ? (
-                <img src={b.signature} alt="Authorised signature" className={styles.logoImage} />
+                <ImageWithFallback
+                  src={b.signature}
+                  alt="Authorised signature"
+                  fill
+                  animation="none"
+                  className={styles.logoImage}
+                />
               ) : (
                 <div className={styles.logoPlaceholder}>
                   <Icon name="PenTool" size={28} />

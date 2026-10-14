@@ -1,4 +1,5 @@
 import React from 'react';
+import { ImageWithFallback } from './ImageWithFallback';
 import styles from './Avatar.module.scss';
 
 interface AvatarProps {
@@ -19,7 +20,13 @@ export default function Avatar({ name, src, size = 'md', className = '' }: Avata
   return (
     <div className={`${styles.avatar} ${styles[size]} ${className}`}>
       {src ? (
-        <img src={src} alt={name} className={styles.image} />
+        <ImageWithFallback
+          src={src}
+          alt={name}
+          fill
+          animation="none"
+          className={styles.image}
+        />
       ) : (
         <span className={styles.initials}>{initials}</span>
       )}
