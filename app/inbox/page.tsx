@@ -10,7 +10,7 @@ import Icon from '../../components/ui/Icon';
 import Avatar from '../../components/ui/Avatar';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
-import TextareaField from '../../components/forms/form_elements/textarea';
+import ReplyForm from '../../components/forms/ReplyForm';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import { toast } from 'sonner';
 import {
@@ -81,17 +81,14 @@ export default function InboxPage() {
 
   // Modal state
   const [selectedItem, setSelectedItem] = useState<{ type: TabId; data: Record<string, unknown> } | null>(null);
-  const [replyText, setReplyText] = useState('');
   const [archiveConfirm, setArchiveConfirm] = useState<{ type: TabId; id: string; name: string } | null>(null);
 
   const openModal = (type: TabId, data: Record<string, unknown>) => {
     setSelectedItem({ type, data });
-    setReplyText('');
   };
 
   const closeModal = () => {
     setSelectedItem(null);
-    setReplyText('');
   };
 
   const handleApprove = () => {
@@ -118,8 +115,8 @@ export default function InboxPage() {
     closeModal();
   };
 
-  const handleReply = () => {
-    if (!selectedItem || !replyText.trim()) {
+  const handleReply = (text: string) => {
+    if (!text.trim()) {
       toast.error('Please enter a reply message');
       return;
     }
@@ -275,7 +272,7 @@ export default function InboxPage() {
       >
         {selectedItem && (
           <div className={styles.modalContent}>
-            <ModalContentRenderer item={selectedItem} replyText={replyText} setReplyText={setReplyText} onReply={handleReply} />
+            <ModalContentRenderer item={selectedItem} onSend={handleReply} />
           </div>
         )}
       </Modal>
@@ -344,14 +341,10 @@ function MiniStat({
 /* ---------- Modal Content Renderer ---------- */
 function ModalContentRenderer({
   item,
-  replyText,
-  setReplyText,
-  onReply,
+  onSend,
 }: {
   item: { type: TabId; data: Record<string, unknown> };
-  replyText: string;
-  setReplyText: (v: string) => void;
-  onReply: () => void;
+  onSend: (text: string) => void;
 }) {
   if (item.type === 'quotation-requests') {
     const q = item.data as unknown as QuotationRequest;
@@ -379,7 +372,7 @@ function ModalContentRenderer({
           <span className={styles.detailLabel}>Message</span>
           <p>{q.message}</p>
         </div>
-        <ReplySection replyText={replyText} setReplyText={setReplyText} onReply={onReply} />
+        <ReplyForm onSend={onSend} />
       </div>
     );
   }
@@ -402,7 +395,7 @@ function ModalContentRenderer({
           <Badge variant={statusVariant[c.status]} size="sm">{formatLabel(c.status)}</Badge>
         </div>
         <DetailField label="Requested" value={c.createdAt} />
-        <ReplySection replyText={replyText} setReplyText={setReplyText} onReply={onReply} placeholder="Add call notes or reply message..." />
+        <ReplyForm onSend={onSend} placeholder="Add call notes or reply message..." />
       </div>
     );
   }
@@ -434,7 +427,7 @@ function ModalContentRenderer({
           <span className={styles.detailLabel}>Comment</span>
           <p>{r.comment}</p>
         </div>
-        <ReplySection replyText={replyText} setReplyText={setReplyText} onReply={onReply} placeholder="Reply to this review..." />
+        <ReplyForm onSend={onSend} placeholder="Reply to this review..." />
       </div>
     );
   }
@@ -490,7 +483,7 @@ function ModalContentRenderer({
             <Icon name="Pin" size={14} /> Pinned Announcement
           </div>
         )}
-        <ReplySection replyText={replyText} setReplyText={setReplyText} onReply={onReply} placeholder="Add a comment or reply..." />
+        <ReplyForm onSend={onSend} placeholder="Add a comment or reply..." />
       </div>
     );
   }
@@ -503,38 +496,6 @@ function DetailField({ label, value }: { label: string; value: string }) {
     <div className={styles.detailRow}>
       <span className={styles.detailLabel}>{label}</span>
       <span className={styles.detailValue}>{value}</span>
-    </div>
-  );
-}
-
-function ReplySection({
-  replyText,
-  setReplyText,
-  onReply,
-  placeholder = 'Type your reply...',
-}: {
-  replyText: string;
-  setReplyText: (v: string) => void;
-  onReply: () => void;
-  placeholder?: string;
-}) {
-  return (
-    <div className={styles.replySection}>
-      <span className={styles.detailLabel}>Reply</span>
-      <TextareaField
-        value={replyText}
-        onChange={(e) => setReplyText(e.target.value)}
-        placeholder={placeholder}
-        rows={3}
-      />
-      <Button
-        size="sm"
-        leftIcon={<Icon name="Send" size={14} />}
-        onClick={onReply}
-        disabled={!replyText.trim()}
-      >
-        Send Reply
-      </Button>
     </div>
   );
 }
