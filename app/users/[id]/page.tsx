@@ -7,12 +7,16 @@ import styles from './page.module.scss';
 import Card from '../../../components/ui/Card';
 import Badge from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
+import Modal from '../../../components/ui/Modal';
 import Icon from '../../../components/ui/Icon';
 import Avatar from '../../../components/ui/Avatar';
 import EmptyState from '../../../components/ui/EmptyState';
-import { users } from '../../../data/users';
+import UserForm from '../../../components/forms/UserForm';
+import { users as initialUsers } from '../../../data/users';
 import { activityLogs, permissionGroups } from '../../../data/roles';
 import type { ActivityLog } from '../../../types';
+import type { UserFormData } from '../../../schema/formSchema';
+import { toast } from 'sonner';
 
 const roleColor: Record<string, 'primary' | 'secondary' | 'success' | 'info'> = {
   admin: 'primary',
@@ -42,9 +46,12 @@ const categoryIcon: Record<ActivityLog['category'], string> = {
 export default function UserProfilePage() {
   const params = useParams();
   const userId = params.id as string;
-  const user = users.find((u) => u.id === userId);
 
+  const [userList, setUserList] = useState(initialUsers);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [tab, setTab] = useState<'overview' | 'permissions' | 'activity'>('overview');
+
+  const user = useMemo(() => userList.find((u) => u.id === userId), [userList, userId]);
 
   const userLogs = useMemo(() => activityLogs.filter((l) => l.userId === userId), [userId]);
 
@@ -53,6 +60,21 @@ export default function UserProfilePage() {
     if (user.permissions[0] === 'all') return permissionGroups.flatMap((g) => g.permissions.map((p) => p.id));
     return user.permissions;
   }, [user]);
+
+  const handleToggleStatus = () => {
+    if (!user) return;
+    setUserList((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' } : u))
+    );
+    toast.success(user.status === 'active' ? 'User deactivated' : 'User activated');
+  };
+
+  const handleEditSubmit = (data: UserFormData) => {
+    if (!user) return;
+    setUserList((prev) => prev.map((u) => (u.id === user.id ? { ...u, ...data } : u)));
+    toast.success('Profile updated successfully');
+    setEditModalOpen(false);
+  };
 
   if (!user) {
     return (
@@ -80,6 +102,7 @@ export default function UserProfilePage() {
           <Avatar name={user.name} size="lg" className={styles.profileAvatar} />
           <div className={styles.profileInfo}>
             <h1 className={styles.profileName}>{user.name}</h1>
+            {user.jobTitle && <span className={styles.profileJobTitle}>{user.jobTitle}</span>}
             <span className={styles.profileEmail}>{user.email}</span>
             <div className={styles.profileBadges}>
               <Badge variant={roleColor[user.role]} size="sm">{user.role}</Badge>
@@ -87,8 +110,15 @@ export default function UserProfilePage() {
             </div>
           </div>
           <div className={styles.profileActions}>
-            <Button variant="outline" size="sm" leftIcon={<Icon name="Pencil" size={16} />}>Edit Profile</Button>
-            <Button variant="ghost" size="sm" leftIcon={<Icon name={user.status === 'active' ? 'UserX' : 'UserCheck'} size={16} />}>
+            <Button variant="outline" size="sm" leftIcon={<Icon name="Pencil" size={16} />} onClick={() => setEditModalOpen(true)}>
+              Edit Profile
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              leftIcon={<Icon name={user.status === 'active' ? 'UserX' : 'UserCheck'} size={16} />}
+              onClick={handleToggleStatus}
+            >
               {user.status === 'active' ? 'Deactivate' : 'Activate'}
             </Button>
           </div>
@@ -147,53 +177,71 @@ export default function UserProfilePage() {
 
       {/* Overview */}
       {tab === 'overview' && (
-        <Card padding="lg">
-          <h3 className={styles.sectionTitle}>Contact Information</h3>
-          <div className={styles.infoGrid}>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}><Icon name="Mail" size={18} /></span>
-              <div className={styles.infoContent}>
-                <span className={styles.infoLabel}>Email</span>
-                <span className={styles.infoValue}>{user.email}</span>
+        <>
+          <Card padding="lg">
+            <h3 className={styles.sectionTitle}>Contact Information</h3>
+            <div className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <span className={styles.infoIcon}><Icon name="Mail" size={18} /></span>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Email</span>
+                  <span className={styles.infoValue}>{user.email}</span>
+                </div>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoIcon}><Icon name="Phone" size={18} /></span>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Phone</span>
+                  <span className={styles.infoValue}>{user.phone}</span>
+                </div>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoIcon}><Icon name="Briefcase" size={18} /></span>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Job Title</span>
+                  <span className={styles.infoValue}>{user.jobTitle}</span>
+                </div>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoIcon}><Icon name="ShieldCheck" size={18} /></span>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Role</span>
+                  <span className={styles.infoValue}>{user.role}</span>
+                </div>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoIcon}><Icon name="Calendar" size={18} /></span>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Member Since</span>
+                  <span className={styles.infoValue}>{user.createdAt}</span>
+                </div>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoIcon}><Icon name="LogIn" size={18} /></span>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Last Login</span>
+                  <span className={styles.infoValue}>{user.lastLogin}</span>
+                </div>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoIcon}><Icon name="CircleDot" size={18} /></span>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Status</span>
+                  <span className={styles.infoValue}>{user.status}</span>
+                </div>
               </div>
             </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}><Icon name="Phone" size={18} /></span>
-              <div className={styles.infoContent}>
-                <span className={styles.infoLabel}>Phone</span>
-                <span className={styles.infoValue}>{user.phone}</span>
+          </Card>
+
+          {user.signature && (
+            <Card padding="lg">
+              <h3 className={styles.sectionTitle}>Signature</h3>
+              <div className={styles.signatureBox}>
+                <img src={user.signature} alt={`${user.name} signature`} className={styles.signatureImage} />
               </div>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}><Icon name="ShieldCheck" size={18} /></span>
-              <div className={styles.infoContent}>
-                <span className={styles.infoLabel}>Role</span>
-                <span className={styles.infoValue}>{user.role}</span>
-              </div>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}><Icon name="Calendar" size={18} /></span>
-              <div className={styles.infoContent}>
-                <span className={styles.infoLabel}>Member Since</span>
-                <span className={styles.infoValue}>{user.createdAt}</span>
-              </div>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}><Icon name="LogIn" size={18} /></span>
-              <div className={styles.infoContent}>
-                <span className={styles.infoLabel}>Last Login</span>
-                <span className={styles.infoValue}>{user.lastLogin}</span>
-              </div>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoIcon}><Icon name="CircleDot" size={18} /></span>
-              <div className={styles.infoContent}>
-                <span className={styles.infoLabel}>Status</span>
-                <span className={styles.infoValue}>{user.status}</span>
-              </div>
-            </div>
-          </div>
-        </Card>
+            </Card>
+          )}
+        </>
       )}
 
       {/* Permissions */}
@@ -259,6 +307,21 @@ export default function UserProfilePage() {
           </div>
         </Card>
       )}
+
+      {/* Edit Profile Modal */}
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Profile"
+        size="md"
+      >
+        <UserForm
+          mode="edit"
+          initialValues={user}
+          onSubmit={handleEditSubmit}
+          onCancel={() => setEditModalOpen(false)}
+        />
+      </Modal>
     </div>
   );
 }

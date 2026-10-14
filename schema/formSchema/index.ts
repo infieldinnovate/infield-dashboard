@@ -6,3 +6,4 @@ export { invoiceFormSchema, invoiceItemSchema, type InvoiceFormData, type Invoic
 export { quotationFormSchema, quotationItemSchema, type QuotationFormData, type QuotationItemData } from './quotationSchema';
 export { quoteTemplateFormSchema, quoteTemplateItemSchema, type QuoteTemplateFormData, type QuoteTemplateItemData } from './quoteTemplateSchema';
 export { deliveryNoteFormSchema, deliveryItemSchema, type DeliveryNoteFormData, type DeliveryItemData } from './deliveryNoteSchema';
+export { userFormSchema, type UserFormData } from './userSchema';

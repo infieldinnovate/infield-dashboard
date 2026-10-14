@@ -2,13 +2,16 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import styles from './page.module.scss';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
+import Modal from '../../components/ui/Modal';
 import InputField from '../../components/forms/form_elements/input';
 import SelectField from '../../components/forms/form_elements/select';
+import UserForm from '../../components/forms/UserForm';
 import Icon from '../../components/ui/Icon';
 import { Search } from 'lucide-react';
 import Avatar from '../../components/ui/Avatar';
@@ -16,6 +19,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import { users as initialUsers } from '../../data/users';
 import { roles, permissionGroups, activityLogs } from '../../data/roles';
 import type { User, ActivityLog } from '../../types';
+import type { UserFormData } from '../../schema/formSchema';
 import { toast } from 'sonner';
 
 const tabs = [
@@ -53,12 +57,14 @@ const categoryIcon: Record<ActivityLog['category'], string> = {
 };
 
 export default function UsersPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>('users');
   const [userList, setUserList] = useState<User[]>(initialUsers);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const filteredUsers = useMemo(() => {
     let data = [...userList];
@@ -76,6 +82,38 @@ export default function UsersPage() {
       prev.map((u) => (u.id === userId ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' } : u))
     );
     toast.success('User status updated');
+  };
+
+  const handleOpenAdd = () => {
+    setEditingUser(null);
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (user: User) => {
+    setEditingUser(user);
+    setModalOpen(true);
+  };
+
+  const handleSubmit = (data: UserFormData) => {
+    if (editingUser) {
+      setUserList((prev) =>
+        prev.map((u) => (u.id === editingUser.id ? { ...u, ...data } : u))
+      );
+      toast.success('User updated successfully');
+    } else {
+      const newUser: User = {
+        id: `usr-${String(userList.length + 1).padStart(3, '0')}`,
+        ...data,
+        avatar: '',
+        lastLogin: '—',
+        createdAt: new Date().toISOString().split('T')[0],
+        permissions: [],
+      };
+      setUserList((prev) => [...prev, newUser]);
+      toast.success('User added successfully');
+    }
+    setModalOpen(false);
+    setEditingUser(null);
   };
 
   return (
@@ -131,7 +169,7 @@ export default function UsersPage() {
                 className={styles.filterSelect}
               />
             </div>
-            <Button leftIcon={<Icon name="UserPlus" size={16} />}>Add User</Button>
+            <Button leftIcon={<Icon name="UserPlus" size={16} />} onClick={handleOpenAdd}>Add User</Button>
           </div>
 
           <Card padding="none">
@@ -150,6 +188,9 @@ export default function UsersPage() {
                     </div>
                   ),
                 },
+                { key: 'jobTitle', header: 'Job Title', render: (row: User) => (
+                  <span className={styles.mutedText}>{row.jobTitle}</span>
+                ) },
                 { key: 'role', header: 'Role', align: 'center' as const, render: (row: User) => (
                   <Badge variant={roleColor[row.role]} size="sm">{row.role}</Badge>
                 ) },
@@ -167,7 +208,7 @@ export default function UsersPage() {
                     <Link href={`/users/${row.id}`} className={styles.rowAction} title="View profile" onClick={(e) => e.stopPropagation()}>
                       <Icon name="Eye" size={16} />
                     </Link>
-                    <button className={styles.rowAction} title="Edit" onClick={(e) => { e.stopPropagation(); }}>
+                    <button className={styles.rowAction} title="Edit" onClick={(e) => { e.stopPropagation(); handleOpenEdit(row); }}>
                       <Icon name="Pencil" size={16} />
                     </button>
                     <button
@@ -182,7 +223,7 @@ export default function UsersPage() {
               ]}
               data={filteredUsers}
               keyExtractor={(row) => row.id}
-              onRowClick={(row) => setSelectedUser(row)}
+              onRowClick={(row) => router.push(`/users/${row.id}`)}
             />
           </Card>
           <div className={styles.resultsText}>
@@ -286,6 +327,21 @@ export default function UsersPage() {
       {activeTab === 'activity' && (
         <ActivityLogSection logs={activityLogs} />
       )}
+
+      {/* Add/Edit User Modal */}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => { setModalOpen(false); setEditingUser(null); }}
+        title={editingUser ? 'Edit User' : 'Add User'}
+        size="md"
+      >
+        <UserForm
+          mode={editingUser ? 'edit' : 'add'}
+          initialValues={editingUser}
+          onSubmit={handleSubmit}
+          onCancel={() => { setModalOpen(false); setEditingUser(null); }}
+        />
+      </Modal>
     </div>
   );
 }

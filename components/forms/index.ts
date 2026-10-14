@@ -13,4 +13,5 @@ export { default as QuoteTemplateForm } from './QuoteTemplateForm';
 export { default as DeliveryNoteForm } from './DeliveryNoteForm';
 export { default as PaymentForm } from './PaymentForm';
 export { default as ReplyForm } from './ReplyForm';
+export { default as UserForm } from './UserForm';
 export * from './SettingsForms';

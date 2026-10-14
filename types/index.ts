@@ -183,6 +183,8 @@ export interface User {
   lastLogin: string;
   createdAt: string;
   permissions: string[];
+  jobTitle: string;
+  signature: string;
 }
 
 export interface Notification {

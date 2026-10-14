@@ -11,6 +11,8 @@ export const users: User[] = [
     lastLogin: '2026-06-28 08:30',
     createdAt: '2023-01-10',
     permissions: ['all'],
+    jobTitle: 'Managing Director',
+    signature: '',
   },
   {
     id: 'usr-002',
@@ -22,6 +24,8 @@ export const users: User[] = [
     lastLogin: '2026-06-28 09:15',
     createdAt: '2023-03-15',
     permissions: ['sales', 'inventory', 'reports', 'customers'],
+    jobTitle: 'Operations Manager',
+    signature: '',
   },
   {
     id: 'usr-003',
@@ -33,6 +37,8 @@ export const users: User[] = [
     lastLogin: '2026-06-27 18:45',
     createdAt: '2023-06-20',
     permissions: ['pos', 'receipts'],
+    jobTitle: 'Senior Cashier',
+    signature: '',
   },
   {
     id: 'usr-004',
@@ -44,6 +50,8 @@ export const users: User[] = [
     lastLogin: '2026-06-28 10:00',
     createdAt: '2024-01-08',
     permissions: ['sales', 'quotations', 'customers'],
+    jobTitle: 'Sales Executive',
+    signature: '',
   },
   {
     id: 'usr-005',
@@ -55,5 +63,7 @@ export const users: User[] = [
     lastLogin: '2026-05-15 14:20',
     createdAt: '2023-09-12',
     permissions: ['pos', 'receipts'],
+    jobTitle: 'Cashier',
+    signature: '',
   },
 ];

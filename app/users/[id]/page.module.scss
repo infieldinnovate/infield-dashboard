@@ -50,6 +50,12 @@
   margin: 0;
 }
 
+.profileJobTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--neutral-700);
+}
+
 .profileEmail {
   font-size: 14px;
   color: var(--neutral-500);
@@ -351,6 +357,23 @@
   font-size: 11px;
   color: var(--neutral-400);
   font-family: monospace;
+}
+
+/* ---------- Signature ---------- */
+.signatureBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+}
+
+.signatureImage {
+  max-width: 320px;
+  max-height: 120px;
+  object-fit: contain;
 }
 
 /* ---------- Empty ---------- */
