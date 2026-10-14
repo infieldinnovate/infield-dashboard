@@ -32,10 +32,6 @@
   min-width: 200px;
 }
 
-.filter {
-  width: 200px;
-}
-
 .categories {
   display: flex;
   gap: 8px;
@@ -363,6 +359,10 @@
   gap: 8px;
 }
 
+.discountInput {
+  width: 100%;
+}
+
 .cartTotals {
   display: flex;
   flex-direction: column;
@@ -597,8 +597,7 @@
     flex-direction: column;
   }
 
-  .search,
-  .filter {
+  .search {
     width: 100%;
   }
 

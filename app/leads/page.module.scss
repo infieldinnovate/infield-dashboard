@@ -51,25 +51,6 @@
   font-weight: 500;
 }
 
-.loadingState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 80px 20px;
-  color: var(--neutral-400);
-  font-size: 14px;
-}
-
-.loadingState svg {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 /* Table cells */
 .companyCell {
   display: flex;
@@ -217,25 +198,6 @@
   padding-top: 4px;
 }
 
-/* Forms */
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.formRow {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.consentWrapper {
-  display: flex;
-  align-items: flex-end;
-  padding-bottom: 8px;
-}
-
 /* Responsive */
 @media (max-width: 1279px) {
   .statsGrid {
@@ -264,10 +226,6 @@
   }
 
   .detailGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .formRow {
     grid-template-columns: 1fr;
   }
 }
