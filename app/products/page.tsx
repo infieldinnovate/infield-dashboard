@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
 import SelectField from '../../components/forms/form_elements/select';
@@ -12,15 +10,14 @@ import Pagination from '../../components/ui/Pagination';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import InputField from '../../components/forms/form_elements/input';
-import TextareaField from '../../components/forms/form_elements/textarea';
 import Icon from '../../components/ui/Icon';
 import RowActions from '../../components/ui/RowActions';
 import PageHeader from '../../components/ui/PageHeader';
+import ProductForm from '../../components/forms/ProductForm';
 import { products } from '../../data/products';
 import { categories } from '../../data/categories';
 import { Product } from '../../types';
-import { productFormSchema, ProductFormData } from '../../schema/formSchema';
+import { ProductFormData } from '../../schema/formSchema';
 import { formatCurrency } from '../../lib/documentUtils';
 import { toast } from 'sonner';
 
@@ -51,20 +48,6 @@ export default function ProductsPage() {
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
-
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductFormData>({
-    resolver: zodResolver(productFormSchema),
-    defaultValues: {
-      name: '',
-      price: '',
-      cost: '',
-      stock: '',
-      category: '',
-      sku: '',
-      unit: '',
-      description: '',
-    },
-  });
 
   const filtered = useMemo(() => {
     let data = [...productList];
@@ -105,29 +88,9 @@ export default function ProductsPage() {
 
   const openEdit = (product: Product) => {
     setEditProduct(product);
-    reset({
-      name: product.name,
-      price: String(product.price),
-      cost: String(product.cost),
-      stock: String(product.stock),
-      category: product.category,
-      sku: product.sku,
-      unit: product.unit,
-      description: product.description,
-    });
   };
 
   const openAdd = () => {
-    reset({
-      name: '',
-      price: '',
-      cost: '',
-      stock: '',
-      category: '',
-      sku: '',
-      unit: '',
-      description: '',
-    });
     setIsAddOpen(true);
   };
 
@@ -201,25 +164,6 @@ export default function ProductsPage() {
     )},
   ];
 
-  const renderForm = () => (
-    <>
-      <InputField label="Product Name" required register={register} name="name" error={errors.name ?? null} />
-      <div className={styles.formRow}>
-        <InputField label="Price" type="number" required register={register} name="price" error={errors.price ?? null} />
-        <InputField label="Cost" type="number" required register={register} name="cost" error={errors.cost ?? null} />
-      </div>
-      <div className={styles.formRow}>
-        <InputField label="Stock" type="number" required register={register} name="stock" error={errors.stock ?? null} />
-        <InputField label="Unit" required register={register} name="unit" error={errors.unit ?? null} />
-      </div>
-      <div className={styles.formRow}>
-        <InputField label="SKU" required register={register} name="sku" error={errors.sku ?? null} />
-        <SelectField label="Category" options={categoryOptions.filter((o) => o.value !== '')} register={register} name="category" error={errors.category ?? null} />
-      </div>
-      <TextareaField label="Description" register={register} name="description" error={errors.description ?? null} />
-    </>
-  );
-
   return (
     <div className={styles.page}>
       <PageHeader
@@ -272,23 +216,13 @@ export default function ProductsPage() {
       </Modal>
 
       {/* Add Modal */}
-      <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Product" size="md" footer={
-        <>
-          <Button variant="ghost" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-          <Button onClick={handleSubmit(onAddSubmit)}>Save Product</Button>
-        </>
-      }>
-        <div className={styles.form}>{renderForm()}</div>
+      <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Product" size="md">
+        <ProductForm mode="add" onSubmit={onAddSubmit} onCancel={() => setIsAddOpen(false)} />
       </Modal>
 
       {/* Edit Modal */}
-      <Modal isOpen={!!editProduct} onClose={() => setEditProduct(null)} title="Edit Product" size="md" footer={
-        <>
-          <Button variant="ghost" onClick={() => setEditProduct(null)}>Cancel</Button>
-          <Button onClick={handleSubmit(onEditSubmit)}>Save Changes</Button>
-        </>
-      }>
-        <div className={styles.form}>{renderForm()}</div>
+      <Modal isOpen={!!editProduct} onClose={() => setEditProduct(null)} title="Edit Product" size="md">
+        <ProductForm mode="edit" initialValues={editProduct} onSubmit={onEditSubmit} onCancel={() => setEditProduct(null)} />
       </Modal>
 
       {/* Delete Confirm */}
