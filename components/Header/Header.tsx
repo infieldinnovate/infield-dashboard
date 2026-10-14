@@ -177,18 +177,18 @@ export default function Header({
             onClick={() => setUserOpen((v) => !v)}
           >
             <div className={styles.userInfo}>
-              <span className={styles.userName}>Alex Morgan</span>
-              <span className={styles.userRole}>Manager</span>
+              <span className={styles.userName}>Wicklife Oluoch</span>
+              <span className={styles.userRole}>Technician</span>
             </div>
-            <Avatar name="Alex Morgan" size="md" />
+            <Avatar name="Wicklife Oluoch" src="/users/passport-wadeya.jpg" size="md" />
             <Icon name="ChevronDown" size={16} className={styles.userChevron} />
           </button>
           {userOpen && (
             <div className={styles.userDropdown}>
               <div className={styles.userDropdownHeader}>
-                <Avatar name="Alex Morgan" size="lg" />
+                <Avatar name="Wicklife Oluoch" src="/users/passport-wadeya.jpg" size="lg" />
                 <div className={styles.userDropdownInfo}>
-                  <span className={styles.userDropdownName}>Alex Morgan</span>
+                  <span className={styles.userDropdownName}>Wicklife Oluoch</span>
                   <span className={styles.userDropdownEmail}>
                     admin@infieldinnovations.com
                   </span>
