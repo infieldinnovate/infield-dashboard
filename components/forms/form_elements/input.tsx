@@ -16,8 +16,6 @@ import styles from "./formElement.module.scss";
 type InputFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   label?: string;
   type?: string;
-  as?: "input" | "textarea";
-  rows?: number;
   register?: UseFormRegister<TFieldValues>;
   registerOptions?: RegisterOptions<TFieldValues, any>;
   control?: Control<TFieldValues>;
@@ -26,9 +24,7 @@ type InputFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   defaultValue?: any;
   error?: FieldError | null;
   hidden?: boolean;
-  inputProps?: React.InputHTMLAttributes<
-    HTMLInputElement | HTMLTextAreaElement
-  >;
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
   icon?: LucideIcon;
   datalistOptions?: string[];
   placeholder?: string;
@@ -41,7 +37,7 @@ type InputFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   ariaLabel?: string;
   helperText?: string;
   value?: string | number;
-  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
   className?: string;
 };
 
@@ -50,8 +46,6 @@ export default function InputField<
 >({
   label,
   type = "text",
-  as = "input",
-  rows = 3,
   register,
   registerOptions,
   control,
@@ -83,9 +77,7 @@ export default function InputField<
 
   const Icon = icon;
 
-  const commonProps: React.InputHTMLAttributes<
-    HTMLInputElement | HTMLTextAreaElement
-  > = {
+  const commonProps: React.InputHTMLAttributes<HTMLInputElement> = {
     id: inputId,
     name,
     placeholder,
@@ -197,18 +189,14 @@ export default function InputField<
           <Controller
             name={name as any}
             control={control}
-            render={({ field }) =>
-              as === "textarea" ? (
-                <textarea rows={rows} {...field} {...commonProps} />
-              ) : (
+            render={({ field }) => (
                 <input
                   type={type}
                   list={datalistId}
                   {...field}
                   {...commonProps}
                 />
-              )
-            }
+              )}
           />
         </div>
         {renderError()}
@@ -218,30 +206,6 @@ export default function InputField<
   }
 
   // Uncontrolled (register) or controlled (value/onChange)
-  if (as === "textarea") {
-    return (
-      <div className={wrapperClass}>
-        {renderLabel()}
-        <div
-          className={clsx(styles.elementWrapper, {
-            [styles.elementWrapperError]: !!error,
-          })}
-        >
-          {renderIcon()}
-          <textarea
-            id={inputId}
-            rows={rows}
-            {...commonProps}
-            {...controlledProps}
-            {...(registerProps as any)}
-          />
-        </div>
-        {renderError()}
-        {renderHelperText()}
-      </div>
-    );
-  }
-
   return (
     <div className={wrapperClass}>
       {renderLabel()}
