@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import styles from './page.module.scss';
 import SearchBar from '../../components/ui/SearchBar';
 import SelectField from '../../components/forms/form_elements/select';
@@ -12,15 +10,15 @@ import Pagination from '../../components/ui/Pagination';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import InputField from '../../components/forms/form_elements/input';
 import Icon from '../../components/ui/Icon';
 import RowActions from '../../components/ui/RowActions';
 import PageHeader from '../../components/ui/PageHeader';
+import CustomerForm from '../../components/forms/CustomerForm';
 import { customers as initialCustomers } from '../../data/customers';
 import { invoices } from '../../data/invoices';
 import { receipts } from '../../data/receipts';
 import { Customer, Invoice, Receipt } from '../../types';
-import { customerFormSchema, CustomerFormData } from '../../schema/formSchema';
+import { CustomerFormData } from '../../schema/formSchema';
 import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 5;
@@ -57,22 +55,6 @@ export default function CustomersPage() {
   const [deleteCustomer, setDeleteCustomer] = useState<Customer | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CustomerFormData>({
-    resolver: zodResolver(customerFormSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: '',
-      country: '',
-      taxId: '',
-      creditLimit: '',
-      type: 'individual',
-      status: 'active',
-    },
-  });
-
   const filtered = useMemo(() => {
     let data = [...customerList];
     if (search.trim()) {
@@ -104,33 +86,9 @@ export default function CustomersPage() {
 
   const openEdit = (customer: Customer) => {
     setEditCustomer(customer);
-    reset({
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      address: customer.address,
-      city: customer.city,
-      country: customer.country,
-      taxId: customer.taxId,
-      creditLimit: String(customer.creditLimit),
-      type: customer.type,
-      status: customer.status,
-    });
   };
 
   const openAdd = () => {
-    reset({
-      name: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: '',
-      country: '',
-      taxId: '',
-      creditLimit: '',
-      type: 'individual',
-      status: 'active',
-    });
     setIsAddOpen(true);
   };
 
@@ -176,9 +134,6 @@ export default function CustomersPage() {
     }
   };
 
-  const typeOptions = [{ value: 'individual', label: 'Individual' }, { value: 'business', label: 'Business' }];
-  const statusOptions = [{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }];
-
   const columns = [
     { key: 'name', header: 'Customer', render: (row: Customer) => (
       <div className={styles.customerCell}>
@@ -201,29 +156,6 @@ export default function CustomersPage() {
       ]} />
     )},
   ];
-
-  const renderForm = () => (
-    <>
-      <InputField label="Customer Name" required register={register} name="name" error={errors.name ?? null} />
-      <div className={styles.formRow}>
-        <InputField label="Email" type="email" required register={register} name="email" error={errors.email ?? null} />
-        <InputField label="Phone" register={register} name="phone" error={errors.phone ?? null} />
-      </div>
-      <InputField label="Address" register={register} name="address" error={errors.address ?? null} />
-      <div className={styles.formRow}>
-        <InputField label="City" register={register} name="city" error={errors.city ?? null} />
-        <InputField label="Country" register={register} name="country" error={errors.country ?? null} />
-      </div>
-      <div className={styles.formRow}>
-        <InputField label="Tax ID" register={register} name="taxId" error={errors.taxId ?? null} />
-        <InputField label="Credit Limit" type="number" register={register} name="creditLimit" error={errors.creditLimit ?? null} />
-      </div>
-      <div className={styles.formRow}>
-        <SelectField label="Type" options={typeOptions} register={register} name="type" error={errors.type ?? null} />
-        <SelectField label="Status" options={statusOptions} register={register} name="status" error={errors.status ?? null} />
-      </div>
-    </>
-  );
 
   return (
     <div className={styles.page}>
@@ -336,23 +268,13 @@ export default function CustomersPage() {
       </Modal>
 
       {/* Add Modal */}
-      <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Customer" size="md" footer={
-        <>
-          <Button variant="ghost" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-          <Button onClick={handleSubmit(onAddSubmit)}>Save Customer</Button>
-        </>
-      }>
-        <div className={styles.form}>{renderForm()}</div>
+      <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Customer" size="md">
+        <CustomerForm mode="add" onSubmit={onAddSubmit} onCancel={() => setIsAddOpen(false)} />
       </Modal>
 
       {/* Edit Modal */}
-      <Modal isOpen={!!editCustomer} onClose={() => setEditCustomer(null)} title="Edit Customer" size="md" footer={
-        <>
-          <Button variant="ghost" onClick={() => setEditCustomer(null)}>Cancel</Button>
-          <Button onClick={handleSubmit(onEditSubmit)}>Save Changes</Button>
-        </>
-      }>
-        <div className={styles.form}>{renderForm()}</div>
+      <Modal isOpen={!!editCustomer} onClose={() => setEditCustomer(null)} title="Edit Customer" size="md">
+        <CustomerForm mode="edit" initialValues={editCustomer} onSubmit={onEditSubmit} onCancel={() => setEditCustomer(null)} />
       </Modal>
 
       {/* Delete Confirm */}
