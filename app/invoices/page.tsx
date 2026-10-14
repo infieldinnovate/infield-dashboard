@@ -9,17 +9,16 @@ import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
-import InputField from '../../components/forms/form_elements/input';
 import Icon from '../../components/ui/Icon';
 import PageHeader from '../../components/ui/PageHeader';
 import RowActions from '../../components/ui/RowActions';
 import InvoiceForm from '../../components/forms/InvoiceForm';
+import PaymentForm from '../../components/forms/PaymentForm';
 import { invoices as initialInvoices } from '../../data/invoices';
 import { customers } from '../../data/customers';
 import { products } from '../../data/products';
 import { Invoice } from '../../types';
 import InvoiceDocument, { printInvoice, downloadInvoicePDF } from '../../components/InvoiceDocument';
-import { formatCurrency } from '../../lib/documentUtils';
 import { InvoiceFormData } from '../../schema/formSchema';
 import { toast } from 'sonner';
 
@@ -53,7 +52,6 @@ export default function InvoicesPage() {
   const [deleteInvoice, setDeleteInvoice] = useState<Invoice | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [paymentModal, setPaymentModal] = useState<Invoice | null>(null);
-  const [paymentAmount, setPaymentAmount] = useState('');
 
   const filtered = useMemo(() => {
     let data = [...invoiceList];
@@ -155,12 +153,10 @@ export default function InvoicesPage() {
 
   const openPaymentModal = (inv: Invoice) => {
     setPaymentModal(inv);
-    setPaymentAmount(String(inv.balance));
   };
 
-  const handlePayment = () => {
+  const handlePayment = (amount: number) => {
     if (!paymentModal) return;
-    const amount = parseFloat(paymentAmount) || 0;
     const newPaid = paymentModal.paid + amount;
     const newBalance = paymentModal.total - newPaid;
     const newStatus = newBalance <= 0 ? 'paid' : newPaid > 0 ? 'partial' : 'unpaid';
@@ -179,7 +175,6 @@ export default function InvoicesPage() {
       )
     );
     setPaymentModal(null);
-    setPaymentAmount('');
   };
 
   const columns = [
@@ -331,47 +326,11 @@ export default function InvoicesPage() {
       </Modal>
 
       {/* Payment Modal */}
-      <Modal isOpen={!!paymentModal} onClose={() => setPaymentModal(null)} title="Record Payment" size="md" footer={
-        <>
-          <Button variant="ghost" onClick={() => setPaymentModal(null)}>Cancel</Button>
-          <Button onClick={handlePayment}>Record Payment</Button>
-        </>
-      }>
-        {paymentModal && (
-          <div className={styles.paymentForm}>
-            <div className={styles.paymentInfo}>
-              <div className={styles.paymentRow}>
-                <span>Invoice</span>
-                <span className={styles.paymentValue}>{paymentModal.invoiceNumber}</span>
-              </div>
-              <div className={styles.paymentRow}>
-                <span>Total Amount</span>
-                <span className={styles.paymentValue}>{formatCurrency(paymentModal.total)}</span>
-              </div>
-              <div className={styles.paymentRow}>
-                <span>Already Paid</span>
-                <span className={styles.paymentValue}>{formatCurrency(paymentModal.paid)}</span>
-              </div>
-              <div className={styles.paymentRow}>
-                <span>Balance Due</span>
-                <span className={styles.paymentValue}>{formatCurrency(paymentModal.balance)}</span>
-              </div>
-            </div>
-            <InputField
-              label="Payment Amount"
-              type="number"
-              value={paymentAmount}
-              onChange={(e) => setPaymentAmount(e.target.value)}
-              placeholder="Enter payment amount"
-            />
-            <div className={styles.paymentActions}>
-              <Button size="sm" variant="ghost" onClick={() => setPaymentAmount(String(paymentModal.balance))}>
-                Pay Full Balance
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+      <PaymentForm
+        invoice={paymentModal}
+        onConfirm={(amount) => handlePayment(amount)}
+        onClose={() => setPaymentModal(null)}
+      />
 
       {/* Delete Confirm */}
       <ConfirmDialog

@@ -12,5 +12,5 @@ export { default as CheckboxField } from './form_elements/checkbox';
 // export { default as QuotationForm } from './QuotationForm';
 export { default as QuoteTemplateForm } from './QuoteTemplateForm';
 export { default as DeliveryNoteForm } from './DeliveryNoteForm';
-// export { default as PaymentForm } from './PaymentForm';
+export { default as PaymentForm } from './PaymentForm';
 // export * from './SettingsForms';

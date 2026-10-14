@@ -313,39 +313,6 @@
   line-height: 1.5;
 }
 
-/* Payment modal */
-.paymentForm {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.paymentInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  background: var(--neutral-50);
-  border-radius: var(--radius-md);
-}
-
-.paymentForm .paymentRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--neutral-600);
-}
-
-.paymentValue {
-  font-weight: 600;
-  color: var(--neutral-800);
-}
-
-.paymentActions {
-  display: flex;
-  justify-content: flex-end;
-}
-
 /* Responsive */
 @media (max-width: 1023px) {
   .stats {
