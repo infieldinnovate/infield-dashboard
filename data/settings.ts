@@ -1,4 +1,4 @@
-import { AppSettings } from '../types';
+import { AppSettings } from "../types";
 
 export const defaultSettings: AppSettings = {
   business: {
@@ -6,8 +6,8 @@ export const defaultSettings: AppSettings = {
     address: "Meru Makutano, C91, Opp. Equity Bank",
     phone: "+254 702 393 677",
     email: "infieldinnovations@gmail.com",
-    website: "",
-    logo: "",
+    website: "wwww.infield.co.ke",
+    logo: "/logo.png",
     signature: "/signature-wadeya.png",
   },
   numbering: {
@@ -50,27 +50,30 @@ export const defaultSettings: AppSettings = {
 };
 
 export const currencyOptions = [
-  { value: 'KES - Kenya Shilling', label: 'KES - Kenya Shilling (KSh)' },
-  { value: 'USD - US Dollar', label: 'USD - US Dollar ($)' },
-  { value: 'EUR - Euro', label: 'EUR - Euro (€)' },
-  { value: 'GBP - British Pound', label: 'GBP - British Pound (£)' },
-  { value: 'TZS - Tanzanian Shilling', label: 'TZS - Tanzanian Shilling (TSh)' },
-  { value: 'UGX - Ugandan Shilling', label: 'UGX - Ugandan Shilling (USh)' },
+  { value: "KES - Kenya Shilling", label: "KES - Kenya Shilling (KSh)" },
+  { value: "USD - US Dollar", label: "USD - US Dollar ($)" },
+  { value: "EUR - Euro", label: "EUR - Euro (€)" },
+  { value: "GBP - British Pound", label: "GBP - British Pound (£)" },
+  {
+    value: "TZS - Tanzanian Shilling",
+    label: "TZS - Tanzanian Shilling (TSh)",
+  },
+  { value: "UGX - Ugandan Shilling", label: "UGX - Ugandan Shilling (USh)" },
 ];
 
 export const themeColorOptions = [
-  { value: 'blue', label: 'Ocean Blue' },
-  { value: 'teal', label: 'Teal' },
-  { value: 'green', label: 'Emerald' },
-  { value: 'amber', label: 'Amber' },
-  { value: 'rose', label: 'Rose' },
-  { value: 'violet', label: 'Violet' },
+  { value: "blue", label: "Ocean Blue" },
+  { value: "teal", label: "Teal" },
+  { value: "green", label: "Emerald" },
+  { value: "amber", label: "Amber" },
+  { value: "rose", label: "Rose" },
+  { value: "violet", label: "Violet" },
 ];
 
 export const businessCategories = [
-  'Solar Solutions',
-  'Electrical Installations',
-  'Plumbing Services',
-  'Borehole Solutions',
-  'Irrigation Systems',
+  "Solar Solutions",
+  "Electrical Installations",
+  "Plumbing Services",
+  "Borehole Solutions",
+  "Irrigation Systems",
 ];
