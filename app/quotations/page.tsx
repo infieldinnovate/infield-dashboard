@@ -13,10 +13,12 @@ import Icon from "../../components/ui/Icon";
 import PageHeader from "../../components/ui/PageHeader";
 import RowActions from "../../components/ui/RowActions";
 import QuotationForm from "../../components/forms/QuotationForm";
+import CustomerForm from "../../components/forms/CustomerForm";
 import { quotations as initialQuotations } from "../../data/quotations";
-import { customers } from "../../data/customers";
+import { customers as initialCustomers } from "../../data/customers";
 import { products } from "../../data/products";
-import { Quotation } from "../../types";
+import { Customer, Quotation } from "../../types";
+import { CustomerFormData } from "../../schema/formSchema";
 import QuotationDocument, {
   printQuotation,
   downloadQuotationPDF,
@@ -36,7 +38,6 @@ const statusVariant: Record<
   expired: "warning",
 };
 
-const customerOptions = customers.map((c) => ({ value: c.id, label: c.name }));
 const productOptions = products.map((p) => ({ value: p.id, label: p.name }));
 
 export default function QuotationsPage() {
@@ -53,6 +54,14 @@ export default function QuotationsPage() {
   );
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [prefillData, setPrefillData] = useState<QuotationFormData | null>(null);
+  const [customerList, setCustomerList] = useState<Customer[]>(initialCustomers);
+  const [isCustomerFormOpen, setIsCustomerFormOpen] = useState(false);
+  const [createdCustomer, setCreatedCustomer] = useState<Customer | null>(null);
+
+  const customerOptions = useMemo(
+    () => customerList.map((c) => ({ value: c.id, label: c.name })),
+    [customerList],
+  );
 
   React.useEffect(() => {
     const pending = sessionStorage.getItem("generateQuotationFromTemplate");
@@ -126,7 +135,7 @@ export default function QuotationsPage() {
   };
 
   const onSubmit = (data: QuotationFormData) => {
-    const customer = customers.find((c) => c.id === data.customerId);
+    const customer = customerList.find((c) => c.id === data.customerId);
     if (!customer) return;
 
     const items = data.items;
@@ -401,8 +410,45 @@ export default function QuotationsPage() {
             setPrefillData(null);
           }}
           customerOptions={customerOptions}
+          onCreateCustomer={() => setIsCustomerFormOpen(true)}
+          createdCustomer={createdCustomer}
           productOptions={productOptions}
           products={products}
+        />
+      </Modal>
+
+      {/* Nested Create Customer Modal */}
+      <Modal
+        isOpen={isCustomerFormOpen}
+        onClose={() => setIsCustomerFormOpen(false)}
+        title="Add New Customer"
+        size="lg"
+        zIndex={200}
+      >
+        <CustomerForm
+          mode="add"
+          onSubmit={(data: CustomerFormData) => {
+            const newCustomer: Customer = {
+              id: `cust-${Date.now()}`,
+              name: data.name,
+              email: data.email,
+              phone: data.phone,
+              address: data.address,
+              city: data.city,
+              country: data.country,
+              taxId: data.taxId,
+              creditLimit: parseFloat(data.creditLimit) || 0,
+              balance: 0,
+              status: data.status,
+              createdAt: new Date().toISOString().split("T")[0],
+              type: data.type,
+            };
+            setCustomerList((prev) => [...prev, newCustomer]);
+            setCreatedCustomer(newCustomer);
+            setIsCustomerFormOpen(false);
+            toast.success("Customer created successfully");
+          }}
+          onCancel={() => setIsCustomerFormOpen(false)}
         />
       </Modal>
 

@@ -8,7 +8,7 @@ import TextareaField from './form_elements/textarea';
 import SelectField from './form_elements/select';
 import Button from '../ui/Button';
 import Icon from '../ui/Icon';
-import { Quotation, QuotationItem, Product } from '../../types';
+import { Customer, Quotation, QuotationItem, Product } from '../../types';
 import { quotationFormSchema, QuotationFormData } from '../../schema/formSchema';
 import { formatCurrency } from '../../lib/documentUtils';
 import styles from './QuotationForm.module.scss';
@@ -20,6 +20,8 @@ interface QuotationFormProps {
   onSubmit: (data: QuotationFormData) => void;
   onCancel: () => void;
   customerOptions: { value: string; label: string }[];
+  onCreateCustomer: () => void;
+  createdCustomer: Customer | null;
   productOptions: { value: string; label: string }[];
   products: Product[];
 }
@@ -62,6 +64,8 @@ export default function QuotationForm({
   onSubmit,
   onCancel,
   customerOptions,
+  onCreateCustomer,
+  createdCustomer,
   productOptions,
   products,
 }: QuotationFormProps) {
@@ -98,6 +102,12 @@ export default function QuotationForm({
       reset(getDefaultValues());
     }
   }, [mode, initialValues, prefillData, reset]);
+
+  useEffect(() => {
+    if (createdCustomer) {
+      setValue('customerId', createdCustomer.id);
+    }
+  }, [createdCustomer, setValue]);
 
   const totals = useMemo(() => {
     const items = (watchedItems || []) as QuotationItem[];
@@ -139,14 +149,30 @@ export default function QuotationForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
       <div className={styles.formTop}>
-        <SelectField
-          label="Customer"
-          required
-          options={customerOptions}
-          placeholder="Select customer"
-          register={register}
+        <Controller
+          control={control}
           name="customerId"
-          error={errors.customerId ?? null}
+          render={({ field }) => (
+            <SelectField
+              label="Customer"
+              required
+              options={[
+                ...customerOptions,
+                { value: '__create_customer__', label: '+ Create new customer' },
+              ]}
+              placeholder="Select customer"
+              value={field.value}
+              onChange={(event) => {
+                if (event.target.value === '__create_customer__') {
+                  field.onChange('');
+                  onCreateCustomer();
+                  return;
+                }
+                field.onChange(event.target.value);
+              }}
+              error={errors.customerId ?? null}
+            />
+          )}
         />
         <InputField
           label="Valid Until"

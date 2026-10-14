@@ -12,6 +12,7 @@ interface ModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   footer?: React.ReactNode;
   showCloseButton?: boolean;
+  zIndex?: number;
 }
 
 export default function Modal({
@@ -22,6 +23,7 @@ export default function Modal({
   size = 'md',
   footer,
   showCloseButton = true,
+  zIndex = 100,
 }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
@@ -47,7 +49,7 @@ export default function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} onClick={onClose} style={{ zIndex }}>
       <div className={`${styles.modal} ${styles[size]}`} onClick={(e) => e.stopPropagation()}>
         {(title || showCloseButton) && (
           <div className={styles.header}>
