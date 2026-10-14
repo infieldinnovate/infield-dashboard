@@ -99,7 +99,7 @@ export default function UserProfilePage() {
       {/* Profile header */}
       <Card padding="lg" className={styles.profileHeader}>
         <div className={styles.profileTop}>
-          <Avatar name={user.name} size="lg" className={styles.profileAvatar} />
+          <Avatar name={user.name} src={user.avatar} size="lg" className={styles.profileAvatar} />
           <div className={styles.profileInfo}>
             <h1 className={styles.profileName}>{user.name}</h1>
             {user.jobTitle && <span className={styles.profileJobTitle}>{user.jobTitle}</span>}

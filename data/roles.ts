@@ -141,7 +141,7 @@ export const activityLogs: ActivityLog[] = [
   {
     id: 'log-001',
     userId: 'usr-001',
-    userName: 'Alex Morgan',
+    userName: 'Jared Oluoch',
     action: 'Logged in',
     category: 'auth',
     detail: 'Signed in from Chrome on macOS',
@@ -151,7 +151,7 @@ export const activityLogs: ActivityLog[] = [
   {
     id: 'log-002',
     userId: 'usr-002',
-    userName: 'Sarah Chen',
+    userName: 'Wicklife Oluoch',
     action: 'Updated product',
     category: 'inventory',
     detail: 'Changed price of "Organic Coffee Beans" from $13.99 to $14.99',
@@ -160,8 +160,8 @@ export const activityLogs: ActivityLog[] = [
   },
   {
     id: 'log-003',
-    userId: 'usr-004',
-    userName: 'Priya Sharma',
+    userId: 'usr-001',
+    userName: 'Jared Oluoch',
     action: 'Created quotation',
     category: 'documents',
     detail: 'Created quotation QT-005 for Hassan Al-Fayed ($332.54)',
@@ -171,7 +171,7 @@ export const activityLogs: ActivityLog[] = [
   {
     id: 'log-004',
     userId: 'usr-003',
-    userName: 'Marcus Johnson',
+    userName: 'Collince Ngicho',
     action: 'Completed sale',
     category: 'sales',
     detail: 'POS transaction #8472 - $54.94 (cash)',
@@ -181,7 +181,7 @@ export const activityLogs: ActivityLog[] = [
   {
     id: 'log-005',
     userId: 'usr-001',
-    userName: 'Alex Morgan',
+    userName: 'Jared Oluoch',
     action: 'Changed settings',
     category: 'settings',
     detail: 'Updated tax rate from 8% to 10%',
@@ -191,7 +191,7 @@ export const activityLogs: ActivityLog[] = [
   {
     id: 'log-006',
     userId: 'usr-002',
-    userName: 'Sarah Chen',
+    userName: 'Wicklife Oluoch',
     action: 'Added customer',
     category: 'customers',
     detail: 'Created new customer profile for "Fresh Foods Inc"',
@@ -200,8 +200,8 @@ export const activityLogs: ActivityLog[] = [
   },
   {
     id: 'log-007',
-    userId: 'usr-004',
-    userName: 'Priya Sharma',
+    userId: 'usr-003',
+    userName: 'Collince Ngicho',
     action: 'Sent invoice',
     category: 'documents',
     detail: 'Emailed invoice INV-2026-0006 to Acme Corporation',
@@ -211,7 +211,7 @@ export const activityLogs: ActivityLog[] = [
   {
     id: 'log-008',
     userId: 'usr-003',
-    userName: 'Marcus Johnson',
+    userName: 'Collince Ngicho',
     action: 'Issued receipt',
     category: 'documents',
     detail: 'Cash receipt RCP-2026-0006 for Elena Rossi ($54.94)',
@@ -221,17 +221,17 @@ export const activityLogs: ActivityLog[] = [
   {
     id: 'log-009',
     userId: 'usr-001',
-    userName: 'Alex Morgan',
+    userName: 'Jared Oluoch',
     action: 'Updated user role',
     category: 'settings',
-    detail: 'Changed Priya Sharma from "cashier" to "sales" role',
+    detail: 'Changed a team member from "cashier" to "sales" role',
     timestamp: '2026-06-15 10:00:00',
     ip: '192.168.1.10',
   },
   {
     id: 'log-010',
-    userId: 'usr-005',
-    userName: 'Tom Bradley',
+    userId: 'usr-002',
+    userName: 'Wicklife Oluoch',
     action: 'Logged in',
     category: 'auth',
     detail: 'Failed login attempt - incorrect password',

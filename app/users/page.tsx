@@ -180,7 +180,7 @@ export default function UsersPage() {
                   header: 'User',
                   render: (row: User) => (
                     <div className={styles.userCell}>
-                      <Avatar name={row.name} size="md" />
+                      <Avatar name={row.name} src={row.avatar} size="md" />
                       <div className={styles.userInfo}>
                         <span className={styles.userName}>{row.name}</span>
                         <span className={styles.userEmail}>{row.email}</span>
