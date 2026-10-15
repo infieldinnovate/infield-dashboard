@@ -76,17 +76,16 @@ export interface Quotation {
   customerContact: string;
   quoteFor: string;
   quotationCode: string;
+  barcode: string;
   createdBy: string;
   createdBySignature?: string;
+  userId: string;
   items: QuotationItem[];
   subtotal: number;
-  discount: number;
-  discountType: 'percentage' | 'fixed';
   tax: number;
   taxRate: number;
   total: number;
   status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
-  validUntil: string;
   createdAt: string;
   notes: string;
 }

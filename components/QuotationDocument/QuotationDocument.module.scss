@@ -53,6 +53,7 @@
 
 .barcode { width: 100%; max-width: 140px; height: 34px; }
 .codeText { font-size: 14px; font-weight: 800; color: #126542; letter-spacing: 0.1em; }
+.barcodeText { font-size: 10px; font-weight: 600; color: #555; letter-spacing: 0.06em; }
 
 .contact {
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px;

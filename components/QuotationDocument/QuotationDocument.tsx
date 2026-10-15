@@ -59,7 +59,7 @@ function BrandedHeader({ quotation }: { quotation: Quotation }) {
   useEffect(() => {
     if (!barcodeRef.current) return;
     try {
-      JsBarcode(barcodeRef.current, quotation.quotationCode || quotation.id, {
+      JsBarcode(barcodeRef.current, quotation.barcode || quotation.quotationCode || quotation.id, {
         format: 'CODE128',
         displayValue: false,
         height: 34,
@@ -69,7 +69,7 @@ function BrandedHeader({ quotation }: { quotation: Quotation }) {
         lineColor: '#111111',
       });
     } catch { /* ignore */ }
-  }, [quotation.quotationCode, quotation.id]);
+  }, [quotation.barcode, quotation.quotationCode, quotation.id]);
 
   return (
     <header className={styles.header}>
@@ -90,6 +90,7 @@ function BrandedHeader({ quotation }: { quotation: Quotation }) {
           <h1>QUOTATION</h1>
           <svg ref={barcodeRef} className={styles.barcode} />
           <span className={styles.codeText}>{quotation.quotationCode}</span>
+          <span className={styles.barcodeText}>{quotation.barcode}</span>
         </div>
         <div className={styles.contact}>
           <div className={styles.contactRow}><strong>T.</strong><span>{phone}</span></div>
@@ -130,10 +131,6 @@ function DateBar({ quotation }: { quotation: Quotation }) {
       <div className={styles.dateItem}>
         <span className={styles.dateLabel}>Date</span>
         <span className={styles.dateValue}>{formatDate(quotation.createdAt)}</span>
-      </div>
-      <div className={styles.dateItem}>
-        <span className={styles.dateLabel}>Valid Until</span>
-        <span className={styles.dateValue}>{formatDate(quotation.validUntil)}</span>
       </div>
       <div className={styles.dateItem}>
         <span className={styles.dateLabel}>Status</span>
@@ -321,7 +318,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-brand-rule{height:18px;width:58%;background:#707070;margin-top:auto}
 .qt-title-block{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
 .qt-title-block h1{font-size:30px;font-weight:800;letter-spacing:0.06em;color:#126542;margin:0;line-height:1}
-.qt-code-text{font-size:14px;font-weight:800;color:#126542;letter-spacing:0.1em}
+.qt-code-text{font-size:14px;font-weight:800;color:#126542;letter-spacing:0.1em}.qt-barcode-text{font-size:10px;font-weight:600;color:#555;letter-spacing:0.06em}
 .qt-contact{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border-left:4px solid #111;padding:8px 0 8px 20px;position:relative}
 .qt-contact::before{content:'';position:absolute;top:-18px;right:-28px;width:130px;height:24px;background:#c9c9c9}
 .qt-contact-row{display:grid;grid-template-columns:18px 1fr;align-items:baseline;gap:8px;width:100%;padding-bottom:4px;border-bottom:1px solid #c9c9c9;font-size:11px;color:#111}
@@ -442,7 +439,7 @@ function buildQuotationHTML(quotation: Quotation): string {
       <div class="qt-business-name"><strong>INFIELD</strong><span>INNOVATIONS</span></div>
       <div class="qt-brand-rule"></div>
     </div>
-    <div class="qt-title-block"><h1>QUOTATION</h1><span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span></div>
+    <div class="qt-title-block"><h1>QUOTATION</h1><span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span><span class="qt-barcode-text">${escapeHtml(quotation.barcode || '')}</span></div>
     <div class="qt-contact">
       <div class="qt-contact-row"><strong>T.</strong><span>${escapeHtml(phone)}</span></div>
       <div class="qt-contact-row"><strong>W.</strong><span>${escapeHtml(siteUrl)}</span></div>
@@ -466,7 +463,6 @@ function buildQuotationHTML(quotation: Quotation): string {
 
   const dateBar = `<div class="qt-date-bar">
     <div class="qt-date-item"><span class="qt-date-label">Date</span><span class="qt-date-value">${formatDate(quotation.createdAt)}</span></div>
-    <div class="qt-date-item"><span class="qt-date-label">Valid Until</span><span class="qt-date-value">${formatDate(quotation.validUntil)}</span></div>
     <div class="qt-date-item"><span class="qt-date-label">Status</span><span class="qt-date-value">${statusLabels[quotation.status] || quotation.status}</span></div>
   </div>`;
 
@@ -622,7 +618,6 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   page.drawRectangle({ x: MARGIN, y: y - dateBarH, width: 4, height: dateBarH, color: BRAND_GREEN });
   const dateItems = [
     { label: 'Date', value: formatDate(quotation.createdAt) },
-    { label: 'Valid Until', value: formatDate(quotation.validUntil) },
     { label: 'Status', value: statusLabels[quotation.status] || quotation.status },
   ];
   const dateColW = (CONTENT_WIDTH - 4) / dateItems.length;

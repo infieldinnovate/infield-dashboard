@@ -52,6 +52,45 @@
   gap: 8px;
 }
 
+.itemRowHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 0 4px 0;
+}
+
+.itemRowHeader .itemProduct {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--neutral-600);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.colHeadingSize,
+.colHeadingQty,
+.colHeadingPrice {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--neutral-600);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.colHeadingSize {
+  width: 80px;
+}
+
+.colHeadingQty {
+  width: 80px;
+}
+
+.colHeadingPrice {
+  width: 100px;
+}
+
 .itemRow {
   display: flex;
   align-items: flex-end;

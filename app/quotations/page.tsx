@@ -27,16 +27,25 @@ import { formatCurrency } from "../../lib/documentUtils";
 import { QuotationFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
-function generateQuotationCode(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+function generateQuotationCode(existing: Set<string>): string {
   let code = "";
-  for (let i = 0; i < 5; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
+  do {
+    code = "";
+    for (let i = 0; i < 5; i++) {
+      code += CHARS[Math.floor(Math.random() * CHARS.length)];
+    }
+  } while (existing.has(code));
   return code;
 }
 
-const defaultUser = { name: "Jared Oluoch", signature: "/users/signature-jerry.png" };
+function generateBarcode(userId: string, quotationCode: string): string {
+  const uid = (userId || "U01").substring(0, 3).toUpperCase().padEnd(3, "0");
+  return uid + quotationCode;
+}
+
+const defaultUser = { name: "Jared Oluoch", signature: "/users/signature-jerry.png", userId: "J01" };
 
 const statusVariant: Record<
   string,
@@ -87,12 +96,7 @@ export default function QuotationsPage() {
           customerContact: "",
           quoteFor: data.quoteFor || data.templateName || "",
           items: data.items || [],
-          discount: data.discount || "0",
-          discountType: data.discountType || "percentage",
           taxRate: data.taxRate || "16",
-          validUntil: new Date(Date.now() + 14 * 86400000)
-            .toISOString()
-            .split("T")[0],
           notes: data.notes || "",
         });
         setIsFormOpen(true);
@@ -136,14 +140,15 @@ export default function QuotationsPage() {
   };
 
   const duplicateQuotation = (qt: Quotation) => {
+    const existingCodes = new Set(quotationList.map((q) => q.quotationCode));
+    const newCode = generateQuotationCode(existingCodes);
     const newQt: Quotation = {
       ...qt,
       id: `qt-${Date.now()}`,
       status: "draft",
       createdAt: new Date().toISOString().split("T")[0],
-      validUntil: new Date(Date.now() + 14 * 86400000)
-        .toISOString()
-        .split("T")[0],
+      quotationCode: newCode,
+      barcode: generateBarcode(qt.userId, newCode),
     };
     setQuotationList((prev) => [newQt, ...prev]);
   };
@@ -154,14 +159,13 @@ export default function QuotationsPage() {
 
     const items = data.items;
     const subtotal = items.reduce((sum, i) => sum + i.total, 0);
-    const discountAmount =
-      data.discountType === "percentage"
-        ? (subtotal * (parseFloat(data.discount) || 0)) / 100
-        : parseFloat(data.discount) || 0;
-    const afterDiscount = Math.max(0, subtotal - discountAmount);
     const taxRate = parseFloat(data.taxRate) || 0;
-    const tax = (afterDiscount * taxRate) / 100;
-    const total = afterDiscount + tax;
+    const tax = (subtotal * taxRate) / 100;
+    const total = subtotal + tax;
+
+    const existingCodes = new Set(quotationList.map((q) => q.quotationCode));
+    const qCode = editQuotation?.quotationCode || generateQuotationCode(existingCodes);
+    const userId = editQuotation?.userId || defaultUser.userId;
 
     const qtData: Quotation = {
       id: editQuotation?.id || `qt-${Date.now()}`,
@@ -170,18 +174,17 @@ export default function QuotationsPage() {
       customerAddress: data.customerAddress || undefined,
       customerContact: data.customerContact,
       quoteFor: data.quoteFor,
-      quotationCode: editQuotation?.quotationCode || generateQuotationCode(),
+      quotationCode: qCode,
+      barcode: editQuotation?.barcode || generateBarcode(userId, qCode),
       createdBy: editQuotation?.createdBy || defaultUser.name,
       createdBySignature: editQuotation?.createdBySignature || defaultUser.signature,
+      userId,
       items,
       subtotal,
-      discount: parseFloat(data.discount) || 0,
-      discountType: data.discountType,
       tax,
       taxRate,
       total,
       status: editQuotation?.status || "draft",
-      validUntil: data.validUntil,
       createdAt:
         editQuotation?.createdAt || new Date().toISOString().split("T")[0],
       notes: data.notes,
@@ -237,10 +240,10 @@ export default function QuotationsPage() {
       ),
     },
     {
-      key: "validUntil",
-      header: "Valid Until",
+      key: "quotationCode",
+      header: "Code",
       render: (row: Quotation) => (
-        <span className={styles.date}>{row.validUntil}</span>
+        <span className={styles.qtId}>{row.quotationCode}</span>
       ),
     },
     {

@@ -13,6 +13,8 @@ import { quotationFormSchema, QuotationFormData } from '../../schema/formSchema'
 import { formatCurrency } from '../../lib/documentUtils';
 import styles from './QuotationForm.module.scss';
 
+const DEFAULT_NOTES = 'Prices are valid for 14 days from the date of this quotation.';
+
 interface QuotationFormProps {
   mode: 'create' | 'edit';
   initialValues?: Quotation | null;
@@ -27,11 +29,6 @@ interface QuotationFormProps {
   customers: Customer[];
 }
 
-const discountTypeOptions = [
-  { value: 'percentage', label: 'Percentage (%)' },
-  { value: 'fixed', label: 'Fixed Amount' },
-];
-
 const taxRateOptions = [
   { value: '0', label: '0% (No Tax)' },
   { value: '8', label: '8%' },
@@ -45,26 +42,16 @@ function getDefaultValues(): QuotationFormData {
     customerContact: '',
     quoteFor: '',
     items: [],
-    discount: '0',
-    discountType: 'percentage',
     taxRate: '16',
-    validUntil: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-    notes: '',
+    notes: DEFAULT_NOTES,
   };
 }
 
-function calcTotals(
-  items: QuotationItem[],
-  discount: number,
-  discountType: 'percentage' | 'fixed',
-  taxRate: number,
-) {
+function calcTotals(items: QuotationItem[], taxRate: number) {
   const subtotal = items.reduce((sum, i) => sum + i.total, 0);
-  const discountAmount = discountType === 'percentage' ? (subtotal * discount) / 100 : discount;
-  const afterDiscount = Math.max(0, subtotal - discountAmount);
-  const tax = (afterDiscount * taxRate) / 100;
-  const total = afterDiscount + tax;
-  return { subtotal, discountAmount, tax, total };
+  const tax = (subtotal * taxRate) / 100;
+  const total = subtotal + tax;
+  return { subtotal, tax, total };
 }
 
 export default function QuotationForm({
@@ -86,20 +73,15 @@ export default function QuotationForm({
       defaultValues: getDefaultValues(),
     });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'items',
-  });
+  const { fields, append, remove } = useFieldArray({ control, name: 'items' });
 
   const watchedItems = watch('items');
-  const watchedDiscount = watch('discount');
-  const watchedDiscountType = watch('discountType');
   const watchedTaxRate = watch('taxRate');
   const watchedCustomerId = watch('customerId');
 
   useEffect(() => {
     if (prefillData) {
-      reset(prefillData);
+      reset({ ...prefillData, notes: prefillData.notes || DEFAULT_NOTES });
     } else if (mode === 'edit' && initialValues) {
       reset({
         customerId: initialValues.customerId,
@@ -107,11 +89,8 @@ export default function QuotationForm({
         customerContact: initialValues.customerContact || '',
         quoteFor: initialValues.quoteFor || '',
         items: initialValues.items.map((i) => ({ ...i })),
-        discount: String(initialValues.discount),
-        discountType: initialValues.discountType,
         taxRate: String(initialValues.taxRate),
-        validUntil: initialValues.validUntil,
-        notes: initialValues.notes,
+        notes: initialValues.notes || DEFAULT_NOTES,
       });
     } else {
       reset(getDefaultValues());
@@ -128,27 +107,22 @@ export default function QuotationForm({
     if (watchedCustomerId) {
       const customer = customers.find((c) => c.id === watchedCustomerId);
       if (customer) {
-        const currentContact = watch('customerContact');
-        if (!currentContact) {
-          setValue('customerContact', customer.phone || customer.email);
-        }
-        const currentAddress = watch('customerAddress');
-        if (!currentAddress && customer.address) {
-          setValue('customerAddress', `${customer.address}, ${customer.city}`);
-        }
+        setValue('customerContact', customer.phone || customer.email);
+        setValue('customerAddress', customer.address ? `${customer.address}, ${customer.city}` : '');
       }
     }
-  }, [watchedCustomerId, customers, setValue, watch]);
+  }, [watchedCustomerId, customers, setValue]);
 
   const totals = useMemo(() => {
     const items = (watchedItems || []) as QuotationItem[];
-    return calcTotals(
-      items,
-      parseFloat(watchedDiscount) || 0,
-      (watchedDiscountType ?? 'percentage') as 'percentage' | 'fixed',
-      parseFloat(watchedTaxRate) || 0,
-    );
-  }, [watchedItems, watchedDiscount, watchedDiscountType, watchedTaxRate]);
+    return calcTotals(items, parseFloat(watchedTaxRate) || 0);
+  }, [watchedItems, watchedTaxRate]);
+
+  const recalcItemTotal = (index: number) => {
+    const qty = watchedItems?.[index]?.quantity ?? 0;
+    const price = watchedItems?.[index]?.unitPrice ?? 0;
+    setValue(`items.${index}.total`, qty * price);
+  };
 
   const addItem = () => {
     append({ productId: '', productName: '', quantity: 1, unitPrice: 0, total: 0, size: '' });
@@ -159,22 +133,8 @@ export default function QuotationForm({
     setValue(`items.${index}.productName`, product?.name || '');
     const unitPrice = product?.price || 0;
     setValue(`items.${index}.unitPrice`, unitPrice);
-    const qty = watchedItems?.[index]?.quantity ?? 0;
+    const qty = watchedItems?.[index]?.quantity ?? 1;
     setValue(`items.${index}.total`, unitPrice * qty);
-  };
-
-  const onQtyChange = (index: number, rawValue: string) => {
-    const qty = parseInt(rawValue) || 0;
-    const price = watchedItems?.[index]?.unitPrice ?? 0;
-    setValue(`items.${index}.total`, qty * price);
-    return qty;
-  };
-
-  const onPriceChange = (index: number, rawValue: string) => {
-    const price = parseFloat(rawValue) || 0;
-    const qty = watchedItems?.[index]?.quantity ?? 0;
-    setValue(`items.${index}.total`, qty * price);
-    return price;
   };
 
   return (
@@ -206,41 +166,32 @@ export default function QuotationForm({
           )}
         />
         <InputField
-          label="Valid Until"
-          type="date"
+          label="Customer Contact (auto-filled from customer)"
           required
+          placeholder="Auto-filled when customer selected"
           register={register}
-          name="validUntil"
-          error={errors.validUntil ?? null}
+          name="customerContact"
+          error={errors.customerContact ?? null}
         />
       </div>
 
       <div className={styles.formTop}>
         <InputField
-          label="Customer Contact (phone or email)"
-          required
-          placeholder="e.g. +254 712 345 678 or email@example.com"
-          register={register}
-          name="customerContact"
-          error={errors.customerContact ?? null}
-        />
-        <InputField
-          label="Customer Address (optional)"
-          placeholder="Customer address"
+          label="Customer Address (auto-filled from customer)"
+          placeholder="Auto-filled when customer selected"
           register={register}
           name="customerAddress"
           error={errors.customerAddress ?? null}
         />
+        <InputField
+          label="Quote For (description of what this quote is for)"
+          required
+          placeholder="e.g. Off-grid solar system installation"
+          register={register}
+          name="quoteFor"
+          error={errors.quoteFor ?? null}
+        />
       </div>
-
-      <InputField
-        label="Quote For (description of what this quote is for)"
-        required
-        placeholder="e.g. Off-grid solar system installation"
-        register={register}
-        name="quoteFor"
-        error={errors.quoteFor ?? null}
-      />
 
       <div className={styles.itemsSection}>
         <div className={styles.itemsHeader}>
@@ -259,6 +210,14 @@ export default function QuotationForm({
           </div>
         ) : (
           <div className={styles.itemsList}>
+            <div className={styles.itemRowHeader}>
+              <div className={styles.itemProduct}>Product</div>
+              <span className={styles.colHeadingSize}>Size</span>
+              <span className={styles.colHeadingQty}>Qty</span>
+              <span className={styles.colHeadingPrice}>Price</span>
+              <span className={styles.itemTotal}>Total</span>
+              <span style={{ width: 28 }} />
+            </div>
             {fields.map((item, index) => (
               <div key={item.id} className={styles.itemRow}>
                 <div className={styles.itemProduct}>
@@ -293,7 +252,13 @@ export default function QuotationForm({
                       type="number"
                       placeholder="Qty"
                       value={field.value}
-                      onChange={(e) => field.onChange(onQtyChange(index, e.target.value))}
+                      onChange={(e) => {
+                        const qty = parseInt(e.target.value) || 0;
+                        field.onChange(qty);
+                        const price = watchedItems?.[index]?.unitPrice ?? 0;
+                        setValue(`items.${index}.total`, qty * price);
+                      }}
+                      inputProps={{ onBlur: () => recalcItemTotal(index) }}
                       error={fieldState.error ?? null}
                       className={styles.itemQty}
                     />
@@ -307,7 +272,13 @@ export default function QuotationForm({
                       type="number"
                       placeholder="Price"
                       value={field.value}
-                      onChange={(e) => field.onChange(onPriceChange(index, e.target.value))}
+                      onChange={(e) => {
+                        const price = parseFloat(e.target.value) || 0;
+                        field.onChange(price);
+                        const qty = watchedItems?.[index]?.quantity ?? 0;
+                        setValue(`items.${index}.total`, qty * price);
+                      }}
+                      inputProps={{ onBlur: () => recalcItemTotal(index) }}
                       error={fieldState.error ?? null}
                       className={styles.itemPrice}
                     />
@@ -329,20 +300,6 @@ export default function QuotationForm({
         <div className={styles.calcFields}>
           <div className={styles.calcRow}>
             <SelectField
-              label="Discount Type"
-              options={discountTypeOptions}
-              register={register}
-              name="discountType"
-              error={errors.discountType ?? null}
-            />
-            <InputField
-              label="Discount"
-              type="number"
-              register={register}
-              name="discount"
-              error={errors.discount ?? null}
-            />
-            <SelectField
               label="Tax Rate"
               options={taxRateOptions}
               register={register}
@@ -355,10 +312,6 @@ export default function QuotationForm({
           <div className={styles.summaryRow}>
             <span>Subtotal</span>
             <span>{formatCurrency(totals.subtotal)}</span>
-          </div>
-          <div className={styles.summaryRow}>
-            <span>Discount</span>
-            <span>-{formatCurrency(totals.discountAmount)}</span>
           </div>
           <div className={styles.summaryRow}>
             <span>Tax ({watchedTaxRate || 0}%)</span>

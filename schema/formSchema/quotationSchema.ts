@@ -17,16 +17,10 @@ export const quotationFormSchema = z.object({
   items: z
     .array(quotationItemSchema)
     .min(1, 'At least one item is required'),
-  discount: z
-    .string()
-    .refine((v) => !isNaN(Number(v)), 'Discount must be a valid number')
-    .refine((v) => Number(v) >= 0, 'Discount must be >= 0'),
-  discountType: z.enum(['percentage', 'fixed']),
   taxRate: z
     .string()
     .refine((v) => !isNaN(Number(v)), 'Tax rate must be a valid number')
     .refine((v) => Number(v) >= 0, 'Tax rate must be >= 0'),
-  validUntil: z.string().min(1, 'Valid until date is required'),
   notes: z.string(),
 });
 
