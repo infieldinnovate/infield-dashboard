@@ -11,6 +11,11 @@
   transition: margin-left var(--transition-base);
   background: var(--neutral-50);
   min-height: 100vh;
+  background-image: url("/backgrounds/plain.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .mainCollapsed {
