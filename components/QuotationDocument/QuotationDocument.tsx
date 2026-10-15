@@ -59,7 +59,7 @@ function formatAmount(amount: number): string {
 function BrandedHeader({ quotation }: { quotation: Quotation }) {
   const barcodeRef = useRef<SVGSVGElement>(null);
   const settings = getSettings();
-  const { businessName, address, phone, email, website } = settings.business;
+  const { businessName, address, phone, email, website, logo } = settings.business;
   const barcodeValue = generateBarcode(quotation.userId, quotation.quotationCode);
 
   useEffect(() => {
@@ -81,28 +81,20 @@ function BrandedHeader({ quotation }: { quotation: Quotation }) {
     <header className={styles.header}>
       <div className={styles.headerTop}>
         <div className={styles.brand}>
-          <div className={styles.logo}>
-            <span className={styles.logoMark}>in</span>
-            <span className={styles.logoName}>Field</span>
-            <span className={styles.logoDrop} />
+          <img className={styles.logo} src={logo} alt={`${businessName} logo`} />
+          <div className={styles.businessName}>{businessName}</div>
+          <div className={styles.businessDetails}>
+            <p>{address}</p>
+            <p><strong>Tel:</strong> {phone}</p>
+            <p><strong>Email:</strong> {email}</p>
+            <p><strong>Website:</strong> {website || 'www.infield.co.ke'}</p>
           </div>
-          <div className={styles.businessName}>
-            <strong>INFIELD</strong>
-            <span>INNOVATIONS</span>
-          </div>
-          <div className={styles.brandRule} />
         </div>
         <div className={styles.titleBlock}>
           <h1>QUOTATION</h1>
           <svg ref={barcodeRef} className={styles.barcode} />
           <span className={styles.codeText}>{quotation.quotationCode}</span>
-          <span className={styles.barcodeText}>{barcodeValue}</span>
-        </div>
-        <div className={styles.contact}>
-          <div className={styles.contactRow}><strong>T.</strong><span>{phone}</span></div>
-          <div className={styles.contactRow}><strong>W.</strong><span>{website || 'www.infield.co.ke'}</span></div>
-          <div className={styles.contactRow}><strong>E.</strong><span>{email}</span></div>
-          <address>{address}</address>
+          <span className={styles.dateText}><strong>Date:</strong><span>{formatDate(quotation.createdAt)}</span></span>
         </div>
       </div>
       <div className={styles.accentBar}><span /></div>
@@ -148,14 +140,14 @@ function DateBar({ quotation }: { quotation: Quotation }) {
 
 /* === Items Table === */
 function ItemsTable({ items, pad }: { items: QuotationItem[]; pad?: boolean }) {
-  const rows = pad ? padToMinimum(items, 4) : items;
+  const rows = pad ? padToMinimum(items, 15) : items;
   return (
     <table className={styles.itemsTable}>
       <thead>
         <tr>
           <th className={styles.noColumn}>No.</th>
           <th>Description</th>
-          <th className={styles.unitColumn}>Unit</th>
+          <th className={styles.unitColumn}>Size</th>
           <th className={styles.qtyColumn}>Qty</th>
           <th className={styles.priceColumn}>Price</th>
           <th className={styles.totalColumn}>Total</th>
@@ -169,7 +161,7 @@ function ItemsTable({ items, pad }: { items: QuotationItem[]; pad?: boolean }) {
               <td className={styles.noColumn}>{isBlank ? '' : index + 1}</td>
               <td>{item.productName}</td>
               <td className={styles.unitColumn}>{isBlank ? '' : (item.unit || '-')}</td>
-              <td className={styles.qtyColumn}>{isBlank ? '' : `${item.quantity} Units`}</td>
+              <td className={styles.qtyColumn}>{isBlank ? '' : item.quantity}</td>
               <td className={styles.priceColumn}>{isBlank ? '' : formatAmount(item.unitPrice)}</td>
               <td className={styles.totalColumn}>{isBlank ? '-' : formatAmount(calcItemTotal(item))}</td>
             </tr>
@@ -200,7 +192,7 @@ function Footer({ quotation }: { quotation: Quotation }) {
   return (
     <footer className={styles.footer}>
       <div className={styles.footerNotes}>
-        <strong>Notes:</strong>
+        <strong>Terms &amp; Conditions</strong>
         {quotation.notes && <span>{quotation.notes}</span>}
       </div>
       <div className={styles.footerBottom}>
@@ -211,7 +203,7 @@ function Footer({ quotation }: { quotation: Quotation }) {
           <strong>{quotation.createdBy}</strong>
         </div>
       </div>
-      <div className={styles.footerContact}>Contact us: {phone}</div>
+      <div className={styles.footerContact}>CONTACT US: <span>{phone}</span></div>
     </footer>
   );
 }
@@ -382,6 +374,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-compact-title{font-size:12px;color:#666}
 .qt-compact-number{font-size:10px;color:#999;display:block}
 @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.qt-page{padding:14mm 15mm 12mm}.qt-header-top{grid-template-columns:1.2fr .8fr;min-height:132px;padding:0;gap:28px;align-items:start}.qt-brand{gap:0;align-items:flex-start}.qt-logo-img{width:174px;height:52px;object-fit:contain;object-position:left center;margin:0 0 14px}.qt-business-name{display:block;color:#164865;font-size:21px;font-weight:800;line-height:1.1}.qt-business-details{margin-top:5px;color:#151515;font-family:Georgia,'Times New Roman',serif;font-size:12px;line-height:1.35}.qt-business-details p{margin:0}.qt-title-block{align-items:flex-end;text-align:right;justify-content:flex-start;gap:0}.qt-title-block h1{margin:2px 0 19px;color:#164865;font-size:21px}.qt-barcode-img{width:205px;height:38px}.qt-code-text{margin-top:9px;color:#164865;font-size:15px}.qt-date-text{margin-top:7px;color:#164865;font-size:14px}.qt-date-text span{color:#111;margin-left:4px}.qt-accent-bar{height:1px;margin-top:17px;background:#b7b7b7}.qt-accent-bar span{display:none}.qt-billto-for{grid-template-columns:1fr 1.55fr;gap:28px;align-items:center;margin:0 0 45px}.qt-billto{padding:2px 0;background:#fff}.qt-billto-label{color:#111;font-size:16px;font-weight:500}.qt-for-section{display:grid;grid-template-columns:74px 1fr;min-height:51px;padding:0;background:#d4d4d4}.qt-for-label{display:flex;align-items:center;padding:0 14px;background:#bdbdbd;color:#111;font-size:16px;font-weight:500}.qt-for-text{display:flex;align-items:center;padding:0 16px;color:#111;font-size:14px}.qt-date-bar{display:none}.qt-items-table{margin:0}.qt-items-table th{height:32px;background:#104b68;font-size:14px}.qt-items-table tbody td{height:26px;padding:6px 10px;font-size:12px}.qt-totals{width:41%;margin:29px 0 0 auto}.qt-grand-total{min-height:37px;background:#f3f7f6;font-size:15px}.qt-grand-total strong{padding-left:3px;background:transparent;color:#111;font-size:15px}.qt-grand-total span{font-weight:400}.qt-footer{margin-top:63px}.qt-footer-notes{min-height:86px;padding:0 0 0 13%;font-size:15px;font-style:italic}.qt-footer-notes strong{font-size:15px}.qt-footer-notes span{display:none}.qt-footer-bottom{grid-template-columns:1.25fr 1fr 1.1fr;min-height:125px}.qt-footer-thank{grid-column:1;grid-row:2;color:#111;font-family:Georgia,'Times New Roman',serif;font-size:11px;font-style:italic;text-transform:none}.qt-footer-stamp{grid-column:2;grid-row:1 / 3}.qt-authorised-sig{grid-column:3;grid-row:1 / 3;padding-top:12px}.qt-footer-contact{grid-column:1;grid-row:1;margin:0 0 10px;padding:0;border:0;color:#111;font-weight:600}.qt-footer-contact span{margin-left:26px}
 `;
 
 function escapeHtml(str: string): string {
@@ -408,7 +401,7 @@ function generateBarcodeDataUrl(value: string): string {
 
 function buildQuotationHTML(quotation: Quotation): string {
   const settings = getSettings();
-  const { businessName, address, phone, email, website } = settings.business;
+  const { businessName, address, phone, email, website, logo } = settings.business;
   const siteUrl = website || 'www.infield.co.ke';
   const pages = paginateItems(quotation.items);
   const signatureSrc = quotation.createdBySignature || settings.business.signature;
@@ -417,9 +410,9 @@ function buildQuotationHTML(quotation: Quotation): string {
   const barcodeImg = barcodeDataUrl ? `<img src="${barcodeDataUrl}" alt="Barcode" class="qt-barcode-img" />` : '';
 
   const buildItemsTable = (items: QuotationItem[], pad = false): string => {
-    const rows = pad ? padToMinimum(items, 4) : items;
+    const rows = pad ? padToMinimum(items, 15) : items;
     return `<table class="qt-items-table"><thead><tr>
-      <th class="qt-no-col">No.</th><th>Description</th><th class="qt-unit-col">Unit</th>
+      <th class="qt-no-col">No.</th><th>Description</th><th class="qt-unit-col">Size</th>
       <th class="qt-qty-col">Qty</th><th class="qt-price-col">Price</th><th class="qt-total-col">Total</th>
     </tr></thead><tbody>${rows.map((item, i) => {
       const isBlank = !item.productName;
@@ -427,7 +420,7 @@ function buildQuotationHTML(quotation: Quotation): string {
         <td class="qt-no-col">${isBlank ? '' : i + 1}</td>
         <td>${escapeHtml(item.productName)}</td>
         <td class="qt-unit-col">${isBlank ? '' : escapeHtml(item.unit || '-')}</td>
-        <td class="qt-qty-col">${isBlank ? '' : item.quantity + ' Units'}</td>
+        <td class="qt-qty-col">${isBlank ? '' : item.quantity}</td>
         <td class="qt-price-col">${isBlank ? '' : formatAmount(item.unitPrice)}</td>
         <td class="qt-total-col">${isBlank ? '-' : formatAmount(calcItemTotal(item))}</td>
       </tr>`;
@@ -453,28 +446,21 @@ function buildQuotationHTML(quotation: Quotation): string {
   const sigHTML = signatureSrc ? `<img src="${escapeHtml(signatureSrc)}" alt="Signature" style="max-width:140px;max-height:50px;object-fit:contain" />` : '';
 
   const buildFooter = () => `<footer class="qt-footer">
-    <div class="qt-footer-notes"><strong>Notes:</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ''}</div>
+    <div class="qt-footer-notes"><strong>Terms &amp; Conditions</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ''}</div>
     <div class="qt-footer-bottom">
       <div class="qt-footer-thank">Thank you for choosing Infield Innovations!</div>
       ${stampHTML}
       <div class="qt-authorised-sig">${sigHTML}<strong>${escapeHtml(quotation.createdBy || '')}</strong></div>
     </div>
-    <div class="qt-footer-contact">Contact us: ${escapeHtml(phone)}</div>
+    <div class="qt-footer-contact">CONTACT US: <span>${escapeHtml(phone)}</span></div>
   </footer>`;
 
   const headerFull = `<header class="qt-header"><div class="qt-header-top">
-    <div class="qt-brand">
-      <div class="qt-logo"><span class="qt-logo-mark">in</span><span class="qt-logo-name">Field</span><span class="qt-logo-drop"></span></div>
-      <div class="qt-business-name"><strong>INFIELD</strong><span>INNOVATIONS</span></div>
-      <div class="qt-brand-rule"></div>
+    <div class="qt-brand"><img class="qt-logo-img" src="${escapeHtml(logo)}" alt="${escapeHtml(businessName)} logo" />
+      <div class="qt-business-name">${escapeHtml(businessName)}</div>
+      <div class="qt-business-details"><p>${escapeHtml(address)}</p><p><strong>Tel:</strong> ${escapeHtml(phone)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Website:</strong> ${escapeHtml(siteUrl)}</p></div>
     </div>
-    <div class="qt-title-block"><h1>QUOTATION</h1>${barcodeImg}<span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span><span class="qt-barcode-text">${escapeHtml(barcodeValue)}</span></div>
-    <div class="qt-contact">
-      <div class="qt-contact-row"><strong>T.</strong><span>${escapeHtml(phone)}</span></div>
-      <div class="qt-contact-row"><strong>W.</strong><span>${escapeHtml(siteUrl)}</span></div>
-      <div class="qt-contact-row"><strong>E.</strong><span>${escapeHtml(email)}</span></div>
-      <address>${escapeHtml(address)}</address>
-    </div>
+    <div class="qt-title-block"><h1>QUOTATION</h1>${barcodeImg}<span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span><span class="qt-date-text"><strong>Date:</strong><span>${escapeHtml(formatDate(quotation.createdAt))}</span></span></div>
   </div><div class="qt-accent-bar"><span></span></div></header>`;
 
   const billToFor = `<div class="qt-billto-for">
@@ -522,14 +508,14 @@ const MARGIN = 50;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 
 const LOGO_BLUE = rgb(0.094, 0.541, 0.753);
-const BRAND_GREEN = rgb(0.073, 0.396, 0.259);
+const BRAND_GREEN = rgb(0.086, 0.282, 0.388);
 const ACCENT_GREEN = rgb(0.208, 0.722, 0.463);
 const ACCENT_GRAY = rgb(0.788, 0.788, 0.788);
-const FOR_LABEL_BG = rgb(0.525, 0.678, 0.612);
-const FOR_CONTENT_BG = rgb(0.886, 0.886, 0.886);
-const TABLE_GREEN = rgb(0.212, 0.725, 0.463);
+const FOR_LABEL_BG = rgb(0.741, 0.741, 0.741);
+const FOR_CONTENT_BG = rgb(0.831, 0.831, 0.831);
+const TABLE_GREEN = rgb(0.063, 0.294, 0.408);
 const TABLE_GRAY = rgb(0.533, 0.545, 0.545);
-const GRAND_TOTAL_BG = rgb(0.706, 0.918, 0.839);
+const GRAND_TOTAL_BG = rgb(0.953, 0.969, 0.965);
 const BRAND_RULE = rgb(0.439, 0.439, 0.439);
 const STAMP_RED = rgb(0.753, 0.224, 0.169);
 const DARK = rgb(0.067, 0.067, 0.067);
@@ -544,10 +530,14 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   const serifFont: PDFFont = await doc.embedFont(StandardFonts.TimesRoman);
 
   const settings = getSettings();
-  const { businessName, address, phone, email, website } = settings.business;
+  const { businessName, address, phone, email, website, logo } = settings.business;
   const siteUrl = website || 'www.infield.co.ke';
   const barcodeValue = generateBarcode(quotation.userId, quotation.quotationCode);
   const signatureSrc = quotation.createdBySignature || settings.business.signature;
+
+  const logoBytes = await fetchImageBytes(logo);
+  let logoImg = null;
+  if (logoBytes) { try { logoImg = await doc.embedPng(logoBytes); } catch { try { logoImg = await doc.embedJpg(logoBytes); } catch { /* ignore */ } } }
 
   const barcodeBytes = await generateBarcodePng(barcodeValue);
   let barcodeImg = null;
@@ -591,16 +581,16 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
 
   // Header
   const headerTop = PAGE_HEIGHT - MARGIN - 18;
-  page.drawText('in', { x: col1X + 4, y: headerTop + 2, size: 20, font: boldFont, color: LOGO_BLUE });
-  const inW = boldFont.widthOfTextAtSize('in', 20);
-  page.drawText('Field', { x: col1X + 4 + inW, y: headerTop + 2, size: 20, font: boldFont, color: LOGO_BLUE });
-  const logoFullW = boldFont.widthOfTextAtSize('inField', 20);
-  page.drawLine({ start: { x: col1X + 4, y: headerTop - 2 }, end: { x: col1X + 4 + logoFullW + 2, y: headerTop - 2 }, thickness: 2, color: LOGO_BLUE });
-
-  const bizY = headerTop - 28;
-  page.drawText('INFIELD', { x: col1X, y: bizY, size: 18, font: boldFont, color: BRAND_GREEN });
-  page.drawText('INNOVATIONS', { x: col1X, y: bizY - 18, size: 18, font: font, color: DARK });
-  page.drawRectangle({ x: col1X, y: bizY - 34, width: col1W * 0.58, height: 12, color: BRAND_RULE });
+  if (logoImg) {
+    const logoW = 120; const logoH = Math.min((logoImg.height / logoImg.width) * logoW, 42);
+    page.drawImage(logoImg, { x: col1X, y: headerTop - logoH + 4, width: logoW, height: logoH });
+  }
+  const bizY = headerTop - 58;
+  page.drawText(businessName, { x: col1X, y: bizY, size: 16, font: boldFont, color: BRAND_GREEN });
+  page.drawText(address, { x: col1X, y: bizY - 16, size: 8, font: serifFont, color: DARK });
+  page.drawText(`Tel: ${phone}`, { x: col1X, y: bizY - 28, size: 8, font: serifFont, color: DARK });
+  page.drawText(`Email: ${email}`, { x: col1X, y: bizY - 40, size: 8, font: serifFont, color: DARK });
+  page.drawText(`Website: ${siteUrl}`, { x: col1X, y: bizY - 52, size: 8, font: serifFont, color: DARK });
 
   const titleText = 'QUOTATION';
   page.drawText(titleText, { x: col2X + (col2W - boldFont.widthOfTextAtSize(titleText, 24)) / 2, y: headerTop - 6, size: 24, font: boldFont, color: BRAND_GREEN });
@@ -647,31 +637,18 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   let addrY = bfY - 38;
   if (quotation.customerAddress) { page.drawText(quotation.customerAddress, { x: MARGIN + 14, y: addrY, size: 9, font: font, color: GRAY }); addrY -= 12; }
   page.drawText(quotation.customerContact, { x: MARGIN + 14, y: addrY, size: 9, font: font, color: GRAY });
-  page.drawRectangle({ x: MARGIN + halfW, y: bfY - bfHeight, width: halfW, height: bfHeight, color: FOR_LABEL_BG });
-  page.drawText('FOR:', { x: MARGIN + halfW + 14, y: bfY - 12, size: 11, font: boldFont, color: WHITE });
+  page.drawRectangle({ x: MARGIN + halfW, y: bfY - bfHeight, width: halfW, height: bfHeight, color: FOR_CONTENT_BG });
+  page.drawRectangle({ x: MARGIN + halfW, y: bfY - bfHeight, width: 74, height: bfHeight, color: FOR_LABEL_BG });
+  page.drawText('FOR:', { x: MARGIN + halfW + 14, y: bfY - 12, size: 11, font: font, color: DARK });
   let forDisplay = quotation.quoteFor || '';
   const maxForW = halfW - 28;
   if (font.widthOfTextAtSize(forDisplay, 11) > maxForW) {
     while (font.widthOfTextAtSize(forDisplay + '...', 11) > maxForW && forDisplay.length > 0) forDisplay = forDisplay.slice(0, -1);
     forDisplay += '...';
   }
-  page.drawText(forDisplay, { x: MARGIN + halfW + 14, y: bfY - 28, size: 11, font: font, color: WHITE });
+  page.drawText(forDisplay, { x: MARGIN + halfW + 88, y: bfY - 28, size: 11, font: font, color: DARK });
 
-  // Date Bar
-  y = bfY - bfHeight - 10;
-  const dateBarH = 28;
-  page.drawRectangle({ x: MARGIN, y: y - dateBarH, width: 4, height: dateBarH, color: BRAND_GREEN });
-  const dateItems = [
-    { label: 'Date', value: formatDate(quotation.createdAt) },
-    { label: 'Status', value: statusLabels[quotation.status] || quotation.status },
-  ];
-  const dateColW = (CONTENT_WIDTH - 4) / dateItems.length;
-  dateItems.forEach((d, i) => {
-    const dx = MARGIN + 4 + i * dateColW + 10;
-    page.drawText(d.label.toUpperCase(), { x: dx, y: y - 8, size: 8, font: boldFont, color: GRAY });
-    page.drawText(d.value, { x: dx, y: y - 22, size: 10, font: font, color: DARK });
-  });
-  y -= dateBarH + 10;
+  y = bfY - bfHeight - 42;
 
   // Items table
   const colWidths: Record<string, number> = {
@@ -687,7 +664,7 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   };
 
   const drawTableHeader = () => {
-    const thH = 28; const thY = y - thH;
+    const thH = 24; const thY = y - thH;
     page.drawRectangle({ x: MARGIN, y: thY, width: CONTENT_WIDTH, height: thH, color: TABLE_GREEN });
     page.drawRectangle({ x: colXs.unit, y: thY, width: colWidths.unit + colWidths.qty, height: thH, color: TABLE_GRAY });
     const sepW = 1.5;
@@ -695,7 +672,7 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
     const headers = [
       { text: 'No.', x: colXs.no, w: colWidths.no, align: 'center' as const },
       { text: 'Description', x: colXs.desc, w: colWidths.desc, align: 'left' as const },
-      { text: 'Unit', x: colXs.unit, w: colWidths.unit, align: 'center' as const },
+      { text: 'Size', x: colXs.unit, w: colWidths.unit, align: 'center' as const },
       { text: 'Qty', x: colXs.qty, w: colWidths.qty, align: 'center' as const },
       { text: 'Price', x: colXs.price, w: colWidths.price, align: 'right' as const },
       { text: 'Total', x: colXs.total, w: colWidths.total, align: 'right' as const },
@@ -713,7 +690,7 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
 
   const drawItems = (items: QuotationItem[], startIndex: number) => {
     drawTableHeader(); y -= 2;
-    const rowH = 24;
+    const rowH = 20;
     for (let i = 0; i < items.length; i++) {
       ensureSpace(rowH + 4);
       const item = items[i]; const isBlank = !item.productName;
@@ -731,23 +708,23 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
         page.drawText(descText, { x: colXs.desc + 8, y: cellY, size: 11, font: serifFont, color: DARK });
         const unitStr = item.unit || '-';
         page.drawText(unitStr, { x: colXs.unit + (colWidths.unit - serifFont.widthOfTextAtSize(unitStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
-        const qtyStr = `${item.quantity} Units`;
+        const qtyStr = String(item.quantity);
         page.drawText(qtyStr, { x: colXs.qty + (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
         const priceStr = formatAmount(item.unitPrice);
         page.drawText(priceStr, { x: colXs.price + colWidths.price - serifFont.widthOfTextAtSize(priceStr, 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
         const totalStr = formatAmount(calcItemTotal(item));
         page.drawText(totalStr, { x: colXs.total + colWidths.total - serifFont.widthOfTextAtSize(totalStr, 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
+      } else {
+        page.drawText('-', { x: colXs.total + colWidths.total - serifFont.widthOfTextAtSize('-', 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
       }
       y = rowY;
     }
   };
 
   const firstPageItems = quotation.items.slice(0, ITEMS_PER_PAGE);
-  drawItems(padToMinimum(firstPageItems, 4), 0);
+  drawItems(padToMinimum(firstPageItems, 15), 0);
   const remainingItems = quotation.items.slice(ITEMS_PER_PAGE);
   for (let i = 0; i < remainingItems.length; i += ITEMS_PER_MIDDLE_PAGE) { addPage(); drawItems(remainingItems.slice(i, i + ITEMS_PER_MIDDLE_PAGE), i + ITEMS_PER_PAGE); }
-
-  if (y < 360) addPage();
 
   // Totals — flow from current y position (works on any page)
   y -= 30;
@@ -774,9 +751,9 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   y = gtY;
 
   // Footer — flows right after totals on whatever page we're on
-  ensureSpace(200);
+  ensureSpace(110);
   let fy = y - 20;
-  page.drawText('Notes:', { x: MARGIN, y: fy, size: 12, font: boldFont, color: DARK });
+  page.drawText('Terms & Conditions:', { x: MARGIN + 70, y: fy, size: 12, font: boldFont, color: DARK });
   fy -= 16;
   if (quotation.notes) fy = drawWrappedTextAt(quotation.notes, MARGIN, CONTENT_WIDTH, 10, font, DARK, fy);
   fy -= 20;
