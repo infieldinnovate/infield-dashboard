@@ -206,7 +206,6 @@ export default function QuoteTemplatesPage() {
             className={styles.filter}
           />
         </div>
-        <Button leftIcon={<Icon name="Plus" size={16} />} onClick={openCreate}>Create Template</Button>
       </div>
 
       <div className={styles.tableCard}>
