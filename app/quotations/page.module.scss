@@ -2,6 +2,13 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background-image: url('/backgrounds/qt-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  padding: 24px;
 }
 
 .toolbar {

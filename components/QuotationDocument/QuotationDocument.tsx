@@ -723,9 +723,9 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   const remainingItems = quotation.items.slice(ITEMS_PER_PAGE);
   for (let i = 0; i < remainingItems.length; i += ITEMS_PER_MIDDLE_PAGE) { addPage(); drawItems(remainingItems.slice(i, i + ITEMS_PER_MIDDLE_PAGE), i + ITEMS_PER_PAGE); }
 
-  if (y < 400) addPage();
+  if (y < 360) addPage();
 
-  // Totals
+  // Totals — flow from current y position (works on any page)
   y -= 30;
   const totalsW = CONTENT_WIDTH * 0.52; const totalsX = PAGE_WIDTH - MARGIN - totalsW;
   const drawTotalsRow = (label: string, value: string) => {
@@ -748,13 +748,14 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   page.drawText(gtValStr, { x: totalsX + gtLabelW + gtValW - boldFont.widthOfTextAtSize(gtValStr, 14) - 14, y: gtY + 9, size: 14, font: boldFont, color: DARK });
   y = gtY;
 
-  // Footer
-  let fy = 235;
+  // Footer — flows right after totals on whatever page we're on
+  ensureSpace(200);
+  let fy = y - 20;
   page.drawText('Notes:', { x: MARGIN, y: fy, size: 12, font: boldFont, color: DARK });
   fy -= 16;
   if (quotation.notes) fy = drawWrappedTextAt(quotation.notes, MARGIN, CONTENT_WIDTH, 10, font, DARK, fy);
   fy -= 20;
-  const bottomY = Math.max(fy, 55);
+  const bottomY = Math.max(fy, MARGIN + 50);
   page.drawText('THANK YOU FOR CHOOSING INFIELD INNOVATIONS!', { x: MARGIN, y: bottomY, size: 11, font: boldFont, color: BRAND_GREEN });
   // Stamp
   const stampCx = PAGE_WIDTH / 2; const stampCy = bottomY + 8; const stampR = 30;
