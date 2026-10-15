@@ -362,6 +362,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .inv-brand-rule { height: 18px; width: 58%; background: #707070; margin-top: auto; }
 .inv-title-block { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .inv-title-block h1 { font-size: 30px; font-weight: 800; letter-spacing: 0.06em; color: #126542; margin: 0; line-height: 1; }
+.inv-barcode-img { height: 34px; width: auto; display: block; }
 .inv-contact { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; border-left: 4px solid #111; padding: 8px 0 8px 20px; position: relative; }
 .inv-contact::before { content: ''; position: absolute; top: -18px; right: -28px; width: 130px; height: 24px; background: #c9c9c9; }
 .inv-contact-row { display: grid; grid-template-columns: 18px 1fr; align-items: baseline; gap: 8px; width: 100%; padding-bottom: 4px; border-bottom: 1px solid #c9c9c9; font-size: 11px; color: #111; }
@@ -423,6 +424,24 @@ function escapeHtml(str: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function generateBarcodeDataUrl(value: string): string {
+  try {
+    const canvas = document.createElement('canvas');
+    JsBarcode(canvas, value, {
+      format: 'CODE128',
+      displayValue: false,
+      height: 34,
+      width: 1.35,
+      margin: 0,
+      background: '#ffffff',
+      lineColor: '#111111',
+    });
+    return canvas.toDataURL('image/png');
+  } catch {
+    return '';
+  }
 }
 
 function buildInvoiceHTML(invoice: Invoice): string {
@@ -497,6 +516,9 @@ function buildInvoiceHTML(invoice: Invoice): string {
     return `<style>${stampStyles}</style><footer class="inv-footer"><section class="inv-payment-info"><h2>Payment Information</h2><div class="inv-payment-row"><strong>M-PESA</strong><span></span></div></section><div class="inv-footer-notes"><strong>Notes:</strong>${notes ? `<span>${escapeHtml(notes)}</span>` : ''}</div><div class="inv-footer-bottom"><div class="inv-footer-thank">${escapeHtml(footerText)}</div>${stampHtml}<div class="inv-authorised-sign">${sigHtml}<strong>Authorised Sign</strong></div></div></footer>`;
   };
 
+  const barcodeDataUrl = generateBarcodeDataUrl(invoice.invoiceNumber);
+  const barcodeImg = barcodeDataUrl ? `<img src="${barcodeDataUrl}" alt="Barcode" class="inv-barcode-img" />` : '';
+
   const headerFull = `<header class="inv-header">
     <div class="inv-header-top">
       <div class="inv-brand">
@@ -505,7 +527,7 @@ function buildInvoiceHTML(invoice: Invoice): string {
         <div class="inv-brand-rule"></div>
       </div>
       <div class="inv-title-block">
-        <h1>INVOICE</h1>
+        <h1>INVOICE</h1>${barcodeImg}
       </div>
       <div class="inv-contact">
         <div class="inv-contact-row"><strong>T.</strong><span>${escapeHtml(phone)}</span></div>

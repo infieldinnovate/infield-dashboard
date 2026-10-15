@@ -325,7 +325,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-brand-rule{height:18px;width:58%;background:#707070;margin-top:auto}
 .qt-title-block{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
 .qt-title-block h1{font-size:30px;font-weight:800;letter-spacing:0.06em;color:#126542;margin:0;line-height:1}
-.qt-code-text{font-size:14px;font-weight:800;color:#126542;letter-spacing:0.1em}.qt-barcode-text{font-size:10px;font-weight:600;color:#555;letter-spacing:0.06em}
+.qt-code-text{font-size:14px;font-weight:800;color:#126542;letter-spacing:0.1em}.qt-barcode-text{font-size:10px;font-weight:600;color:#555;letter-spacing:0.06em}.qt-barcode-img{height:34px;width:auto;display:block}
 .qt-contact{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border-left:4px solid #111;padding:8px 0 8px 20px;position:relative}
 .qt-contact::before{content:'';position:absolute;top:-18px;right:-28px;width:130px;height:24px;background:#c9c9c9}
 .qt-contact-row{display:grid;grid-template-columns:18px 1fr;align-items:baseline;gap:8px;width:100%;padding-bottom:4px;border-bottom:1px solid #c9c9c9;font-size:11px;color:#111}
@@ -388,6 +388,24 @@ function escapeHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function generateBarcodeDataUrl(value: string): string {
+  try {
+    const canvas = document.createElement('canvas');
+    JsBarcode(canvas, value, {
+      format: 'CODE128',
+      displayValue: false,
+      height: 34,
+      width: 1.35,
+      margin: 0,
+      background: '#ffffff',
+      lineColor: '#111111',
+    });
+    return canvas.toDataURL('image/png');
+  } catch {
+    return '';
+  }
+}
+
 function buildQuotationHTML(quotation: Quotation): string {
   const settings = getSettings();
   const { businessName, address, phone, email, website } = settings.business;
@@ -395,6 +413,8 @@ function buildQuotationHTML(quotation: Quotation): string {
   const pages = paginateItems(quotation.items);
   const signatureSrc = quotation.createdBySignature || settings.business.signature;
   const barcodeValue = generateBarcode(quotation.userId, quotation.quotationCode);
+  const barcodeDataUrl = generateBarcodeDataUrl(barcodeValue);
+  const barcodeImg = barcodeDataUrl ? `<img src="${barcodeDataUrl}" alt="Barcode" class="qt-barcode-img" />` : '';
 
   const buildItemsTable = (items: QuotationItem[], pad = false): string => {
     const rows = pad ? padToMinimum(items, 4) : items;
@@ -448,7 +468,7 @@ function buildQuotationHTML(quotation: Quotation): string {
       <div class="qt-business-name"><strong>INFIELD</strong><span>INNOVATIONS</span></div>
       <div class="qt-brand-rule"></div>
     </div>
-    <div class="qt-title-block"><h1>QUOTATION</h1><span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span><span class="qt-barcode-text">${escapeHtml(barcodeValue)}</span></div>
+    <div class="qt-title-block"><h1>QUOTATION</h1>${barcodeImg}<span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span><span class="qt-barcode-text">${escapeHtml(barcodeValue)}</span></div>
     <div class="qt-contact">
       <div class="qt-contact-row"><strong>T.</strong><span>${escapeHtml(phone)}</span></div>
       <div class="qt-contact-row"><strong>W.</strong><span>${escapeHtml(siteUrl)}</span></div>
