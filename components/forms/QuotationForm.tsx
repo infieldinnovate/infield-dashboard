@@ -121,6 +121,7 @@ export default function QuotationForm({
     setValue(`items.${index}.productName`, product?.name || '');
     const unitPrice = product?.price || 0;
     setValue(`items.${index}.unitPrice`, unitPrice);
+    setValue(`items.${index}.unit`, product?.unit || '');
   };
 
   return (
