@@ -91,7 +91,7 @@ export interface QuotationItem {
   productName: string;
   quantity: number;
   unitPrice: number;
-  size?: string;
+  unit?: string;
 }
 
 export interface QuoteTemplate {

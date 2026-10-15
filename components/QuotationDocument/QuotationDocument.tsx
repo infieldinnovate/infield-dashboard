@@ -46,7 +46,7 @@ function paginateItems(items: QuotationItem[]): QuotationItem[][] {
 function padToMinimum(rows: QuotationItem[], min: number): QuotationItem[] {
   const padded = [...rows];
   while (padded.length < min) {
-    padded.push({ productId: `blank-${padded.length}`, productName: '', quantity: 0, unitPrice: 0, size: '' });
+    padded.push({ productId: `blank-${padded.length}`, productName: '', quantity: 0, unitPrice: 0, unit: '' });
   }
   return padded;
 }
@@ -155,7 +155,7 @@ function ItemsTable({ items, pad }: { items: QuotationItem[]; pad?: boolean }) {
         <tr>
           <th className={styles.noColumn}>No.</th>
           <th>Description</th>
-          <th className={styles.sizeColumn}>Size</th>
+          <th className={styles.unitColumn}>Unit</th>
           <th className={styles.qtyColumn}>Qty</th>
           <th className={styles.priceColumn}>Price</th>
           <th className={styles.totalColumn}>Total</th>
@@ -168,7 +168,7 @@ function ItemsTable({ items, pad }: { items: QuotationItem[]; pad?: boolean }) {
             <tr key={item.productId}>
               <td className={styles.noColumn}>{isBlank ? '' : index + 1}</td>
               <td>{item.productName}</td>
-              <td className={styles.sizeColumn}>{isBlank ? '' : (item.size || '-')}</td>
+              <td className={styles.unitColumn}>{isBlank ? '' : (item.unit || '-')}</td>
               <td className={styles.qtyColumn}>{isBlank ? '' : `${item.quantity} Units`}</td>
               <td className={styles.priceColumn}>{isBlank ? '' : formatAmount(item.unitPrice)}</td>
               <td className={styles.totalColumn}>{isBlank ? '-' : formatAmount(calcItemTotal(item))}</td>
@@ -354,7 +354,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-items-table thead th:last-child{border-right:0}
 .qt-items-table tbody td{height:34px;font-family:Georgia,'Times New Roman',serif;font-size:13px}
 .qt-no-col{width:8%;text-align:center}
-.qt-size-col{width:9%;text-align:center}
+.qt-unit-col{width:9%;text-align:center}
 .qt-qty-col{width:15%;text-align:center}
 .qt-price-col{width:12%;text-align:right}
 .qt-total-col{width:16%;text-align:right}
@@ -419,14 +419,14 @@ function buildQuotationHTML(quotation: Quotation): string {
   const buildItemsTable = (items: QuotationItem[], pad = false): string => {
     const rows = pad ? padToMinimum(items, 4) : items;
     return `<table class="qt-items-table"><thead><tr>
-      <th class="qt-no-col">No.</th><th>Description</th><th class="qt-size-col">Size</th>
+      <th class="qt-no-col">No.</th><th>Description</th><th class="qt-unit-col">Unit</th>
       <th class="qt-qty-col">Qty</th><th class="qt-price-col">Price</th><th class="qt-total-col">Total</th>
     </tr></thead><tbody>${rows.map((item, i) => {
       const isBlank = !item.productName;
       return `<tr>
         <td class="qt-no-col">${isBlank ? '' : i + 1}</td>
         <td>${escapeHtml(item.productName)}</td>
-        <td class="qt-size-col">${isBlank ? '' : escapeHtml(item.size || '-')}</td>
+        <td class="qt-unit-col">${isBlank ? '' : escapeHtml(item.unit || '-')}</td>
         <td class="qt-qty-col">${isBlank ? '' : item.quantity + ' Units'}</td>
         <td class="qt-price-col">${isBlank ? '' : formatAmount(item.unitPrice)}</td>
         <td class="qt-total-col">${isBlank ? '-' : formatAmount(calcItemTotal(item))}</td>
@@ -675,27 +675,27 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
 
   // Items table
   const colWidths: Record<string, number> = {
-    no: CONTENT_WIDTH * 0.08, size: CONTENT_WIDTH * 0.09, qty: CONTENT_WIDTH * 0.15,
+    no: CONTENT_WIDTH * 0.08, unit: CONTENT_WIDTH * 0.09, qty: CONTENT_WIDTH * 0.15,
     price: CONTENT_WIDTH * 0.12, total: CONTENT_WIDTH * 0.16,
   };
-  colWidths.desc = CONTENT_WIDTH - colWidths.no - colWidths.size - colWidths.qty - colWidths.price - colWidths.total;
+  colWidths.desc = CONTENT_WIDTH - colWidths.no - colWidths.unit - colWidths.qty - colWidths.price - colWidths.total;
   const colXs: Record<string, number> = {
-    no: MARGIN, desc: MARGIN + colWidths.no, size: MARGIN + colWidths.no + colWidths.desc,
-    qty: MARGIN + colWidths.no + colWidths.desc + colWidths.size,
-    price: MARGIN + colWidths.no + colWidths.desc + colWidths.size + colWidths.qty,
-    total: MARGIN + colWidths.no + colWidths.desc + colWidths.size + colWidths.qty + colWidths.price,
+    no: MARGIN, desc: MARGIN + colWidths.no, unit: MARGIN + colWidths.no + colWidths.desc,
+    qty: MARGIN + colWidths.no + colWidths.desc + colWidths.unit,
+    price: MARGIN + colWidths.no + colWidths.desc + colWidths.unit + colWidths.qty,
+    total: MARGIN + colWidths.no + colWidths.desc + colWidths.unit + colWidths.qty + colWidths.price,
   };
 
   const drawTableHeader = () => {
     const thH = 28; const thY = y - thH;
     page.drawRectangle({ x: MARGIN, y: thY, width: CONTENT_WIDTH, height: thH, color: TABLE_GREEN });
-    page.drawRectangle({ x: colXs.size, y: thY, width: colWidths.size + colWidths.qty, height: thH, color: TABLE_GRAY });
+    page.drawRectangle({ x: colXs.unit, y: thY, width: colWidths.unit + colWidths.qty, height: thH, color: TABLE_GRAY });
     const sepW = 1.5;
-    [colXs.desc, colXs.size, colXs.qty, colXs.price, colXs.total].forEach(sx => page.drawRectangle({ x: sx - sepW / 2, y: thY, width: sepW, height: thH, color: WHITE }));
+    [colXs.desc, colXs.unit, colXs.qty, colXs.price, colXs.total].forEach(sx => page.drawRectangle({ x: sx - sepW / 2, y: thY, width: sepW, height: thH, color: WHITE }));
     const headers = [
       { text: 'No.', x: colXs.no, w: colWidths.no, align: 'center' as const },
       { text: 'Description', x: colXs.desc, w: colWidths.desc, align: 'left' as const },
-      { text: 'Size', x: colXs.size, w: colWidths.size, align: 'center' as const },
+      { text: 'Unit', x: colXs.unit, w: colWidths.unit, align: 'center' as const },
       { text: 'Qty', x: colXs.qty, w: colWidths.qty, align: 'center' as const },
       { text: 'Price', x: colXs.price, w: colWidths.price, align: 'right' as const },
       { text: 'Total', x: colXs.total, w: colWidths.total, align: 'right' as const },
@@ -729,8 +729,8 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
           descText += '...';
         }
         page.drawText(descText, { x: colXs.desc + 8, y: cellY, size: 11, font: serifFont, color: DARK });
-        const sizeStr = item.size || '-';
-        page.drawText(sizeStr, { x: colXs.size + (colWidths.size - serifFont.widthOfTextAtSize(sizeStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
+        const unitStr = item.unit || '-';
+        page.drawText(unitStr, { x: colXs.unit + (colWidths.unit - serifFont.widthOfTextAtSize(unitStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
         const qtyStr = `${item.quantity} Units`;
         page.drawText(qtyStr, { x: colXs.qty + (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
         const priceStr = formatAmount(item.unitPrice);
