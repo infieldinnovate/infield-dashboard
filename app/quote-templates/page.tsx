@@ -100,6 +100,7 @@ export default function QuoteTemplatesPage() {
       taxRate: String(t.taxRate),
       notes: t.notes,
       templateName: t.name,
+      quoteFor: t.name,
     };
     sessionStorage.setItem("generateQuotationFromTemplate", JSON.stringify(quotationData));
     window.location.href = "/quotations";

@@ -27,6 +27,17 @@ import { formatCurrency } from "../../lib/documentUtils";
 import { QuotationFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
+function generateQuotationCode(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 5; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
+const defaultUser = { name: "Jared Oluoch", signature: "/users/signature-jerry.png" };
+
 const statusVariant: Record<
   string,
   "primary" | "success" | "warning" | "error" | "secondary"
@@ -72,6 +83,9 @@ export default function QuotationsPage() {
         setEditQuotation(null);
         setPrefillData({
           customerId: "",
+          customerAddress: "",
+          customerContact: "",
+          quoteFor: data.quoteFor || data.templateName || "",
           items: data.items || [],
           discount: data.discount || "0",
           discountType: data.discountType || "percentage",
@@ -153,6 +167,12 @@ export default function QuotationsPage() {
       id: editQuotation?.id || `qt-${Date.now()}`,
       customerId: data.customerId,
       customerName: customer.name,
+      customerAddress: data.customerAddress || undefined,
+      customerContact: data.customerContact,
+      quoteFor: data.quoteFor,
+      quotationCode: editQuotation?.quotationCode || generateQuotationCode(),
+      createdBy: editQuotation?.createdBy || defaultUser.name,
+      createdBySignature: editQuotation?.createdBySignature || defaultUser.signature,
       items,
       subtotal,
       discount: parseFloat(data.discount) || 0,
@@ -411,6 +431,7 @@ export default function QuotationsPage() {
           createdCustomer={createdCustomer}
           productOptions={productOptions}
           products={products}
+          customers={customerList}
         />
       </Modal>
 

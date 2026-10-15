@@ -1,467 +1,247 @@
-/* === Quotation Document — Independent Design === */
+/* === Quotation Document === */
 
-/* A4 page layout */
-.a4Container {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
+.a4Container { display: flex; flex-direction: column; gap: 0; }
 
 .a4Page {
-  width: 210mm;
-  min-height: 297mm;
-  padding: 15mm;
-  background: #fff;
-  position: relative;
-  page-break-after: always;
+  width: 210mm; min-height: 297mm; padding: 15mm; background: #fff;
+  position: relative; page-break-after: always;
+  &:last-child { page-break-after: auto; }
+}
 
-  &:last-child {
-    page-break-after: auto;
+/* === Branded Header === */
+.header { margin-bottom: 20px; overflow: hidden; }
+
+.headerTop {
+  display: grid; grid-template-columns: 1.15fr 1fr 1fr;
+  align-items: stretch; min-height: 132px; padding: 18px 28px 22px; gap: 24px;
+}
+
+.brand { display: flex; flex-direction: column; gap: 12px; }
+
+.logo {
+  display: inline-flex; align-items: flex-end; gap: 2px; width: fit-content;
+  color: #168ac0; font-size: 25px; font-style: italic; font-weight: 800;
+  letter-spacing: -0.08em; line-height: 0.9; position: relative;
+  padding: 0 8px 9px 4px;
+  &::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+    height: 7px; border-top: 3px solid #168ac0; border-radius: 50%;
+    transform: skewX(-20deg);
   }
 }
 
-/* === Full header (first page) === */
-.header {
-  margin-bottom: 24px;
+.logoMark { color: #168ac0; font-size: 24px; font-weight: 800; }
+.logoName { font-size: 25px; font-weight: 800; color: #168ac0; }
+.logoDrop {
+  width: 8px; height: 14px; border: 2px solid #168ac0;
+  border-radius: 70% 30% 70% 30%; transform: rotate(35deg);
+  align-self: flex-end; margin: 0 0 1px 3px;
 }
 
-.headerTop {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 16px;
-  border-bottom: 3px solid #1e3a5f;
+.businessName {
+  display: flex; flex-direction: column; font-size: 23px; line-height: 1; letter-spacing: 0.02em;
+  strong { font-weight: 800; color: #126542; }
+  span { font-weight: 400; color: #111; }
 }
 
-.companyBlock {
-  flex: 1;
+.brandRule { height: 18px; width: 58%; background: #707070; margin-top: auto; }
+
+.titleBlock {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  h1 { font-size: 30px; font-weight: 800; letter-spacing: 0.06em; color: #126542; margin: 0; line-height: 1; }
 }
 
-.companyName {
-  font-size: 20px;
-  font-weight: 800;
-  color: #1e3a5f;
-  margin: 0;
-  letter-spacing: -0.02em;
+.barcode { width: 100%; max-width: 140px; height: 34px; }
+.codeText { font-size: 14px; font-weight: 800; color: #126542; letter-spacing: 0.1em; }
+
+.contact {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  text-align: left; border-left: 4px solid #111; padding: 8px 0 8px 20px; position: relative;
+  &::before {
+    content: ''; position: absolute; top: -18px; right: -28px;
+    width: 130px; height: 24px; background: #c9c9c9;
+  }
 }
 
-.companyAddr {
-  font-size: 10px;
-  color: #555;
-  margin: 4px 0 0;
-  line-height: 1.4;
+.contactRow {
+  display: grid; grid-template-columns: 18px 1fr; align-items: baseline; gap: 8px;
+  width: 100%; padding-bottom: 4px; border-bottom: 1px solid #c9c9c9; font-size: 11px; color: #111;
+  strong { color: #126542; font-weight: 800; font-size: 14px; }
 }
 
-.companyContact {
-  font-size: 10px;
-  color: #555;
-  margin: 2px 0 0;
+.contact address { font-size: 11px; font-style: normal; color: #111; margin-top: 8px; line-height: 1.35; }
+
+.accentBar { height: 8px; background: #35b875; display: flex; span { width: 7%; background: #c9c9c9; } }
+
+/* === Bill To + For === */
+.billToFor { display: grid; grid-template-columns: 1fr 1fr; margin: 20px 0; gap: 0; }
+
+.billTo { background: #e2e2e2; padding: 14px 20px; }
+
+.sectionLabel {
+  display: block; font-size: 12px; font-weight: 800; color: #126542;
+  text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
 }
 
-.docTitleBlock {
-  text-align: right;
+.billToContent { display: flex; flex-direction: column; gap: 2px; }
+.clientName { font-size: 14px; font-weight: 700; color: #111; margin: 0; }
+.clientAddress { font-size: 11px; color: #444; margin: 0; }
+.clientContact { font-size: 11px; color: #444; margin: 0; }
+
+.forSection { background: #86ad9c; padding: 14px 20px; display: flex; flex-direction: column; }
+.forLabel {
+  display: block; font-size: 12px; font-weight: 800; color: #fff;
+  text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+}
+.forText { font-size: 13px; color: #fff; line-height: 1.35; }
+
+/* === Date Bar === */
+.dateBar {
+  display: flex; gap: 0; margin-bottom: 20px; border-left: 4px solid #126542;
+  background: #f5f7fa; padding: 12px 18px;
 }
 
-.docTitle {
-  font-size: 32px;
-  font-weight: 800;
-  color: #1e3a5f;
-  margin: 0;
-  letter-spacing: 0.04em;
-  line-height: 1;
+.dateItem {
+  flex: 1; display: flex; flex-direction: column; gap: 2px;
+  & + .dateItem { padding-left: 20px; border-left: 1px solid #d0dce6; }
 }
 
-.docNumber {
-  font-size: 12px;
-  color: #555;
-  margin: 6px 0 0;
-  font-weight: 600;
-}
+.dateLabel { font-size: 9px; font-weight: 700; color: #777; text-transform: uppercase; letter-spacing: 0.06em; }
+.dateValue { font-size: 12px; font-weight: 600; color: #111; }
 
-.docDate {
-  font-size: 10px;
-  color: #777;
-  margin: 2px 0 0;
-}
-
-/* === Customer info === */
-.customerInfo {
-  margin-bottom: 20px;
-}
-
-.customerLabel {
-  font-size: 10px;
-  font-weight: 700;
-  color: #1e3a5f;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin: 0 0 6px;
-}
-
-.customerName {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0;
-}
-
-/* === Metadata box === */
-.metadataBox {
-  display: flex;
-  gap: 0;
-  margin-bottom: 24px;
-  border-left: 4px solid #1e3a5f;
-  background: #f5f7fa;
-  padding: 14px 18px;
-  border-radius: 0 6px 6px 0;
-}
-
-.metaItem {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.metaItem + .metaItem {
-  padding-left: 20px;
-  border-left: 1px solid #d0dce6;
-}
-
-.metaLabel {
-  font-size: 9px;
-  font-weight: 700;
-  color: #777;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.metaValue {
-  font-size: 12px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-/* === Items table === */
+/* === Items Table === */
 .itemsTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-  font-size: 11px;
+  width: 100%; border-collapse: collapse; table-layout: fixed;
+  margin: 20px 0 0; color: #111; font-size: 12px;
+  th, td { padding: 8px 12px; border-bottom: 1px solid #dce5e8; text-align: left; vertical-align: middle; }
+  thead th {
+    height: 34px; background: #36b976; color: #fff; font-size: 15px; font-weight: 800;
+    border-right: 2px solid #fff;
+    &:nth-child(3), &:nth-child(4) { background: #888b8b; }
+    &:last-child { border-right: 0; }
+  }
+  tbody td { height: 34px; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; }
 }
 
-.itemsTable thead th {
-  background: #1e3a5f;
-  color: #fff;
-  padding: 10px 12px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 700;
-  text-align: left;
-}
-
-.itemsTable thead th.numCol {
-  text-align: right;
-}
-
-.itemsTable thead th.centerCol {
-  text-align: center;
-}
-
-.itemsTable tbody tr {
-  page-break-inside: avoid;
-}
-
-.itemsTable tbody td {
-  padding: 9px 12px;
-  font-size: 11px;
-  border-bottom: 1px solid #e0e6ed;
-  color: #333;
-  vertical-align: middle;
-}
-
-.itemsTable tbody td.numCol {
-  text-align: right;
-}
-
-.itemsTable tbody td.centerCol {
-  text-align: center;
-}
-
-.itemsTable tbody tr:nth-child(even) {
-  background: #f8fafc;
-}
-
-.itemName {
-  font-weight: 600;
-  color: #1a1a1a;
-}
+.noColumn { width: 8%; text-align: center; }
+.sizeColumn { width: 9%; text-align: center; }
+.qtyColumn { width: 15%; text-align: center; }
+.priceColumn { width: 12%; text-align: right; }
+.totalColumn { width: 16%; text-align: right; }
 
 /* === Totals === */
 .totals {
-  width: 280px;
-  margin-left: auto;
-  margin-bottom: 20px;
+  width: 52%; margin: 48px 0 24px auto; color: #111;
+  font-family: Georgia, 'Times New Roman', serif; font-size: 13px;
 }
 
 .totalsRow {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  font-size: 11px;
-  color: #555;
+  display: grid; grid-template-columns: 1fr 0.7fr; min-height: 32px;
+  align-items: center; border-bottom: 2px solid #d2d2d2;
+  span { padding-left: 18px; }
+  strong { text-align: right; padding-right: 14px; font-weight: 400; }
+  em { margin-left: 24px; font-style: italic; }
 }
 
-.totalsGrand {
-  border-top: 2px solid #1e3a5f;
-  padding-top: 10px;
-  margin-top: 6px;
-  font-weight: 800;
-  font-size: 14px;
-  color: #1e3a5f;
-}
-
-.totalsLabel {
-  color: #555;
-}
-
-.totalsValue {
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-/* === Notes === */
-.notesSection {
-  margin-bottom: 20px;
-}
-
-.notesLabel {
-  font-size: 10px;
-  font-weight: 700;
-  color: #1e3a5f;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin: 0 0 6px;
-}
-
-.notesText {
-  font-size: 10px;
-  color: #555;
-  margin: 0;
-  line-height: 1.6;
-}
-
-/* === Signature === */
-.signatureSection {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 48px;
-  margin-bottom: 20px;
-}
-
-.signatureBlock {
-  width: 200px;
-}
-
-.signatureLine {
-  border-bottom: 1px solid #999;
-  height: 40px;
-}
-
-.signatureLabel {
-  font-size: 9px;
-  color: #666;
-  margin-top: 4px;
-  text-align: center;
+.grandTotal {
+  display: grid; grid-template-columns: 1.15fr 1fr; min-height: 42px;
+  align-items: center; background: #b4ead6; font-size: 16px;
+  strong { height: 100%; display: flex; align-items: center; padding-left: 18px; background: #36b976; color: #fff; font-size: 17px; }
+  span { text-align: right; padding-right: 14px; font-weight: 800; }
 }
 
 /* === Footer === */
-.footer {
-  position: absolute;
-  bottom: 15mm;
-  left: 15mm;
-  right: 15mm;
-  border-top: 1px solid #e0e6ed;
-  padding-top: 8px;
+.footer { margin-top: 28px; color: #111; }
+
+.footerNotes {
+  display: flex; flex-direction: column; gap: 6px; min-height: 82px;
+  padding-top: 44px; font-size: 14px;
+  strong { font-size: 16px; font-weight: 800; }
+  span { color: #333; line-height: 1.45; }
 }
+
+.footerBottom {
+  display: grid; grid-template-columns: 1fr 120px 1fr; align-items: end;
+  gap: 20px; min-height: 126px;
+}
+
+.footerThankYou {
+  align-self: end; padding-bottom: 16px; color: #126542;
+  font-size: 16px; font-weight: 800; text-transform: uppercase;
+}
+
+.footerStamp { justify-self: center; align-self: center; }
+
+.authorizedSignature {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding-bottom: 12px;
+  strong { font-size: 14px; font-weight: 800; }
+}
+
+.signatureImage { max-width: 140px; max-height: 50px; object-fit: contain; }
 
 .footerContact {
-  font-size: 9px;
-  color: #999;
+  margin-top: 12px; padding-top: 8px; border-top: 1px solid #e0e6ed;
+  font-size: 11px; color: #555;
 }
 
-.footerText {
-  font-size: 9px;
-  color: #999;
-  margin-top: 2px;
-}
-
-/* === Compact header (multi-page) === */
+/* === Compact Header === */
 .compactHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #1e3a5f;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e5e5;
 }
+.compactCompany { font-size: 14px; font-weight: 700; color: #126542; }
+.compactDocInfo { text-align: right; }
+.compactTitle { font-size: 12px; color: #666; }
+.compactNumber { font-size: 10px; color: #999; display: block; }
 
-.compactCompany {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e3a5f;
-}
-
-.compactDocInfo {
-  text-align: right;
-}
-
-.compactTitle {
-  font-size: 12px;
-  color: #555;
-  font-weight: 600;
-}
-
-.compactNumber {
-  font-size: 10px;
-  color: #777;
-  display: block;
-}
-
-/* === Action bar === */
-.actionBar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+/* === Action Bar === */
+.actionBar { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .actionBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #444;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 150ms ease;
-
-  &:hover {
-    background: #e5e7eb;
-    color: #1a1a1a;
-  }
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+  font-size: 12px; font-weight: 500; color: #444; background: #f3f4f6;
+  border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; transition: all 150ms ease;
+  &:hover { background: #e5e7eb; color: #1a1a1a; }
 }
 
 .actionBtnDanger {
   color: #dc2626;
-
-  &:hover {
-    background: #fef2f2;
-    color: #b91c1c;
-  }
+  &:hover { background: #fef2f2; color: #b91c1c; }
 }
 
-/* === Preview container === */
-.previewContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+/* === Preview Container === */
+.previewContainer { display: flex; flex-direction: column; gap: 16px; }
 
 .previewToolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;
 }
 
-.previewStatus {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.previewStatus { display: flex; align-items: center; gap: 8px; }
 
 .statusBadge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #fff;
-  text-transform: capitalize;
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 600; color: #fff; text-transform: capitalize;
 }
 
 .previewBody {
-  max-height: 70vh;
-  overflow: auto;
-  background: #f3f4f6;
-  padding: 16px;
-  border-radius: 6px;
-  display: flex;
-  justify-content: center;
+  max-height: 70vh; overflow: auto; background: #f3f4f6;
+  padding: 16px; border-radius: 6px; display: flex; justify-content: center;
 }
 
 /* === Responsive === */
 @media (max-width: 700px) {
-  .headerTop {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .docTitleBlock {
-    text-align: left;
-  }
-
-  .metadataBox {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .metaItem + .metaItem {
-    padding-left: 0;
-    border-left: none;
-    padding-top: 10px;
-    border-top: 1px solid #d0dce6;
-  }
-
-  .totals {
-    width: 100%;
-  }
-
-  .signatureSection {
-    flex-direction: column;
-    gap: 24px;
-  }
+  .headerTop { grid-template-columns: 1fr; gap: 12px; }
+  .billToFor { grid-template-columns: 1fr; }
+  .dateBar { flex-direction: column; gap: 10px; }
+  .dateItem + .dateItem { padding-left: 0; border-left: none; padding-top: 10px; border-top: 1px solid #d0dce6; }
+  .totals { width: 100%; }
+  .footerBottom { grid-template-columns: 1fr; gap: 24px; }
 }
 
-/* === Print media === */
+/* === Print === */
 @media print {
-  .a4Page {
-    page-break-after: always;
-
-    &:last-child {
-      page-break-after: auto;
-    }
-
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .previewBody {
-    max-height: none;
-    overflow: visible;
-    background: none;
-    padding: 0;
-  }
-
-  .previewToolbar {
-    display: none;
-  }
+  .a4Page { page-break-after: always; &:last-child { page-break-after: auto; } -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .previewBody { max-height: none; overflow: visible; background: none; padding: 0; }
+  .previewToolbar { display: none; }
 }

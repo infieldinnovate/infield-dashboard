@@ -6,10 +6,14 @@ export const quotationItemSchema = z.object({
   quantity: z.number().min(0, 'Quantity must be >= 0'),
   unitPrice: z.number().min(0, 'Unit price must be >= 0'),
   total: z.number().min(0),
+  size: z.string().optional(),
 });
 
 export const quotationFormSchema = z.object({
   customerId: z.string().min(1, 'Customer is required'),
+  customerAddress: z.string(),
+  customerContact: z.string().min(1, 'Contact is required (phone or email)'),
+  quoteFor: z.string().min(1, 'Description of what the quote is for is required'),
   items: z
     .array(quotationItemSchema)
     .min(1, 'At least one item is required'),

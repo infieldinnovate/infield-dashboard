@@ -24,6 +24,7 @@ interface QuotationFormProps {
   createdCustomer: Customer | null;
   productOptions: { value: string; label: string }[];
   products: Product[];
+  customers: Customer[];
 }
 
 const discountTypeOptions = [
@@ -31,9 +32,18 @@ const discountTypeOptions = [
   { value: 'fixed', label: 'Fixed Amount' },
 ];
 
+const taxRateOptions = [
+  { value: '0', label: '0% (No Tax)' },
+  { value: '8', label: '8%' },
+  { value: '16', label: '16% (Standard)' },
+];
+
 function getDefaultValues(): QuotationFormData {
   return {
     customerId: '',
+    customerAddress: '',
+    customerContact: '',
+    quoteFor: '',
     items: [],
     discount: '0',
     discountType: 'percentage',
@@ -68,6 +78,7 @@ export default function QuotationForm({
   createdCustomer,
   productOptions,
   products,
+  customers,
 }: QuotationFormProps) {
   const { register, handleSubmit, reset, control, setValue, watch, formState: { errors } } =
     useForm<QuotationFormData>({
@@ -84,6 +95,7 @@ export default function QuotationForm({
   const watchedDiscount = watch('discount');
   const watchedDiscountType = watch('discountType');
   const watchedTaxRate = watch('taxRate');
+  const watchedCustomerId = watch('customerId');
 
   useEffect(() => {
     if (prefillData) {
@@ -91,6 +103,9 @@ export default function QuotationForm({
     } else if (mode === 'edit' && initialValues) {
       reset({
         customerId: initialValues.customerId,
+        customerAddress: initialValues.customerAddress || '',
+        customerContact: initialValues.customerContact || '',
+        quoteFor: initialValues.quoteFor || '',
         items: initialValues.items.map((i) => ({ ...i })),
         discount: String(initialValues.discount),
         discountType: initialValues.discountType,
@@ -109,6 +124,22 @@ export default function QuotationForm({
     }
   }, [createdCustomer, setValue]);
 
+  useEffect(() => {
+    if (watchedCustomerId) {
+      const customer = customers.find((c) => c.id === watchedCustomerId);
+      if (customer) {
+        const currentContact = watch('customerContact');
+        if (!currentContact) {
+          setValue('customerContact', customer.phone || customer.email);
+        }
+        const currentAddress = watch('customerAddress');
+        if (!currentAddress && customer.address) {
+          setValue('customerAddress', `${customer.address}, ${customer.city}`);
+        }
+      }
+    }
+  }, [watchedCustomerId, customers, setValue, watch]);
+
   const totals = useMemo(() => {
     const items = (watchedItems || []) as QuotationItem[];
     return calcTotals(
@@ -120,7 +151,7 @@ export default function QuotationForm({
   }, [watchedItems, watchedDiscount, watchedDiscountType, watchedTaxRate]);
 
   const addItem = () => {
-    append({ productId: '', productName: '', quantity: 1, unitPrice: 0, total: 0 });
+    append({ productId: '', productName: '', quantity: 1, unitPrice: 0, total: 0, size: '' });
   };
 
   const onProductChange = (index: number, productId: string) => {
@@ -184,6 +215,33 @@ export default function QuotationForm({
         />
       </div>
 
+      <div className={styles.formTop}>
+        <InputField
+          label="Customer Contact (phone or email)"
+          required
+          placeholder="e.g. +254 712 345 678 or email@example.com"
+          register={register}
+          name="customerContact"
+          error={errors.customerContact ?? null}
+        />
+        <InputField
+          label="Customer Address (optional)"
+          placeholder="Customer address"
+          register={register}
+          name="customerAddress"
+          error={errors.customerAddress ?? null}
+        />
+      </div>
+
+      <InputField
+        label="Quote For (description of what this quote is for)"
+        required
+        placeholder="e.g. Off-grid solar system installation"
+        register={register}
+        name="quoteFor"
+        error={errors.quoteFor ?? null}
+      />
+
       <div className={styles.itemsSection}>
         <div className={styles.itemsHeader}>
           <h4 className={styles.sectionTitle}>Items</h4>
@@ -221,6 +279,12 @@ export default function QuotationForm({
                     )}
                   />
                 </div>
+                <InputField
+                  placeholder="Size"
+                  register={register}
+                  name={`items.${index}.size`}
+                  className={styles.itemQty}
+                />
                 <Controller
                   control={control}
                   name={`items.${index}.quantity`}
@@ -278,9 +342,9 @@ export default function QuotationForm({
               name="discount"
               error={errors.discount ?? null}
             />
-            <InputField
-              label="Tax Rate (%)"
-              type="number"
+            <SelectField
+              label="Tax Rate"
+              options={taxRateOptions}
               register={register}
               name="taxRate"
               error={errors.taxRate ?? null}

@@ -72,6 +72,12 @@ export interface Quotation {
   id: string;
   customerId: string;
   customerName: string;
+  customerAddress?: string;
+  customerContact: string;
+  quoteFor: string;
+  quotationCode: string;
+  createdBy: string;
+  createdBySignature?: string;
   items: QuotationItem[];
   subtotal: number;
   discount: number;
@@ -91,6 +97,7 @@ export interface QuotationItem {
   quantity: number;
   unitPrice: number;
   total: number;
+  size?: string;
 }
 
 export interface QuoteTemplate {

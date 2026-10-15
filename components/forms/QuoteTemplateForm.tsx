@@ -28,6 +28,12 @@ const discountTypeOptions = [
   { value: 'fixed', label: 'Fixed Amount' },
 ];
 
+const taxRateOptions = [
+  { value: '0', label: '0% (No Tax)' },
+  { value: '8', label: '8%' },
+  { value: '16', label: '16% (Standard)' },
+];
+
 function getDefaultValues(): QuoteTemplateFormData {
   return {
     name: '',
@@ -257,9 +263,9 @@ export default function QuoteTemplateForm({
               name="discount"
               error={errors.discount ?? null}
             />
-            <InputField
-              label="Tax Rate (%)"
-              type="number"
+            <SelectField
+              label="Tax Rate"
+              options={taxRateOptions}
               register={register}
               name="taxRate"
               error={errors.taxRate ?? null}

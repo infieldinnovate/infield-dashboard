@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { PDFDocument, PDFFont, PDFPage, rgb, StandardFonts } from 'pdf-lib';
+import React, { useEffect, useRef } from 'react';
+import JsBarcode from 'jsbarcode';
 import type { Quotation, QuotationItem } from '../../types';
 import {
   formatCurrency,
@@ -12,6 +12,8 @@ import {
   downloadPDF,
 } from '../../lib/documentUtils';
 import styles from './QuotationDocument.module.scss';
+import Stamp from '../InvoiceDocument/Stamp';
+import { ImageWithFallback } from '../ui/ImageWithFallback';
 
 export interface QuotationDocumentActions {
   onEdit: () => void;
@@ -36,27 +38,140 @@ function paginateItems(items: QuotationItem[]): QuotationItem[][] {
   return pages;
 }
 
+function padToMinimum(rows: QuotationItem[], min: number): QuotationItem[] {
+  const padded = [...rows];
+  while (padded.length < min) {
+    padded.push({ productId: `blank-${padded.length}`, productName: '', quantity: 0, unitPrice: 0, total: 0, size: '' });
+  }
+  return padded;
+}
+
+function formatAmount(amount: number): string {
+  return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/* === Branded Header === */
+function BrandedHeader({ quotation }: { quotation: Quotation }) {
+  const barcodeRef = useRef<SVGSVGElement>(null);
+  const settings = getSettings();
+  const { businessName, address, phone, email, website } = settings.business;
+
+  useEffect(() => {
+    if (!barcodeRef.current) return;
+    try {
+      JsBarcode(barcodeRef.current, quotation.quotationCode || quotation.id, {
+        format: 'CODE128',
+        displayValue: false,
+        height: 34,
+        width: 1.35,
+        margin: 0,
+        background: 'transparent',
+        lineColor: '#111111',
+      });
+    } catch { /* ignore */ }
+  }, [quotation.quotationCode, quotation.id]);
+
+  return (
+    <header className={styles.header}>
+      <div className={styles.headerTop}>
+        <div className={styles.brand}>
+          <div className={styles.logo}>
+            <span className={styles.logoMark}>in</span>
+            <span className={styles.logoName}>Field</span>
+            <span className={styles.logoDrop} />
+          </div>
+          <div className={styles.businessName}>
+            <strong>INFIELD</strong>
+            <span>INNOVATIONS</span>
+          </div>
+          <div className={styles.brandRule} />
+        </div>
+        <div className={styles.titleBlock}>
+          <h1>QUOTATION</h1>
+          <svg ref={barcodeRef} className={styles.barcode} />
+          <span className={styles.codeText}>{quotation.quotationCode}</span>
+        </div>
+        <div className={styles.contact}>
+          <div className={styles.contactRow}><strong>T.</strong><span>{phone}</span></div>
+          <div className={styles.contactRow}><strong>W.</strong><span>{website || 'www.infield.co.ke'}</span></div>
+          <div className={styles.contactRow}><strong>E.</strong><span>{email}</span></div>
+          <address>{address}</address>
+        </div>
+      </div>
+      <div className={styles.accentBar}><span /></div>
+    </header>
+  );
+}
+
+/* === Bill To + For === */
+function BillToAndFor({ quotation }: { quotation: Quotation }) {
+  return (
+    <div className={styles.billToFor}>
+      <div className={styles.billTo}>
+        <strong className={styles.sectionLabel}>BILL TO:</strong>
+        <div className={styles.billToContent}>
+          <p className={styles.clientName}>{quotation.customerName}</p>
+          {quotation.customerAddress && <p className={styles.clientAddress}>{quotation.customerAddress}</p>}
+          <p className={styles.clientContact}>{quotation.customerContact}</p>
+        </div>
+      </div>
+      <div className={styles.forSection}>
+        <strong className={styles.forLabel}>FOR:</strong>
+        <span className={styles.forText}>{quotation.quoteFor}</span>
+      </div>
+    </div>
+  );
+}
+
+/* === Date Bar === */
+function DateBar({ quotation }: { quotation: Quotation }) {
+  return (
+    <div className={styles.dateBar}>
+      <div className={styles.dateItem}>
+        <span className={styles.dateLabel}>Date</span>
+        <span className={styles.dateValue}>{formatDate(quotation.createdAt)}</span>
+      </div>
+      <div className={styles.dateItem}>
+        <span className={styles.dateLabel}>Valid Until</span>
+        <span className={styles.dateValue}>{formatDate(quotation.validUntil)}</span>
+      </div>
+      <div className={styles.dateItem}>
+        <span className={styles.dateLabel}>Status</span>
+        <span className={styles.dateValue}>{statusLabels[quotation.status] || quotation.status}</span>
+      </div>
+    </div>
+  );
+}
+
 /* === Items Table === */
-function ItemsTable({ items }: { items: QuotationItem[] }) {
+function ItemsTable({ items, pad }: { items: QuotationItem[]; pad?: boolean }) {
+  const rows = pad ? padToMinimum(items, 4) : items;
   return (
     <table className={styles.itemsTable}>
       <thead>
         <tr>
-          <th>Item</th>
-          <th className={styles.centerCol}>Qty</th>
-          <th className={styles.numCol}>Unit Price</th>
-          <th className={styles.numCol}>Total</th>
+          <th className={styles.noColumn}>No.</th>
+          <th>Description</th>
+          <th className={styles.sizeColumn}>Size</th>
+          <th className={styles.qtyColumn}>Qty</th>
+          <th className={styles.priceColumn}>Price</th>
+          <th className={styles.totalColumn}>Total</th>
         </tr>
       </thead>
       <tbody>
-        {items.map((item, i) => (
-          <tr key={i}>
-            <td><span className={styles.itemName}>{item.productName}</span></td>
-            <td className={styles.centerCol}>{item.quantity}</td>
-            <td className={styles.numCol}>{formatCurrency(item.unitPrice)}</td>
-            <td className={styles.numCol}>{formatCurrency(item.total)}</td>
-          </tr>
-        ))}
+        {rows.map((item, index) => {
+          const isBlank = !item.productName;
+          return (
+            <tr key={item.productId}>
+              <td className={styles.noColumn}>{isBlank ? '' : index + 1}</td>
+              <td>{item.productName}</td>
+              <td className={styles.sizeColumn}>{isBlank ? '' : (item.size || '-')}</td>
+              <td className={styles.qtyColumn}>{isBlank ? '' : `${item.quantity} Units`}</td>
+              <td className={styles.priceColumn}>{isBlank ? '' : formatAmount(item.unitPrice)}</td>
+              <td className={styles.totalColumn}>{isBlank ? '-' : formatAmount(item.total)}</td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
@@ -64,133 +179,36 @@ function ItemsTable({ items }: { items: QuotationItem[] }) {
 
 /* === Totals === */
 function Totals({ quotation }: { quotation: Quotation }) {
-  const discountLabel = quotation.discountType === 'percentage'
-    ? `${quotation.discount}%`
-    : formatCurrency(quotation.discount);
-
   return (
     <div className={styles.totals}>
-      <div className={styles.totalsRow}>
-        <span className={styles.totalsLabel}>Subtotal</span>
-        <span className={styles.totalsValue}>{formatCurrency(quotation.subtotal)}</span>
-      </div>
-      {quotation.discount > 0 && (
-        <div className={styles.totalsRow}>
-          <span className={styles.totalsLabel}>Discount</span>
-          <span className={styles.totalsValue}>-{discountLabel}</span>
-        </div>
-      )}
-      {quotation.tax > 0 && (
-        <div className={styles.totalsRow}>
-          <span className={styles.totalsLabel}>Tax ({quotation.taxRate}%)</span>
-          <span className={styles.totalsValue}>{formatCurrency(quotation.tax)}</span>
-        </div>
-      )}
-      <div className={styles.totalsGrand}>
-        <span>Grand Total</span>
-        <span>{formatCurrency(quotation.total)}</span>
-      </div>
-    </div>
-  );
-}
-
-/* === Full Header === */
-function FullHeader({ quotation }: { quotation: Quotation }) {
-  const settings = getSettings();
-  const { businessName, address, phone, email } = settings.business;
-
-  return (
-    <div className={styles.header}>
-      <div className={styles.headerTop}>
-        <div className={styles.companyBlock}>
-          <h2 className={styles.companyName}>{businessName}</h2>
-          <p className={styles.companyAddr}>{address}</p>
-          <p className={styles.companyContact}>{phone} | {email}</p>
-        </div>
-        <div className={styles.docTitleBlock}>
-          <h1 className={styles.docTitle}>QUOTATION</h1>
-          <p className={styles.docNumber}>{quotation.id.toUpperCase()}</p>
-          <p className={styles.docDate}>{formatDate(quotation.createdAt)}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* === Customer Info === */
-function CustomerInfo({ quotation }: { quotation: Quotation }) {
-  return (
-    <div className={styles.customerInfo}>
-      <p className={styles.customerLabel}>Bill To</p>
-      <p className={styles.customerName}>{quotation.customerName}</p>
-    </div>
-  );
-}
-
-/* === Metadata Box === */
-function MetadataBox({ quotation }: { quotation: Quotation }) {
-  return (
-    <div className={styles.metadataBox}>
-      <div className={styles.metaItem}>
-        <span className={styles.metaLabel}>Quotation #</span>
-        <span className={styles.metaValue}>{quotation.id.toUpperCase()}</span>
-      </div>
-      <div className={styles.metaItem}>
-        <span className={styles.metaLabel}>Date</span>
-        <span className={styles.metaValue}>{formatDate(quotation.createdAt)}</span>
-      </div>
-      <div className={styles.metaItem}>
-        <span className={styles.metaLabel}>Valid Until</span>
-        <span className={styles.metaValue}>{formatDate(quotation.validUntil)}</span>
-      </div>
-      <div className={styles.metaItem}>
-        <span className={styles.metaLabel}>Status</span>
-        <span className={styles.metaValue}>{statusLabels[quotation.status] || quotation.status}</span>
-      </div>
-    </div>
-  );
-}
-
-/* === Notes === */
-function Notes({ quotation }: { quotation: Quotation }) {
-  if (!quotation.notes) return null;
-  return (
-    <div className={styles.notesSection}>
-      <p className={styles.notesLabel}>Notes</p>
-      <p className={styles.notesText}>{quotation.notes}</p>
-    </div>
-  );
-}
-
-/* === Signature === */
-function Signature() {
-  return (
-    <div className={styles.signatureSection}>
-      <div className={styles.signatureBlock}>
-        <div className={styles.signatureLine} />
-        <p className={styles.signatureLabel}>Customer Signature</p>
-      </div>
-      <div className={styles.signatureBlock}>
-        <div className={styles.signatureLine} />
-        <p className={styles.signatureLabel}>Authorized Signature</p>
-      </div>
+      <div className={styles.totalsRow}><span>Sub-Total</span><strong>{formatCurrency(quotation.subtotal)}</strong></div>
+      <div className={styles.totalsRow}><span>Tax <em>({quotation.taxRate}%)</em></span><strong>{formatCurrency(quotation.tax)}</strong></div>
+      <div className={styles.grandTotal}><strong>Grand Total</strong><span>{formatCurrency(quotation.total)}</span></div>
     </div>
   );
 }
 
 /* === Footer === */
-function Footer() {
+function Footer({ quotation }: { quotation: Quotation }) {
   const settings = getSettings();
-  const { businessName, phone, email } = settings.business;
-  const footerText = settings.print.footerText || 'Thank you for your business!';
-
+  const { phone } = settings.business;
+  const signatureSrc = quotation.createdBySignature || settings.business.signature;
   return (
-    <div className={styles.footer}>
-      <div className={styles.footerContact}>
-        {businessName} | {phone} | {email}
+    <footer className={styles.footer}>
+      <div className={styles.footerNotes}>
+        <strong>Notes:</strong>
+        {quotation.notes && <span>{quotation.notes}</span>}
       </div>
-      <div className={styles.footerText}>{footerText}</div>
-    </div>
+      <div className={styles.footerBottom}>
+        <div className={styles.footerThankYou}>Thank you for choosing Infield Innovations!</div>
+        <div className={styles.footerStamp}><Stamp /></div>
+        <div className={styles.authorizedSignature}>
+          <ImageWithFallback src={signatureSrc} alt="Signature" width={140} height={50} animation="fadeUp" className={styles.signatureImage} />
+          <strong>{quotation.createdBy}</strong>
+        </div>
+      </div>
+      <div className={styles.footerContact}>Contact us: {phone}</div>
+    </footer>
   );
 }
 
@@ -202,7 +220,7 @@ function CompactHeader({ quotation }: { quotation: Quotation }) {
       <div className={styles.compactCompany}>{settings.business.businessName}</div>
       <div className={styles.compactDocInfo}>
         <span className={styles.compactTitle}>QUOTATION</span>
-        <span className={styles.compactNumber}>{quotation.id.toUpperCase()}</span>
+        <span className={styles.compactNumber}>{quotation.quotationCode}</span>
       </div>
     </div>
   );
@@ -212,43 +230,34 @@ function CompactHeader({ quotation }: { quotation: Quotation }) {
 function StatusBadge({ status }: { status: Quotation['status'] }) {
   const label = statusLabels[status] || status;
   const color = statusColors[status] || '#6b7280';
-  return (
-    <span className={styles.statusBadge} style={{ backgroundColor: color }}>
-      {label}
-    </span>
-  );
+  return <span className={styles.statusBadge} style={{ backgroundColor: color }}>{label}</span>;
 }
 
 /* === A4 Layout === */
 function A4Layout({ quotation }: { quotation: Quotation }) {
   const pages = paginateItems(quotation.items);
-
   return (
     <div className={styles.a4Container}>
       {pages.map((pageItems, pageIndex) => {
         const isFirst = pageIndex === 0;
         const isLast = pageIndex === pages.length - 1;
-
         return (
           <div key={pageIndex} className={styles.a4Page}>
             {isFirst ? (
               <>
-                <FullHeader quotation={quotation} />
-                <CustomerInfo quotation={quotation} />
-                <MetadataBox quotation={quotation} />
-                <ItemsTable items={pageItems} />
+                <BrandedHeader quotation={quotation} />
+                <BillToAndFor quotation={quotation} />
+                <DateBar quotation={quotation} />
+                <ItemsTable items={pageItems} pad />
                 {isLast && <Totals quotation={quotation} />}
-                {isLast && <Notes quotation={quotation} />}
-                {isLast && <Signature />}
-                <Footer />
+                {isLast && <Footer quotation={quotation} />}
               </>
             ) : (
               <>
                 <CompactHeader quotation={quotation} />
                 <ItemsTable items={pageItems} />
                 {isLast && <Totals quotation={quotation} />}
-                {isLast && <Signature />}
-                {isLast && <Footer />}
+                {isLast && <Footer quotation={quotation} />}
               </>
             )}
           </div>
@@ -262,21 +271,11 @@ function A4Layout({ quotation }: { quotation: Quotation }) {
 function ActionBar({ quotation, actions }: { quotation: Quotation; actions: QuotationDocumentActions }) {
   return (
     <div className={styles.actionBar}>
-      <button className={styles.actionBtn} onClick={() => printQuotation(quotation)}>
-        Print A4
-      </button>
-      <button className={styles.actionBtn} onClick={() => downloadQuotationPDF(quotation)}>
-        Download PDF
-      </button>
-      <button className={styles.actionBtn} onClick={actions.onEdit}>
-        Edit
-      </button>
-      <button className={styles.actionBtn} onClick={actions.onDuplicate}>
-        Duplicate
-      </button>
-      <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={actions.onDelete}>
-        Delete
-      </button>
+      <button className={styles.actionBtn} onClick={() => printQuotation(quotation)}>Print A4</button>
+      <button className={styles.actionBtn} onClick={() => downloadQuotationPDF(quotation)}>Download PDF</button>
+      <button className={styles.actionBtn} onClick={actions.onEdit}>Edit</button>
+      <button className={styles.actionBtn} onClick={actions.onDuplicate}>Duplicate</button>
+      <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={actions.onDelete}>Delete</button>
     </div>
   );
 }
@@ -291,9 +290,7 @@ export default function QuotationDocument({ quotation, actions }: QuotationDocum
   return (
     <div className={styles.previewContainer}>
       <div className={styles.previewToolbar}>
-        <div className={styles.previewStatus}>
-          <StatusBadge status={quotation.status} />
-        </div>
+        <div className={styles.previewStatus}><StatusBadge status={quotation.status} /></div>
         <ActionBar quotation={quotation} actions={actions} />
       </div>
       <div className={styles.previewBody}>
@@ -303,185 +300,231 @@ export default function QuotationDocument({ quotation, actions }: QuotationDocum
   );
 }
 
-/* === Print Function === */
+/* === Print === */
 const printStyles = `
-* { margin: 0; padding: 0; box-sizing: border-box; }
-@page { size: A4 portrait; margin: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a1a; background: #fff; }
-.qt-page { width: 210mm; min-height: 297mm; padding: 15mm; position: relative; page-break-after: always; }
-.qt-page:last-child { page-break-after: auto; }
-.qt-header { margin-bottom: 24px; }
-.qt-header-top { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 16px; border-bottom: 3px solid #1e3a5f; }
-.qt-company { flex: 1; }
-.qt-company-name { font-size: 20px; font-weight: 800; color: #1e3a5f; margin: 0; letter-spacing: -0.02em; }
-.qt-company-addr { font-size: 10px; color: #555; margin: 4px 0 0; line-height: 1.4; }
-.qt-company-contact { font-size: 10px; color: #555; margin: 2px 0 0; }
-.qt-title-block { text-align: right; }
-.qt-title { font-size: 32px; font-weight: 800; color: #1e3a5f; margin: 0; letter-spacing: 0.04em; line-height: 1; }
-.qt-number { font-size: 12px; color: #555; margin: 6px 0 0; font-weight: 600; }
-.qt-date { font-size: 10px; color: #777; margin: 2px 0 0; }
-.qt-customer { margin-bottom: 20px; }
-.qt-customer-label { font-size: 10px; font-weight: 700; color: #1e3a5f; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 6px; }
-.qt-customer-name { font-size: 14px; font-weight: 700; color: #1a1a1a; margin: 0; }
-.qt-metadata { display: flex; gap: 0; margin-bottom: 24px; border-left: 4px solid #1e3a5f; background: #f5f7fa; padding: 14px 18px; border-radius: 0 6px 6px 0; }
-.qt-meta-item { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.qt-meta-item + .qt-meta-item { padding-left: 20px; border-left: 1px solid #d0dce6; }
-.qt-meta-label { font-size: 9px; font-weight: 700; color: #777; text-transform: uppercase; letter-spacing: 0.06em; }
-.qt-meta-value { font-size: 12px; font-weight: 600; color: #1a1a1a; }
-.qt-items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
-.qt-items-table thead th { background: #1e3a5f; color: #fff; padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; text-align: left; }
-.qt-items-table thead th.num { text-align: right; }
-.qt-items-table thead th.center { text-align: center; }
-.qt-items-table tbody tr { page-break-inside: avoid; }
-.qt-items-table tbody td { padding: 9px 12px; font-size: 11px; border-bottom: 1px solid #e0e6ed; color: #333; }
-.qt-items-table tbody td.num { text-align: right; }
-.qt-items-table tbody td.center { text-align: center; }
-.qt-items-table tbody tr:nth-child(even) { background: #f8fafc; }
-.qt-item-name { font-weight: 600; color: #1a1a1a; }
-.qt-totals { width: 280px; margin-left: auto; margin-bottom: 20px; }
-.qt-totals-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 11px; color: #555; }
-.qt-totals-grand { border-top: 2px solid #1e3a5f; padding-top: 10px; margin-top: 6px; font-weight: 800; font-size: 14px; color: #1e3a5f; display: flex; justify-content: space-between; }
-.qt-notes { margin-bottom: 20px; }
-.qt-notes-label { font-size: 10px; font-weight: 700; color: #1e3a5f; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 6px; }
-.qt-notes-text { font-size: 10px; color: #555; margin: 0; line-height: 1.6; }
-.qt-signature { display: flex; justify-content: space-between; margin-top: 48px; margin-bottom: 20px; }
-.qt-sig-block { width: 200px; }
-.qt-sig-line { border-bottom: 1px solid #999; height: 40px; }
-.qt-sig-label { font-size: 9px; color: #666; margin-top: 4px; text-align: center; }
-.qt-footer { position: absolute; bottom: 15mm; left: 15mm; right: 15mm; border-top: 1px solid #e0e6ed; padding-top: 8px; }
-.qt-footer-contact { font-size: 9px; color: #999; }
-.qt-footer-text { font-size: 9px; color: #999; margin-top: 2px; }
-.qt-compact-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #1e3a5f; }
-.qt-compact-company { font-size: 14px; font-weight: 700; color: #1e3a5f; }
-.qt-compact-info { text-align: right; }
-.qt-compact-title { font-size: 12px; color: #555; font-weight: 600; }
-.qt-compact-number { font-size: 10px; color: #777; display: block; }
-@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+*{margin:0;padding:0;box-sizing:border-box}
+@page{size:A4 portrait;margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111;background:#fff}
+.qt-page{width:210mm;min-height:297mm;padding:15mm;position:relative;page-break-after:always}
+.qt-page:last-child{page-break-after:auto}
+.qt-header{margin-bottom:20px;overflow:hidden}
+.qt-header-top{display:grid;grid-template-columns:1.15fr 1fr 1fr;align-items:stretch;min-height:132px;padding:18px 28px 22px;gap:24px}
+.qt-brand{display:flex;flex-direction:column;gap:12px}
+.qt-logo{display:inline-flex;align-items:flex-end;gap:2px;width:fit-content;color:#168ac0;font-size:25px;font-style:italic;font-weight:800;letter-spacing:-0.08em;line-height:0.9;position:relative;padding:0 8px 9px 4px}
+.qt-logo::after{content:'';position:absolute;left:0;right:0;bottom:0;height:7px;border-top:3px solid #168ac0;border-radius:50%;transform:skewX(-20deg)}
+.qt-logo-mark{color:#168ac0;font-size:24px;font-weight:800}
+.qt-logo-name{font-size:25px;font-weight:800;color:#168ac0}
+.qt-logo-drop{width:8px;height:14px;border:2px solid #168ac0;border-radius:70% 30% 70% 30%;transform:rotate(35deg);align-self:flex-end;margin:0 0 1px 3px}
+.qt-business-name{display:flex;flex-direction:column;font-size:23px;line-height:1;letter-spacing:0.02em}
+.qt-business-name strong{font-weight:800;color:#126542}
+.qt-business-name span{font-weight:400;color:#111}
+.qt-brand-rule{height:18px;width:58%;background:#707070;margin-top:auto}
+.qt-title-block{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.qt-title-block h1{font-size:30px;font-weight:800;letter-spacing:0.06em;color:#126542;margin:0;line-height:1}
+.qt-code-text{font-size:14px;font-weight:800;color:#126542;letter-spacing:0.1em}
+.qt-contact{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border-left:4px solid #111;padding:8px 0 8px 20px;position:relative}
+.qt-contact::before{content:'';position:absolute;top:-18px;right:-28px;width:130px;height:24px;background:#c9c9c9}
+.qt-contact-row{display:grid;grid-template-columns:18px 1fr;align-items:baseline;gap:8px;width:100%;padding-bottom:4px;border-bottom:1px solid #c9c9c9;font-size:11px;color:#111}
+.qt-contact-row strong{color:#126542;font-weight:800;font-size:14px}
+.qt-contact address{font-size:11px;font-style:normal;color:#111;margin-top:8px;line-height:1.35}
+.qt-accent-bar{height:8px;background:#35b875;display:flex}
+.qt-accent-bar span{width:7%;background:#c9c9c9}
+.qt-billto-for{display:grid;grid-template-columns:1fr 1fr;margin:20px 0;gap:0}
+.qt-billto{background:#e2e2e2;padding:14px 20px}
+.qt-billto-label{display:block;font-size:12px;font-weight:800;color:#126542;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.qt-client-name{font-size:14px;font-weight:700;color:#111;margin:0 0 2px}
+.qt-client-address{font-size:11px;color:#444;margin:0 0 2px}
+.qt-client-contact{font-size:11px;color:#444;margin:0}
+.qt-for-section{background:#86ad9c;padding:14px 20px;display:flex;flex-direction:column}
+.qt-for-label{display:block;font-size:12px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.qt-for-text{font-size:13px;color:#fff;line-height:1.35}
+.qt-date-bar{display:flex;gap:0;margin-bottom:20px;border-left:4px solid #126542;background:#f5f7fa;padding:12px 18px}
+.qt-date-item{flex:1;display:flex;flex-direction:column;gap:2px}
+.qt-date-item+.qt-date-item{padding-left:20px;border-left:1px solid #d0dce6}
+.qt-date-label{font-size:9px;font-weight:700;color:#777;text-transform:uppercase;letter-spacing:0.06em}
+.qt-date-value{font-size:12px;font-weight:600;color:#111}
+.qt-items-table{width:100%;border-collapse:collapse;table-layout:fixed;margin:20px 0 0;color:#111;font-size:12px}
+.qt-items-table th,.qt-items-table td{padding:8px 12px;border-bottom:1px solid #dce5e8;text-align:left;vertical-align:middle}
+.qt-items-table thead th{height:34px;background:#36b976;color:#fff;font-size:15px;font-weight:800;border-right:2px solid #fff}
+.qt-items-table thead th:nth-child(3),.qt-items-table thead th:nth-child(4){background:#888b8b}
+.qt-items-table thead th:last-child{border-right:0}
+.qt-items-table tbody td{height:34px;font-family:Georgia,'Times New Roman',serif;font-size:13px}
+.qt-no-col{width:8%;text-align:center}
+.qt-size-col{width:9%;text-align:center}
+.qt-qty-col{width:15%;text-align:center}
+.qt-price-col{width:12%;text-align:right}
+.qt-total-col{width:16%;text-align:right}
+.qt-totals{width:52%;margin:48px 0 24px auto;color:#111;font-family:Georgia,'Times New Roman',serif;font-size:13px}
+.qt-totals-row{display:grid;grid-template-columns:1fr 0.7fr;min-height:32px;align-items:center;border-bottom:2px solid #d2d2d2}
+.qt-totals-row span{padding-left:18px}
+.qt-totals-row strong{text-align:right;padding-right:14px;font-weight:400}
+.qt-totals-row em{margin-left:24px;font-style:italic}
+.qt-grand-total{display:grid;grid-template-columns:1.15fr 1fr;min-height:42px;align-items:center;background:#b4ead6;font-size:16px}
+.qt-grand-total strong{height:100%;display:flex;align-items:center;padding-left:18px;background:#36b976;color:#fff;font-size:17px}
+.qt-grand-total span{text-align:right;padding-right:14px;font-weight:800}
+.qt-footer{margin-top:28px;color:#111}
+.qt-footer-notes{display:flex;flex-direction:column;gap:6px;min-height:82px;padding-top:44px;font-size:14px}
+.qt-footer-notes strong{font-size:16px;font-weight:800}
+.qt-footer-notes span{color:#333;line-height:1.45}
+.qt-footer-bottom{display:grid;grid-template-columns:1fr 120px 1fr;align-items:end;gap:20px;min-height:126px}
+.qt-footer-thank{align-self:end;padding-bottom:16px;color:#126542;font-size:16px;font-weight:800;text-transform:uppercase}
+.qt-footer-stamp{justify-self:center;align-self:center}
+.qt-authorised-sig{display:flex;flex-direction:column;align-items:center;gap:8px;padding-bottom:12px}
+.qt-authorised-sig strong{font-size:14px;font-weight:800}
+.qt-footer-contact{margin-top:12px;padding-top:8px;border-top:1px solid #e0e6ed;font-size:11px;color:#555}
+.qt-compact-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #e5e5e5}
+.qt-compact-company{font-size:14px;font-weight:700;color:#126542}
+.qt-compact-info{text-align:right}
+.qt-compact-title{font-size:12px;color:#666}
+.qt-compact-number{font-size:10px;color:#999;display:block}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 `;
 
 function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function buildQuotationHTML(quotation: Quotation): string {
   const settings = getSettings();
-  const { businessName, address, phone, email } = settings.business;
-  const footerText = settings.print.footerText || 'Thank you for your business!';
+  const { businessName, address, phone, email, website } = settings.business;
+  const siteUrl = website || 'www.infield.co.ke';
   const pages = paginateItems(quotation.items);
-  const discountLabel = quotation.discountType === 'percentage'
-    ? `${quotation.discount}%`
-    : formatCurrency(quotation.discount);
+  const signatureSrc = quotation.createdBySignature || settings.business.signature;
 
-  const buildItemsTable = (items: QuotationItem[]): string => {
-    return `<table class="qt-items-table">
-      <thead><tr>
-        <th>Item</th>
-        <th class="center">Qty</th>
-        <th class="num">Unit Price</th>
-        <th class="num">Total</th>
-      </tr></thead>
-      <tbody>
-        ${items.map((item) => `<tr>
-          <td><span class="qt-item-name">${escapeHtml(item.productName)}</span></td>
-          <td class="center">${item.quantity}</td>
-          <td class="num">${formatCurrency(item.unitPrice)}</td>
-          <td class="num">${formatCurrency(item.total)}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>`;
+  const buildItemsTable = (items: QuotationItem[], pad = false): string => {
+    const rows = pad ? padToMinimum(items, 4) : items;
+    return `<table class="qt-items-table"><thead><tr>
+      <th class="qt-no-col">No.</th><th>Description</th><th class="qt-size-col">Size</th>
+      <th class="qt-qty-col">Qty</th><th class="qt-price-col">Price</th><th class="qt-total-col">Total</th>
+    </tr></thead><tbody>${rows.map((item, i) => {
+      const isBlank = !item.productName;
+      return `<tr>
+        <td class="qt-no-col">${isBlank ? '' : i + 1}</td>
+        <td>${escapeHtml(item.productName)}</td>
+        <td class="qt-size-col">${isBlank ? '' : escapeHtml(item.size || '-')}</td>
+        <td class="qt-qty-col">${isBlank ? '' : item.quantity + ' Units'}</td>
+        <td class="qt-price-col">${isBlank ? '' : formatAmount(item.unitPrice)}</td>
+        <td class="qt-total-col">${isBlank ? '-' : formatAmount(item.total)}</td>
+      </tr>`;
+    }).join('')}</tbody></table>`;
   };
 
-  const buildTotals = (): string => {
-    return `<div class="qt-totals">
-      <div class="qt-totals-row"><span>Subtotal</span><span>${formatCurrency(quotation.subtotal)}</span></div>
-      ${quotation.discount > 0 ? `<div class="qt-totals-row"><span>Discount</span><span>-${discountLabel}</span></div>` : ''}
-      ${quotation.tax > 0 ? `<div class="qt-totals-row"><span>Tax (${quotation.taxRate}%)</span><span>${formatCurrency(quotation.tax)}</span></div>` : ''}
-      <div class="qt-totals-grand"><span>Grand Total</span><span>${formatCurrency(quotation.total)}</span></div>
-    </div>`;
-  };
+  const buildTotals = () => `<div class="qt-totals">
+    <div class="qt-totals-row"><span>Sub-Total</span><strong>${formatCurrency(quotation.subtotal)}</strong></div>
+    <div class="qt-totals-row"><span>Tax <em>(${quotation.taxRate}%)</em></span><strong>${formatCurrency(quotation.tax)}</strong></div>
+    <div class="qt-grand-total"><strong>Grand Total</strong><span>${formatCurrency(quotation.total)}</span></div>
+  </div>`;
 
-  const buildNotes = (): string => {
-    if (!quotation.notes) return '';
-    return `<div class="qt-notes"><p class="qt-notes-label">Notes</p><p class="qt-notes-text">${escapeHtml(quotation.notes)}</p></div>`;
-  };
+  const stampHTML = `<div class="qt-footer-stamp"><div style="width:88px;height:88px;border:2.5px solid #c0392b;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#c0392b;font-family:Georgia,serif;transform:rotate(-8deg);opacity:0.85">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
+      <span style="font-size:11px;font-weight:800;text-transform:uppercase">Infield</span>
+      <span style="font-size:7px;letter-spacing:1px">* * * *</span>
+      <span style="font-size:7px;font-weight:600">+254 702 393 677</span>
+    </div>
+    <span style="font-size:6px;font-weight:700;text-transform:uppercase;border-top:1px solid #c0392b;padding-top:1px;margin-top:2px">DIGITAL STAMP</span>
+  </div></div>`;
 
-  const buildSignature = (): string => {
-    return `<div class="qt-signature">
-      <div class="qt-sig-block"><div class="qt-sig-line"></div><p class="qt-sig-label">Customer Signature</p></div>
-      <div class="qt-sig-block"><div class="qt-sig-line"></div><p class="qt-sig-label">Authorized Signature</p></div>
-    </div>`;
-  };
+  const sigHTML = signatureSrc ? `<img src="${escapeHtml(signatureSrc)}" alt="Signature" style="max-width:140px;max-height:50px;object-fit:contain" />` : '';
 
-  const buildFooter = (): string => {
-    return `<div class="qt-footer"><div class="qt-footer-contact">${escapeHtml(businessName)} | ${escapeHtml(phone)} | ${escapeHtml(email)}</div><div class="qt-footer-text">${escapeHtml(footerText)}</div></div>`;
-  };
+  const buildFooter = () => `<footer class="qt-footer">
+    <div class="qt-footer-notes"><strong>Notes:</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ''}</div>
+    <div class="qt-footer-bottom">
+      <div class="qt-footer-thank">Thank you for choosing Infield Innovations!</div>
+      ${stampHTML}
+      <div class="qt-authorised-sig">${sigHTML}<strong>${escapeHtml(quotation.createdBy || '')}</strong></div>
+    </div>
+    <div class="qt-footer-contact">Contact us: ${escapeHtml(phone)}</div>
+  </footer>`;
 
-  const headerFull = `<div class="qt-header">
-    <div class="qt-header-top">
-      <div class="qt-company">
-        <h2 class="qt-company-name">${escapeHtml(businessName)}</h2>
-        <p class="qt-company-addr">${escapeHtml(address)}</p>
-        <p class="qt-company-contact">${escapeHtml(phone)} | ${escapeHtml(email)}</p>
-      </div>
-      <div class="qt-title-block">
-        <h1 class="qt-title">QUOTATION</h1>
-        <p class="qt-number">${escapeHtml(quotation.id.toUpperCase())}</p>
-        <p class="qt-date">${formatDate(quotation.createdAt)}</p>
-      </div>
+  const headerFull = `<header class="qt-header"><div class="qt-header-top">
+    <div class="qt-brand">
+      <div class="qt-logo"><span class="qt-logo-mark">in</span><span class="qt-logo-name">Field</span><span class="qt-logo-drop"></span></div>
+      <div class="qt-business-name"><strong>INFIELD</strong><span>INNOVATIONS</span></div>
+      <div class="qt-brand-rule"></div>
+    </div>
+    <div class="qt-title-block"><h1>QUOTATION</h1><span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span></div>
+    <div class="qt-contact">
+      <div class="qt-contact-row"><strong>T.</strong><span>${escapeHtml(phone)}</span></div>
+      <div class="qt-contact-row"><strong>W.</strong><span>${escapeHtml(siteUrl)}</span></div>
+      <div class="qt-contact-row"><strong>E.</strong><span>${escapeHtml(email)}</span></div>
+      <address>${escapeHtml(address)}</address>
+    </div>
+  </div><div class="qt-accent-bar"><span></span></div></header>`;
+
+  const billToFor = `<div class="qt-billto-for">
+    <div class="qt-billto">
+      <span class="qt-billto-label">BILL TO:</span>
+      <p class="qt-client-name">${escapeHtml(quotation.customerName)}</p>
+      ${quotation.customerAddress ? `<p class="qt-client-address">${escapeHtml(quotation.customerAddress)}</p>` : ''}
+      <p class="qt-client-contact">${escapeHtml(quotation.customerContact)}</p>
+    </div>
+    <div class="qt-for-section">
+      <span class="qt-for-label">FOR:</span>
+      <span class="qt-for-text">${escapeHtml(quotation.quoteFor)}</span>
     </div>
   </div>`;
 
-  const customerInfo = `<div class="qt-customer"><p class="qt-customer-label">Bill To</p><p class="qt-customer-name">${escapeHtml(quotation.customerName)}</p></div>`;
-
-  const metadataBox = `<div class="qt-metadata">
-    <div class="qt-meta-item"><span class="qt-meta-label">Quotation #</span><span class="qt-meta-value">${escapeHtml(quotation.id.toUpperCase())}</span></div>
-    <div class="qt-meta-item"><span class="qt-meta-label">Date</span><span class="qt-meta-value">${formatDate(quotation.createdAt)}</span></div>
-    <div class="qt-meta-item"><span class="qt-meta-label">Valid Until</span><span class="qt-meta-value">${formatDate(quotation.validUntil)}</span></div>
-    <div class="qt-meta-item"><span class="qt-meta-label">Status</span><span class="qt-meta-value">${statusLabels[quotation.status] || quotation.status}</span></div>
+  const dateBar = `<div class="qt-date-bar">
+    <div class="qt-date-item"><span class="qt-date-label">Date</span><span class="qt-date-value">${formatDate(quotation.createdAt)}</span></div>
+    <div class="qt-date-item"><span class="qt-date-label">Valid Until</span><span class="qt-date-value">${formatDate(quotation.validUntil)}</span></div>
+    <div class="qt-date-item"><span class="qt-date-label">Status</span><span class="qt-date-value">${statusLabels[quotation.status] || quotation.status}</span></div>
   </div>`;
 
-  const headerCompact = `<div class="qt-compact-header"><div class="qt-compact-company">${escapeHtml(businessName)}</div><div class="qt-compact-info"><span class="qt-compact-title">QUOTATION</span><span class="qt-compact-number">${escapeHtml(quotation.id.toUpperCase())}</span></div></div>`;
+  const headerCompact = `<div class="qt-compact-header"><div class="qt-compact-company">${escapeHtml(businessName)}</div><div class="qt-compact-info"><span class="qt-compact-title">QUOTATION</span><span class="qt-compact-number">${escapeHtml(quotation.quotationCode || '')}</span></div></div>`;
 
   return pages.map((pageItems, i) => {
     const isFirst = i === 0;
     const isLast = i === pages.length - 1;
-    if (isFirst) {
-      return `<div class="qt-page">${headerFull}${customerInfo}${metadataBox}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildNotes() + buildSignature() : ''}${buildFooter()}</div>`;
-    }
-    return `<div class="qt-page">${headerCompact}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildSignature() : ''}${isLast ? buildFooter() : `<div class="qt-footer"><div class="qt-footer-contact">${escapeHtml(businessName)} | ${escapeHtml(phone)} | ${escapeHtml(email)}</div></div>`}</div>`;
+    if (isFirst) return `<div class="qt-page">${headerFull}${billToFor}${dateBar}${buildItemsTable(pageItems, true)}${isLast ? buildTotals() + buildFooter() : ''}</div>`;
+    return `<div class="qt-page">${headerCompact}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildFooter() : ''}</div>`;
   }).join('');
 }
 
 export function printQuotation(quotation: Quotation): void {
   const printWindow = window.open('', '_blank');
   if (!printWindow) return;
-  printWindow.document.write(`<!DOCTYPE html><html><head><title>Quotation ${quotation.id.toUpperCase()}</title><style>${printStyles}</style></head><body>${buildQuotationHTML(quotation)}</body></html>`);
+  printWindow.document.write(`<!DOCTYPE html><html><head><title>Quotation ${quotation.quotationCode || quotation.id}</title><style>${printStyles}</style></head><body>${buildQuotationHTML(quotation)}</body></html>`);
   printWindow.document.close();
   setTimeout(() => printWindow.print(), 300);
 }
 
-/* === PDF Generation === */
+/* === PDF === */
+import { PDFDocument, PDFFont, PDFPage, rgb, StandardFonts } from 'pdf-lib';
+
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
 const MARGIN = 50;
-const ACCENT = rgb(0.118, 0.227, 0.373);
-const DARK = rgb(0.102, 0.102, 0.102);
-const GRAY = rgb(0.45, 0.45, 0.45);
-const LIGHT_GRAY = rgb(0.95, 0.95, 0.95);
-const META_BG = rgb(0.961, 0.969, 0.98);
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
+
+const LOGO_BLUE = rgb(0.094, 0.541, 0.753);
+const BRAND_GREEN = rgb(0.073, 0.396, 0.259);
+const ACCENT_GREEN = rgb(0.208, 0.722, 0.463);
+const ACCENT_GRAY = rgb(0.788, 0.788, 0.788);
+const FOR_LABEL_BG = rgb(0.525, 0.678, 0.612);
+const FOR_CONTENT_BG = rgb(0.886, 0.886, 0.886);
+const TABLE_GREEN = rgb(0.212, 0.725, 0.463);
+const TABLE_GRAY = rgb(0.533, 0.545, 0.545);
+const GRAND_TOTAL_BG = rgb(0.706, 0.918, 0.839);
+const BRAND_RULE = rgb(0.439, 0.439, 0.439);
+const STAMP_RED = rgb(0.753, 0.224, 0.169);
+const DARK = rgb(0.067, 0.067, 0.067);
+const GRAY = rgb(0.5, 0.5, 0.5);
+const LIGHT_GRAY = rgb(0.93, 0.93, 0.93);
+const WHITE = rgb(1, 1, 1);
 
 export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const font: PDFFont = await doc.embedFont(StandardFonts.Helvetica);
   const boldFont: PDFFont = await doc.embedFont(StandardFonts.HelveticaBold);
+  const serifFont: PDFFont = await doc.embedFont(StandardFonts.TimesRoman);
 
   const settings = getSettings();
-  const { businessName, address, phone, email } = settings.business;
-  const footerText = settings.print.footerText || 'Thank you for your business!';
+  const { businessName, address, phone, email, website } = settings.business;
+  const siteUrl = website || 'www.infield.co.ke';
+
+  const col1X = MARGIN; const col1W = 166;
+  const col2X = col1X + col1W + 20; const col2W = 145;
+  const col3X = col2X + col2W + 20; const col3W = PAGE_WIDTH - MARGIN - col3X;
 
   let page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
@@ -489,194 +532,238 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   const addPage = (): PDFPage => {
     page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     y = PAGE_HEIGHT - MARGIN;
-    page.drawText(businessName, { x: MARGIN, y, size: 12, font: boldFont, color: ACCENT });
-    page.drawText(`QUOTATION - ${quotation.id.toUpperCase()}`, { x: PAGE_WIDTH - MARGIN - 200, y, size: 10, font, color: GRAY });
-    y -= 20;
-    page.drawLine({ start: { x: MARGIN, y: y + 4 }, end: { x: PAGE_WIDTH - MARGIN, y: y + 4 }, thickness: 1, color: ACCENT });
-    y -= 10;
+    page.drawText(businessName, { x: MARGIN, y, size: 12, font: boldFont, color: BRAND_GREEN });
+    const info = `QUOTATION  ${quotation.quotationCode || quotation.id}`;
+    page.drawText(info, { x: PAGE_WIDTH - MARGIN - boldFont.widthOfTextAtSize(info, 10), y, size: 10, font, color: GRAY });
+    y -= 16;
+    page.drawLine({ start: { x: MARGIN, y: y + 4 }, end: { x: PAGE_WIDTH - MARGIN, y: y + 4 }, thickness: 1, color: ACCENT_GREEN });
+    y -= 14;
     return page;
   };
 
-  const ensureSpace = (needed: number) => {
-    if (y - needed < MARGIN + 60) addPage();
-  };
+  const ensureSpace = (needed: number) => { if (y - needed < MARGIN + 60) addPage(); };
 
-  const drawText = (text: string, x: number, size: number, f: PDFFont, color = DARK): number => {
-    page.drawText(text, { x, y, size, font: f, color });
-    return y - size - 4;
-  };
-
-  const drawWrappedText = (text: string, x: number, maxWidth: number, size: number, f: PDFFont, color = DARK): number => {
-    const words = text.split(' ');
-    let line = '';
+  const drawWrappedTextAt = (text: string, x: number, maxWidth: number, size: number, f: PDFFont, color: ReturnType<typeof rgb>, startY: number): number => {
+    const words = text.split(' '); let line = ''; let cy = startY;
     for (const word of words) {
       const testLine = line ? `${line} ${word}` : word;
-      if (f.widthOfTextAtSize(testLine, size) > maxWidth) {
-        y = drawText(line, x, size, f, color);
-        line = word;
-      } else {
-        line = testLine;
-      }
+      if (f.widthOfTextAtSize(testLine, size) > maxWidth) { page.drawText(line, { x, y: cy, size, font: f, color }); cy -= size + 4; line = word; }
+      else { line = testLine; }
     }
-    if (line) y = drawText(line, x, size, f, color);
-    return y;
+    if (line) { page.drawText(line, { x, y: cy, size, font: f, color }); cy -= size + 4; }
+    return cy;
   };
 
-  // Full header
-  page.drawText(businessName, { x: MARGIN, y, size: 18, font: boldFont, color: ACCENT });
-  y -= 22;
-  y = drawWrappedText(address, MARGIN, 250, 9, font, GRAY);
-  y = drawText(`${phone} | ${email}`, MARGIN, 9, font, GRAY);
-  y -= 6;
-  page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 2, color: ACCENT });
-  y -= 16;
+  // Header
+  const headerTop = PAGE_HEIGHT - MARGIN - 18;
+  page.drawText('in', { x: col1X + 4, y: headerTop + 2, size: 20, font: boldFont, color: LOGO_BLUE });
+  const inW = boldFont.widthOfTextAtSize('in', 20);
+  page.drawText('Field', { x: col1X + 4 + inW, y: headerTop + 2, size: 20, font: boldFont, color: LOGO_BLUE });
+  const logoFullW = boldFont.widthOfTextAtSize('inField', 20);
+  page.drawLine({ start: { x: col1X + 4, y: headerTop - 2 }, end: { x: col1X + 4 + logoFullW + 2, y: headerTop - 2 }, thickness: 2, color: LOGO_BLUE });
 
-  const titleX = PAGE_WIDTH - MARGIN - 120;
-  let titleY = PAGE_HEIGHT - MARGIN - 4;
-  page.drawText('QUOTATION', { x: titleX, y: titleY, size: 24, font: boldFont, color: ACCENT });
-  titleY -= 26;
-  page.drawText(quotation.id.toUpperCase(), { x: titleX, y: titleY, size: 11, font, color: GRAY });
-  titleY -= 14;
-  page.drawText(formatDate(quotation.createdAt), { x: titleX, y: titleY, size: 9, font, color: GRAY });
-  y = Math.min(y, titleY - 20);
+  const bizY = headerTop - 28;
+  page.drawText('INFIELD', { x: col1X, y: bizY, size: 18, font: boldFont, color: BRAND_GREEN });
+  page.drawText('INNOVATIONS', { x: col1X, y: bizY - 18, size: 18, font: font, color: DARK });
+  page.drawRectangle({ x: col1X, y: bizY - 34, width: col1W * 0.58, height: 12, color: BRAND_RULE });
 
-  // Customer info
-  page.drawText('BILL TO', { x: MARGIN, y, size: 9, font: boldFont, color: ACCENT });
-  y -= 12;
-  page.drawText(quotation.customerName, { x: MARGIN, y, size: 11, font: boldFont, color: DARK });
-  y -= 16;
+  const titleText = 'QUOTATION';
+  page.drawText(titleText, { x: col2X + (col2W - boldFont.widthOfTextAtSize(titleText, 24)) / 2, y: headerTop - 6, size: 24, font: boldFont, color: BRAND_GREEN });
+  const codeText = quotation.quotationCode || '';
+  page.drawText(codeText, { x: col2X + (col2W - boldFont.widthOfTextAtSize(codeText, 14)) / 2, y: headerTop - 28, size: 14, font: boldFont, color: BRAND_GREEN });
 
-  // Metadata box
-  page.drawRectangle({ x: MARGIN, y: y - 30, width: PAGE_WIDTH - MARGIN * 2, height: 34, color: META_BG });
-  page.drawRectangle({ x: MARGIN, y: y - 30, width: 4, height: 34, color: ACCENT });
+  const contactTop = headerTop + 8;
+  const contactH = 62; const contactBottom = contactTop - contactH;
+  page.drawRectangle({ x: col3X, y: contactBottom, width: 4, height: contactH + 8, color: DARK });
+  page.drawRectangle({ x: col3X + col3W - 36, y: contactTop + 10, width: 36, height: 14, color: ACCENT_GRAY });
+  const cLabelX = col3X + 4 + 14; const cValX = cLabelX + 18;
+  let cy = contactTop;
+  page.drawText('T.', { x: cLabelX, y: cy, size: 11, font: boldFont, color: BRAND_GREEN });
+  page.drawText(phone, { x: cValX, y: cy, size: 9, font: font, color: DARK });
+  page.drawLine({ start: { x: cLabelX, y: cy - 4 }, end: { x: col3X + col3W, y: cy - 4 }, thickness: 0.5, color: ACCENT_GRAY });
+  cy -= 15;
+  page.drawText('W.', { x: cLabelX, y: cy, size: 11, font: boldFont, color: BRAND_GREEN });
+  page.drawText(siteUrl, { x: cValX, y: cy, size: 9, font: font, color: DARK });
+  page.drawLine({ start: { x: cLabelX, y: cy - 4 }, end: { x: col3X + col3W, y: cy - 4 }, thickness: 0.5, color: ACCENT_GRAY });
+  cy -= 15;
+  page.drawText('E.', { x: cLabelX, y: cy, size: 11, font: boldFont, color: BRAND_GREEN });
+  page.drawText(email, { x: cValX, y: cy, size: 9, font: font, color: DARK });
+  page.drawLine({ start: { x: cLabelX, y: cy - 4 }, end: { x: col3X + col3W, y: cy - 4 }, thickness: 0.5, color: ACCENT_GRAY });
+  cy -= 15;
+  page.drawText(address, { x: cLabelX, y: cy, size: 9, font: font, color: DARK });
 
-  const metaItems = [
-    { label: 'Quotation #', value: quotation.id.toUpperCase() },
+  const headerBottomY = Math.min(bizY - 40, cy - 12);
+  page.drawLine({ start: { x: MARGIN, y: headerBottomY }, end: { x: PAGE_WIDTH - MARGIN, y: headerBottomY }, thickness: 3, color: LOGO_BLUE });
+  const accentY = headerBottomY - 10;
+  page.drawRectangle({ x: MARGIN, y: accentY - 8, width: CONTENT_WIDTH, height: 8, color: ACCENT_GREEN });
+  page.drawRectangle({ x: MARGIN, y: accentY - 8, width: CONTENT_WIDTH * 0.07, height: 8, color: ACCENT_GRAY });
+
+  // Bill To + For
+  const bfHeight = 50; const bfY = accentY - 18; const halfW = CONTENT_WIDTH / 2;
+  page.drawRectangle({ x: MARGIN, y: bfY - bfHeight, width: halfW, height: bfHeight, color: FOR_CONTENT_BG });
+  page.drawText('BILL TO:', { x: MARGIN + 14, y: bfY - 12, size: 11, font: boldFont, color: BRAND_GREEN });
+  page.drawText(quotation.customerName, { x: MARGIN + 14, y: bfY - 26, size: 12, font: boldFont, color: DARK });
+  let addrY = bfY - 38;
+  if (quotation.customerAddress) { page.drawText(quotation.customerAddress, { x: MARGIN + 14, y: addrY, size: 9, font: font, color: GRAY }); addrY -= 12; }
+  page.drawText(quotation.customerContact, { x: MARGIN + 14, y: addrY, size: 9, font: font, color: GRAY });
+  page.drawRectangle({ x: MARGIN + halfW, y: bfY - bfHeight, width: halfW, height: bfHeight, color: FOR_LABEL_BG });
+  page.drawText('FOR:', { x: MARGIN + halfW + 14, y: bfY - 12, size: 11, font: boldFont, color: WHITE });
+  let forDisplay = quotation.quoteFor || '';
+  const maxForW = halfW - 28;
+  if (font.widthOfTextAtSize(forDisplay, 11) > maxForW) {
+    while (font.widthOfTextAtSize(forDisplay + '...', 11) > maxForW && forDisplay.length > 0) forDisplay = forDisplay.slice(0, -1);
+    forDisplay += '...';
+  }
+  page.drawText(forDisplay, { x: MARGIN + halfW + 14, y: bfY - 28, size: 11, font: font, color: WHITE });
+
+  // Date Bar
+  y = bfY - bfHeight - 10;
+  const dateBarH = 28;
+  page.drawRectangle({ x: MARGIN, y: y - dateBarH, width: 4, height: dateBarH, color: BRAND_GREEN });
+  const dateItems = [
     { label: 'Date', value: formatDate(quotation.createdAt) },
     { label: 'Valid Until', value: formatDate(quotation.validUntil) },
     { label: 'Status', value: statusLabels[quotation.status] || quotation.status },
   ];
-  const metaColW = (PAGE_WIDTH - MARGIN * 2 - 4) / metaItems.length;
-  metaItems.forEach((m, i) => {
-    const mx = MARGIN + 4 + i * metaColW + 10;
-    page.drawText(m.label.toUpperCase(), { x: mx, y: y - 8, size: 8, font: boldFont, color: GRAY });
-    page.drawText(m.value, { x: mx, y: y - 22, size: 10, font: font, color: DARK });
+  const dateColW = (CONTENT_WIDTH - 4) / dateItems.length;
+  dateItems.forEach((d, i) => {
+    const dx = MARGIN + 4 + i * dateColW + 10;
+    page.drawText(d.label.toUpperCase(), { x: dx, y: y - 8, size: 8, font: boldFont, color: GRAY });
+    page.drawText(d.value, { x: dx, y: y - 22, size: 10, font: font, color: DARK });
   });
-  y -= 40;
+  y -= dateBarH + 10;
 
   // Items table
-  const cols = [
-    { name: 'Item', x: MARGIN, w: 250 },
-    { name: 'Qty', x: MARGIN + 260, w: 50 },
-    { name: 'Unit Price', x: MARGIN + 320, w: 80 },
-    { name: 'Total', x: MARGIN + 410, w: 80 },
-  ];
-
-  page.drawRectangle({ x: MARGIN, y: y - 16, width: PAGE_WIDTH - MARGIN * 2, height: 20, color: ACCENT });
-  for (const col of cols) {
-    const alignRight = col.name === 'Unit Price' || col.name === 'Total';
-    const alignCenter = col.name === 'Qty';
-    let tx = col.x;
-    if (alignRight) {
-      tx = col.x + col.w - boldFont.widthOfTextAtSize(col.name, 9) - 2;
-    } else if (alignCenter) {
-      tx = col.x + col.w / 2 - boldFont.widthOfTextAtSize(col.name, 9) / 2;
-    }
-    page.drawText(col.name.toUpperCase(), { x: tx, y: y - 12, size: 9, font: boldFont, color: rgb(1, 1, 1) });
-  }
-  y -= 20;
-
-  const allItems = quotation.items;
-  const firstPageItems = allItems.slice(0, ITEMS_PER_PAGE);
-  const remainingItems = allItems.slice(ITEMS_PER_PAGE);
-
-  const drawItems = (items: QuotationItem[]) => {
-    for (let i = 0; i < items.length; i++) {
-      ensureSpace(26);
-      const item = items[i];
-      if (i % 2 === 0) {
-        page.drawRectangle({ x: MARGIN, y: y - 12, width: PAGE_WIDTH - MARGIN * 2, height: 18, color: LIGHT_GRAY });
-      }
-      page.drawText(item.productName, { x: cols[0].x, y: y - 8, size: 9, font, color: DARK });
-      page.drawText(String(item.quantity), { x: cols[1].x + cols[1].w / 2 - font.widthOfTextAtSize(String(item.quantity), 9) / 2, y: y - 8, size: 9, font, color: DARK });
-      const priceStr = formatCurrency(item.unitPrice);
-      page.drawText(priceStr, { x: cols[2].x + cols[2].w - font.widthOfTextAtSize(priceStr, 9) - 2, y: y - 8, size: 9, font, color: DARK });
-      const totalStr = formatCurrency(item.total);
-      page.drawText(totalStr, { x: cols[3].x + cols[3].w - font.widthOfTextAtSize(totalStr, 9) - 2, y: y - 8, size: 9, font, color: DARK });
-      y -= 18;
-    }
-    page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 0.5, color: GRAY });
-    y -= 16;
+  const colWidths: Record<string, number> = {
+    no: CONTENT_WIDTH * 0.08, size: CONTENT_WIDTH * 0.09, qty: CONTENT_WIDTH * 0.15,
+    price: CONTENT_WIDTH * 0.12, total: CONTENT_WIDTH * 0.16,
+  };
+  colWidths.desc = CONTENT_WIDTH - colWidths.no - colWidths.size - colWidths.qty - colWidths.price - colWidths.total;
+  const colXs: Record<string, number> = {
+    no: MARGIN, desc: MARGIN + colWidths.no, size: MARGIN + colWidths.no + colWidths.desc,
+    qty: MARGIN + colWidths.no + colWidths.desc + colWidths.size,
+    price: MARGIN + colWidths.no + colWidths.desc + colWidths.size + colWidths.qty,
+    total: MARGIN + colWidths.no + colWidths.desc + colWidths.size + colWidths.qty + colWidths.price,
   };
 
-  drawItems(firstPageItems);
+  const drawTableHeader = () => {
+    const thH = 28; const thY = y - thH;
+    page.drawRectangle({ x: MARGIN, y: thY, width: CONTENT_WIDTH, height: thH, color: TABLE_GREEN });
+    page.drawRectangle({ x: colXs.size, y: thY, width: colWidths.size + colWidths.qty, height: thH, color: TABLE_GRAY });
+    const sepW = 1.5;
+    [colXs.desc, colXs.size, colXs.qty, colXs.price, colXs.total].forEach(sx => page.drawRectangle({ x: sx - sepW / 2, y: thY, width: sepW, height: thH, color: WHITE }));
+    const headers = [
+      { text: 'No.', x: colXs.no, w: colWidths.no, align: 'center' as const },
+      { text: 'Description', x: colXs.desc, w: colWidths.desc, align: 'left' as const },
+      { text: 'Size', x: colXs.size, w: colWidths.size, align: 'center' as const },
+      { text: 'Qty', x: colXs.qty, w: colWidths.qty, align: 'center' as const },
+      { text: 'Price', x: colXs.price, w: colWidths.price, align: 'right' as const },
+      { text: 'Total', x: colXs.total, w: colWidths.total, align: 'right' as const },
+    ];
+    for (const h of headers) {
+      const tw = boldFont.widthOfTextAtSize(h.text, 13);
+      let tx: number;
+      if (h.align === 'center') tx = h.x + (h.w - tw) / 2;
+      else if (h.align === 'right') tx = h.x + h.w - tw - 8;
+      else tx = h.x + 8;
+      page.drawText(h.text, { x: tx, y: thY + 8, size: 13, font: boldFont, color: WHITE });
+    }
+    y = thY;
+  };
 
-  for (let i = 0; i < remainingItems.length; i += ITEMS_PER_MIDDLE_PAGE) {
-    addPage();
-    drawItems(remainingItems.slice(i, i + ITEMS_PER_MIDDLE_PAGE));
-  }
+  const drawItems = (items: QuotationItem[], startIndex: number) => {
+    drawTableHeader(); y -= 2;
+    const rowH = 24;
+    for (let i = 0; i < items.length; i++) {
+      ensureSpace(rowH + 4);
+      const item = items[i]; const isBlank = !item.productName;
+      const rowY = y - rowH;
+      page.drawLine({ start: { x: MARGIN, y: rowY }, end: { x: PAGE_WIDTH - MARGIN, y: rowY }, thickness: 0.5, color: rgb(0.86, 0.90, 0.91) });
+      const cellY = rowY + 7;
+      if (!isBlank) {
+        const noStr = String(startIndex + i + 1);
+        page.drawText(noStr, { x: colXs.no + (colWidths.no - serifFont.widthOfTextAtSize(noStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
+        let descText = item.productName; const maxDescW = colWidths.desc - 16;
+        if (serifFont.widthOfTextAtSize(descText, 11) > maxDescW) {
+          while (serifFont.widthOfTextAtSize(descText + '...', 11) > maxDescW && descText.length > 0) descText = descText.slice(0, -1);
+          descText += '...';
+        }
+        page.drawText(descText, { x: colXs.desc + 8, y: cellY, size: 11, font: serifFont, color: DARK });
+        const sizeStr = item.size || '-';
+        page.drawText(sizeStr, { x: colXs.size + (colWidths.size - serifFont.widthOfTextAtSize(sizeStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
+        const qtyStr = `${item.quantity} Units`;
+        page.drawText(qtyStr, { x: colXs.qty + (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
+        const priceStr = formatAmount(item.unitPrice);
+        page.drawText(priceStr, { x: colXs.price + colWidths.price - serifFont.widthOfTextAtSize(priceStr, 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
+        const totalStr = formatAmount(item.total);
+        page.drawText(totalStr, { x: colXs.total + colWidths.total - serifFont.widthOfTextAtSize(totalStr, 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
+      }
+      y = rowY;
+    }
+  };
+
+  const firstPageItems = quotation.items.slice(0, ITEMS_PER_PAGE);
+  drawItems(padToMinimum(firstPageItems, 4), 0);
+  const remainingItems = quotation.items.slice(ITEMS_PER_PAGE);
+  for (let i = 0; i < remainingItems.length; i += ITEMS_PER_MIDDLE_PAGE) { addPage(); drawItems(remainingItems.slice(i, i + ITEMS_PER_MIDDLE_PAGE), i + ITEMS_PER_PAGE); }
+
+  if (y < 400) addPage();
 
   // Totals
-  ensureSpace(80);
-  const labelX = PAGE_WIDTH - MARGIN - 160;
-  const valueX = PAGE_WIDTH - MARGIN;
-
-  page.drawText('Subtotal', { x: labelX, y, size: 9, font, color: GRAY });
-  page.drawText(formatCurrency(quotation.subtotal), { x: valueX - font.widthOfTextAtSize(formatCurrency(quotation.subtotal), 9), y, size: 9, font, color: DARK });
-  y -= 16;
-
-  if (quotation.discount > 0) {
-    const discStr = quotation.discountType === 'percentage' ? `${quotation.discount}%` : formatCurrency(quotation.discount);
-    page.drawText('Discount', { x: labelX, y, size: 9, font, color: GRAY });
-    page.drawText(`-${discStr}`, { x: valueX - font.widthOfTextAtSize(`-${discStr}`, 9), y, size: 9, font, color: DARK });
-    y -= 16;
-  }
-
-  if (quotation.tax > 0) {
-    page.drawText(`Tax (${quotation.taxRate}%)`, { x: labelX, y, size: 9, font, color: GRAY });
-    page.drawText(formatCurrency(quotation.tax), { x: valueX - font.widthOfTextAtSize(formatCurrency(quotation.tax), 9), y, size: 9, font, color: DARK });
-    y -= 16;
-  }
-
-  page.drawLine({ start: { x: labelX, y: y + 4 }, end: { x: valueX, y: y + 4 }, thickness: 1.5, color: ACCENT });
+  y -= 30;
+  const totalsW = CONTENT_WIDTH * 0.52; const totalsX = PAGE_WIDTH - MARGIN - totalsW;
+  const drawTotalsRow = (label: string, value: string) => {
+    const rowH = 28; const rowY = y - rowH;
+    page.drawText(label, { x: totalsX + 14, y: rowY + 8, size: 11, font: font, color: GRAY });
+    const vw = font.widthOfTextAtSize(value, 11);
+    page.drawText(value, { x: totalsX + totalsW - vw - 14, y: rowY + 8, size: 11, font: font, color: DARK });
+    page.drawLine({ start: { x: totalsX, y: rowY }, end: { x: totalsX + totalsW, y: rowY }, thickness: 1, color: rgb(0.82, 0.82, 0.82) });
+    y = rowY;
+  };
+  drawTotalsRow('Sub-Total', formatCurrency(quotation.subtotal));
+  drawTotalsRow(`Tax (${quotation.taxRate}%)`, formatCurrency(quotation.tax));
   y -= 4;
-  page.drawText('Grand Total', { x: labelX, y, size: 12, font: boldFont, color: ACCENT });
-  const totalStr = formatCurrency(quotation.total);
-  page.drawText(totalStr, { x: valueX - boldFont.widthOfTextAtSize(totalStr, 12), y, size: 12, font: boldFont, color: ACCENT });
-  y -= 20;
-
-  // Notes
-  if (quotation.notes) {
-    ensureSpace(30);
-    page.drawText('NOTES', { x: MARGIN, y, size: 9, font: boldFont, color: ACCENT });
-    y -= 12;
-    y = drawWrappedText(quotation.notes, MARGIN, PAGE_WIDTH - MARGIN * 2, 9, font, GRAY);
-    y -= 8;
-  }
-
-  // Signature
-  ensureSpace(60);
-  y -= 20;
-  const sigW = 180;
-  const sig1X = MARGIN;
-  const sig2X = PAGE_WIDTH - MARGIN - sigW;
-  page.drawLine({ start: { x: sig1X, y }, end: { x: sig1X + sigW, y }, thickness: 0.5, color: GRAY });
-  page.drawLine({ start: { x: sig2X, y }, end: { x: sig2X + sigW, y }, thickness: 0.5, color: GRAY });
-  page.drawText('Customer Signature', { x: sig1X, y: y - 12, size: 8, font, color: GRAY });
-  page.drawText('Authorized Signature', { x: sig2X, y: y - 12, size: 8, font, color: GRAY });
-  y -= 24;
+  const gtH = 32; const gtY = y - gtH;
+  const gtLabelW = (totalsW * 1.15) / 2.15; const gtValW = totalsW - gtLabelW;
+  page.drawRectangle({ x: totalsX, y: gtY, width: gtLabelW, height: gtH, color: TABLE_GREEN });
+  page.drawText('Grand Total', { x: totalsX + 14, y: gtY + 9, size: 14, font: boldFont, color: WHITE });
+  page.drawRectangle({ x: totalsX + gtLabelW, y: gtY, width: gtValW, height: gtH, color: GRAND_TOTAL_BG });
+  const gtValStr = formatCurrency(quotation.total);
+  page.drawText(gtValStr, { x: totalsX + gtLabelW + gtValW - boldFont.widthOfTextAtSize(gtValStr, 14) - 14, y: gtY + 9, size: 14, font: boldFont, color: DARK });
+  y = gtY;
 
   // Footer
-  const footerY = MARGIN - 20;
-  page.drawLine({ start: { x: MARGIN, y: footerY + 14 }, end: { x: PAGE_WIDTH - MARGIN, y: footerY + 14 }, thickness: 0.5, color: LIGHT_GRAY });
-  page.drawText(`${businessName} | ${phone} | ${email}`, { x: MARGIN, y: footerY, size: 8, font, color: GRAY });
-  page.drawText(footerText, { x: MARGIN, y: footerY - 12, size: 8, font, color: GRAY });
+  let fy = 235;
+  page.drawText('Notes:', { x: MARGIN, y: fy, size: 12, font: boldFont, color: DARK });
+  fy -= 16;
+  if (quotation.notes) fy = drawWrappedTextAt(quotation.notes, MARGIN, CONTENT_WIDTH, 10, font, DARK, fy);
+  fy -= 20;
+  const bottomY = Math.max(fy, 55);
+  page.drawText('THANK YOU FOR CHOOSING INFIELD INNOVATIONS!', { x: MARGIN, y: bottomY, size: 11, font: boldFont, color: BRAND_GREEN });
+  // Stamp
+  const stampCx = PAGE_WIDTH / 2; const stampCy = bottomY + 8; const stampR = 30;
+  page.drawCircle({ x: stampCx, y: stampCy, size: stampR, borderWidth: 2, borderColor: STAMP_RED, color: WHITE });
+  page.drawText('INFIELD', { x: stampCx - boldFont.widthOfTextAtSize('INFIELD', 8) / 2, y: stampCy + 10, size: 8, font: boldFont, color: STAMP_RED });
+  page.drawText('* * * *', { x: stampCx - font.widthOfTextAtSize('* * * *', 5) / 2, y: stampCy + 1, size: 5, font: font, color: STAMP_RED });
+  page.drawText('+254 702 393 677', { x: stampCx - font.widthOfTextAtSize('+254 702 393 677', 5) / 2, y: stampCy - 7, size: 5, font: font, color: STAMP_RED });
+  page.drawLine({ start: { x: stampCx - 18, y: stampCy - 12 }, end: { x: stampCx + 18, y: stampCy - 12 }, thickness: 0.5, color: STAMP_RED });
+  page.drawText('DIGITAL STAMP', { x: stampCx - boldFont.widthOfTextAtSize('DIGITAL STAMP', 4) / 2, y: stampCy - 18, size: 4, font: boldFont, color: STAMP_RED });
+  // Signature
+  const sigX = PAGE_WIDTH - MARGIN - 140;
+  page.drawLine({ start: { x: sigX, y: bottomY + 18 }, end: { x: sigX + 140, y: bottomY + 18 }, thickness: 1, color: DARK });
+  const sigLabel = quotation.createdBy || 'Authorised Sign';
+  page.drawText(sigLabel, { x: sigX + (140 - boldFont.widthOfTextAtSize(sigLabel, 10)) / 2, y: bottomY + 4, size: 10, font: boldFont, color: DARK });
+  // Contact us
+  fy = bottomY - 16;
+  page.drawLine({ start: { x: MARGIN, y: fy }, end: { x: PAGE_WIDTH - MARGIN, y: fy }, thickness: 0.5, color: LIGHT_GRAY });
+  fy -= 14;
+  page.drawText(`Contact us: ${phone}`, { x: MARGIN, y: fy, size: 9, font: font, color: GRAY });
 
   return doc.save();
 }
 
 export async function downloadQuotationPDF(quotation: Quotation): Promise<void> {
   const bytes = await generateQuotationPDF(quotation);
-  const filename = `Quotation_${quotation.id.toUpperCase()}.pdf`;
+  const filename = `Quotation_${quotation.quotationCode || quotation.id.toUpperCase()}.pdf`;
   downloadPDF(bytes, filename);
 }
