@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import InputField from './form_elements/input';
 import TextareaField from './form_elements/textarea';
@@ -75,9 +75,9 @@ export default function QuotationForm({
 
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });
 
-  const watchedItems = watch('items');
-  const watchedTaxRate = watch('taxRate');
-  const watchedCustomerId = watch('customerId');
+  const watchedItems = useWatch({ control, name: 'items' }) as QuotationItem[];
+  const watchedTaxRate = useWatch({ control, name: 'taxRate' }) as string;
+  const watchedCustomerId = useWatch({ control, name: 'customerId' }) as string;
 
   useEffect(() => {
     if (prefillData) {
@@ -115,7 +115,10 @@ export default function QuotationForm({
 
   const totals = useMemo(() => {
     const items = (watchedItems || []) as QuotationItem[];
-    return calcTotals(items, parseFloat(watchedTaxRate) || 0);
+    const subtotal = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
+    const taxRate = parseFloat(watchedTaxRate) || 0;
+    const tax = (subtotal * taxRate) / 100;
+    return { subtotal, tax, total: subtotal + tax };
   }, [watchedItems, watchedTaxRate]);
 
   const recalcItemTotal = (index: number) => {
@@ -285,7 +288,7 @@ export default function QuotationForm({
                   )}
                 />
                 <div className={styles.itemTotal}>
-                  {formatCurrency(watchedItems?.[index]?.total ?? 0)}
+                  {formatCurrency((watchedItems?.[index]?.quantity ?? 0) * (watchedItems?.[index]?.unitPrice ?? 0))}
                 </div>
                 <button className={styles.removeItem} onClick={() => remove(index)}>
                   <Icon name="X" size={16} />

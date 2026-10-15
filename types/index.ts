@@ -76,7 +76,6 @@ export interface Quotation {
   customerContact: string;
   quoteFor: string;
   quotationCode: string;
-  barcode: string;
   createdBy: string;
   createdBySignature?: string;
   userId: string;

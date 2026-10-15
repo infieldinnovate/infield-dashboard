@@ -51,6 +51,52 @@ export const paymentMethodLabels: Record<string, string> = {
   check: 'Check', mobile_money: 'Mobile Money',
 };
 
+export function generateBarcode(userId: string, quotationCode: string): string {
+  const uid = (userId || 'U01').substring(0, 3).toUpperCase().padEnd(3, '0');
+  return uid + quotationCode;
+}
+
+export function generateNumericId(): string {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+export async function generateBarcodePng(value: string): Promise<Uint8Array | null> {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  try {
+    const JsBarcode = (await import('jsbarcode')).default;
+    JsBarcode(canvas, value, {
+      format: 'CODE128',
+      displayValue: false,
+      height: 40,
+      width: 1.5,
+      margin: 0,
+      background: '#ffffff',
+      lineColor: '#000000',
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64 = dataUrl.split(',')[1];
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchImageBytes(url: string): Promise<Uint8Array | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+    return new Uint8Array(arrayBuffer);
+  } catch {
+    return null;
+  }
+}
+
 export function downloadPDF(pdfBytes: Uint8Array, filename: string): void {
   const blob = new Blob([pdfBytes as BlobPart], { type: 'application/pdf' });
   const url = URL.createObjectURL(blob);

@@ -10,6 +10,9 @@ import {
   statusLabels,
   statusColors,
   downloadPDF,
+  generateBarcode,
+  generateBarcodePng,
+  fetchImageBytes,
 } from '../../lib/documentUtils';
 import styles from './QuotationDocument.module.scss';
 import Stamp from '../InvoiceDocument/Stamp';
@@ -55,11 +58,12 @@ function BrandedHeader({ quotation }: { quotation: Quotation }) {
   const barcodeRef = useRef<SVGSVGElement>(null);
   const settings = getSettings();
   const { businessName, address, phone, email, website } = settings.business;
+  const barcodeValue = generateBarcode(quotation.userId, quotation.quotationCode);
 
   useEffect(() => {
     if (!barcodeRef.current) return;
     try {
-      JsBarcode(barcodeRef.current, quotation.barcode || quotation.quotationCode || quotation.id, {
+      JsBarcode(barcodeRef.current, barcodeValue, {
         format: 'CODE128',
         displayValue: false,
         height: 34,
@@ -69,7 +73,7 @@ function BrandedHeader({ quotation }: { quotation: Quotation }) {
         lineColor: '#111111',
       });
     } catch { /* ignore */ }
-  }, [quotation.barcode, quotation.quotationCode, quotation.id]);
+  }, [barcodeValue]);
 
   return (
     <header className={styles.header}>
@@ -90,7 +94,7 @@ function BrandedHeader({ quotation }: { quotation: Quotation }) {
           <h1>QUOTATION</h1>
           <svg ref={barcodeRef} className={styles.barcode} />
           <span className={styles.codeText}>{quotation.quotationCode}</span>
-          <span className={styles.barcodeText}>{quotation.barcode}</span>
+          <span className={styles.barcodeText}>{barcodeValue}</span>
         </div>
         <div className={styles.contact}>
           <div className={styles.contactRow}><strong>T.</strong><span>{phone}</span></div>
@@ -387,6 +391,7 @@ function buildQuotationHTML(quotation: Quotation): string {
   const siteUrl = website || 'www.infield.co.ke';
   const pages = paginateItems(quotation.items);
   const signatureSrc = quotation.createdBySignature || settings.business.signature;
+  const barcodeValue = generateBarcode(quotation.userId, quotation.quotationCode);
 
   const buildItemsTable = (items: QuotationItem[], pad = false): string => {
     const rows = pad ? padToMinimum(items, 4) : items;
@@ -439,7 +444,7 @@ function buildQuotationHTML(quotation: Quotation): string {
       <div class="qt-business-name"><strong>INFIELD</strong><span>INNOVATIONS</span></div>
       <div class="qt-brand-rule"></div>
     </div>
-    <div class="qt-title-block"><h1>QUOTATION</h1><span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span><span class="qt-barcode-text">${escapeHtml(quotation.barcode || '')}</span></div>
+    <div class="qt-title-block"><h1>QUOTATION</h1><span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span><span class="qt-barcode-text">${escapeHtml(barcodeValue)}</span></div>
     <div class="qt-contact">
       <div class="qt-contact-row"><strong>T.</strong><span>${escapeHtml(phone)}</span></div>
       <div class="qt-contact-row"><strong>W.</strong><span>${escapeHtml(siteUrl)}</span></div>
@@ -517,6 +522,16 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   const settings = getSettings();
   const { businessName, address, phone, email, website } = settings.business;
   const siteUrl = website || 'www.infield.co.ke';
+  const barcodeValue = generateBarcode(quotation.userId, quotation.quotationCode);
+  const signatureSrc = quotation.createdBySignature || settings.business.signature;
+
+  const barcodeBytes = await generateBarcodePng(barcodeValue);
+  let barcodeImg = null;
+  if (barcodeBytes) { try { barcodeImg = await doc.embedPng(barcodeBytes); } catch { /* ignore */ } }
+
+  const sigBytes = await fetchImageBytes(signatureSrc);
+  let sigImg = null;
+  if (sigBytes) { try { sigImg = await doc.embedPng(sigBytes); } catch { /* try jpg */ try { sigImg = await doc.embedJpg(sigBytes); } catch { /* ignore */ } } }
 
   const col1X = MARGIN; const col1W = 166;
   const col2X = col1X + col1W + 20; const col2W = 145;
@@ -567,6 +582,12 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   page.drawText(titleText, { x: col2X + (col2W - boldFont.widthOfTextAtSize(titleText, 24)) / 2, y: headerTop - 6, size: 24, font: boldFont, color: BRAND_GREEN });
   const codeText = quotation.quotationCode || '';
   page.drawText(codeText, { x: col2X + (col2W - boldFont.widthOfTextAtSize(codeText, 14)) / 2, y: headerTop - 28, size: 14, font: boldFont, color: BRAND_GREEN });
+  const barcodeText = barcodeValue;
+  page.drawText(barcodeText, { x: col2X + (col2W - font.widthOfTextAtSize(barcodeText, 7)) / 2, y: headerTop - 44, size: 7, font: font, color: GRAY });
+  if (barcodeImg) {
+    const bw = 100; const bh = (barcodeImg.height / barcodeImg.width) * bw;
+    page.drawImage(barcodeImg, { x: col2X + (col2W - bw) / 2, y: headerTop - 44 - bh - 2, width: bw, height: bh });
+  }
 
   const contactTop = headerTop + 8;
   const contactH = 62; const contactBottom = contactTop - contactH;
@@ -746,6 +767,10 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   // Signature
   const sigX = PAGE_WIDTH - MARGIN - 140;
   page.drawLine({ start: { x: sigX, y: bottomY + 18 }, end: { x: sigX + 140, y: bottomY + 18 }, thickness: 1, color: DARK });
+  if (sigImg) {
+    const sigW = 120; const sigH = (sigImg.height / sigImg.width) * sigW;
+    page.drawImage(sigImg, { x: sigX + (140 - sigW) / 2, y: bottomY + 20, width: sigW, height: Math.min(sigH, 40) });
+  }
   const sigLabel = quotation.createdBy || 'Authorised Sign';
   page.drawText(sigLabel, { x: sigX + (140 - boldFont.widthOfTextAtSize(sigLabel, 10)) / 2, y: bottomY + 4, size: 10, font: boldFont, color: DARK });
   // Contact us

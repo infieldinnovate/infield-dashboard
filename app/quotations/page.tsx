@@ -23,7 +23,7 @@ import QuotationDocument, {
   printQuotation,
   downloadQuotationPDF,
 } from "../../components/QuotationDocument";
-import { formatCurrency } from "../../lib/documentUtils";
+import { formatCurrency, generateNumericId } from "../../lib/documentUtils";
 import { QuotationFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
@@ -38,11 +38,6 @@ function generateQuotationCode(existing: Set<string>): string {
     }
   } while (existing.has(code));
   return code;
-}
-
-function generateBarcode(userId: string, quotationCode: string): string {
-  const uid = (userId || "U01").substring(0, 3).toUpperCase().padEnd(3, "0");
-  return uid + quotationCode;
 }
 
 const defaultUser = { name: "Jared Oluoch", signature: "/users/signature-jerry.png", userId: "J01" };
@@ -115,7 +110,7 @@ export default function QuotationsPage() {
       const q = search.toLowerCase();
       data = data.filter(
         (qt) =>
-          qt.id.toLowerCase().includes(q) ||
+          qt.quotationCode.toLowerCase().includes(q) ||
           qt.customerName.toLowerCase().includes(q),
       );
     }
@@ -144,11 +139,10 @@ export default function QuotationsPage() {
     const newCode = generateQuotationCode(existingCodes);
     const newQt: Quotation = {
       ...qt,
-      id: `qt-${Date.now()}`,
+      id: generateNumericId(),
       status: "draft",
       createdAt: new Date().toISOString().split("T")[0],
       quotationCode: newCode,
-      barcode: generateBarcode(qt.userId, newCode),
     };
     setQuotationList((prev) => [newQt, ...prev]);
   };
@@ -168,14 +162,13 @@ export default function QuotationsPage() {
     const userId = editQuotation?.userId || defaultUser.userId;
 
     const qtData: Quotation = {
-      id: editQuotation?.id || `qt-${Date.now()}`,
+      id: editQuotation?.id || generateNumericId(),
       customerId: data.customerId,
       customerName: customer.name,
       customerAddress: data.customerAddress || undefined,
       customerContact: data.customerContact,
       quoteFor: data.quoteFor,
       quotationCode: qCode,
-      barcode: editQuotation?.barcode || generateBarcode(userId, qCode),
       createdBy: editQuotation?.createdBy || defaultUser.name,
       createdBySignature: editQuotation?.createdBySignature || defaultUser.signature,
       userId,
@@ -219,10 +212,10 @@ export default function QuotationsPage() {
 
   const columns = [
     {
-      key: "id",
-      header: "Quotation #",
+      key: "quotationCode",
+      header: "Code",
       render: (row: Quotation) => (
-        <span className={styles.qtId}>{row.id.toUpperCase()}</span>
+        <span className={styles.qtId}>{row.quotationCode}</span>
       ),
     },
     {
@@ -237,13 +230,6 @@ export default function QuotationsPage() {
       header: "Date",
       render: (row: Quotation) => (
         <span className={styles.date}>{row.createdAt}</span>
-      ),
-    },
-    {
-      key: "quotationCode",
-      header: "Code",
-      render: (row: Quotation) => (
-        <span className={styles.qtId}>{row.quotationCode}</span>
       ),
     },
     {
@@ -481,7 +467,7 @@ export default function QuotationsPage() {
         title="Delete Quotation"
         message={
           deleteQuotation
-            ? `Are you sure you want to delete quotation "${deleteQuotation.id.toUpperCase()}"? This action cannot be undone.`
+            ? `Are you sure you want to delete quotation "${deleteQuotation.quotationCode}"? This action cannot be undone.`
             : ""
         }
         confirmLabel="Delete"
