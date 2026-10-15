@@ -15,6 +15,7 @@ import { customers } from './customers';
 import { invoices } from './invoices';
 import { quotations } from './quotations';
 import { receipts } from './receipts';
+import { calcQuotationTotals } from '../lib/documentUtils';
 
 export const reportPeriodOptions: { value: ReportPeriod; label: string }[] = [
   { value: 'daily', label: 'Daily' },
@@ -185,8 +186,8 @@ export const quotationReportData: QuotationReportData = {
   totalQuotations: quotations.length,
   acceptedCount: quotations.filter((q) => q.status === 'accepted').length,
   acceptanceRate: (quotations.filter((q) => q.status === 'accepted').length / quotations.length) * 100,
-  totalQuotedValue: quotations.reduce((sum, q) => sum + q.total, 0),
-  acceptedValue: quotations.filter((q) => q.status === 'accepted').reduce((sum, q) => sum + q.total, 0),
+  totalQuotedValue: quotations.reduce((sum, q) => sum + calcQuotationTotals(q.items, q.taxRate).total, 0),
+  acceptedValue: quotations.filter((q) => q.status === 'accepted').reduce((sum, q) => sum + calcQuotationTotals(q.items, q.taxRate).total, 0),
   byStatus: [
     { category: 'Accepted', value: quotations.filter((q) => q.status === 'accepted').length, count: 1 },
     { category: 'Sent', value: quotations.filter((q) => q.status === 'sent').length, count: 1 },
@@ -198,7 +199,7 @@ export const quotationReportData: QuotationReportData = {
   recentQuotations: quotations.map((q) => ({
     id: q.id.toUpperCase(),
     customer: q.customerName,
-    amount: q.total,
+    amount: calcQuotationTotals(q.items, q.taxRate).total,
     status: q.status,
     date: q.createdAt,
   })),

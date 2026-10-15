@@ -10,7 +10,7 @@ import Button from '../ui/Button';
 import Icon from '../ui/Icon';
 import { Customer, Quotation, QuotationItem, Product } from '../../types';
 import { quotationFormSchema, QuotationFormData } from '../../schema/formSchema';
-import { formatCurrency } from '../../lib/documentUtils';
+import { formatCurrency, calcItemTotal, calcQuotationTotals } from '../../lib/documentUtils';
 import styles from './QuotationForm.module.scss';
 
 const DEFAULT_NOTES = 'Prices are valid for 14 days from the date of this quotation.';
@@ -45,13 +45,6 @@ function getDefaultValues(): QuotationFormData {
     taxRate: '16',
     notes: DEFAULT_NOTES,
   };
-}
-
-function calcTotals(items: QuotationItem[], taxRate: number) {
-  const subtotal = items.reduce((sum, i) => sum + i.total, 0);
-  const tax = (subtotal * taxRate) / 100;
-  const total = subtotal + tax;
-  return { subtotal, tax, total };
 }
 
 export default function QuotationForm({
@@ -115,20 +108,12 @@ export default function QuotationForm({
 
   const totals = useMemo(() => {
     const items = (watchedItems || []) as QuotationItem[];
-    const subtotal = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
     const taxRate = parseFloat(watchedTaxRate) || 0;
-    const tax = (subtotal * taxRate) / 100;
-    return { subtotal, tax, total: subtotal + tax };
+    return calcQuotationTotals(items, taxRate);
   }, [watchedItems, watchedTaxRate]);
 
-  const recalcItemTotal = (index: number) => {
-    const qty = watchedItems?.[index]?.quantity ?? 0;
-    const price = watchedItems?.[index]?.unitPrice ?? 0;
-    setValue(`items.${index}.total`, qty * price);
-  };
-
   const addItem = () => {
-    append({ productId: '', productName: '', quantity: 1, unitPrice: 0, total: 0, size: '' });
+    append({ productId: '', productName: '', quantity: 1, unitPrice: 0, size: '' });
   };
 
   const onProductChange = (index: number, productId: string) => {
@@ -136,8 +121,6 @@ export default function QuotationForm({
     setValue(`items.${index}.productName`, product?.name || '');
     const unitPrice = product?.price || 0;
     setValue(`items.${index}.unitPrice`, unitPrice);
-    const qty = watchedItems?.[index]?.quantity ?? 1;
-    setValue(`items.${index}.total`, unitPrice * qty);
   };
 
   return (
@@ -258,10 +241,7 @@ export default function QuotationForm({
                       onChange={(e) => {
                         const qty = parseInt(e.target.value) || 0;
                         field.onChange(qty);
-                        const price = watchedItems?.[index]?.unitPrice ?? 0;
-                        setValue(`items.${index}.total`, qty * price);
                       }}
-                      inputProps={{ onBlur: () => recalcItemTotal(index) }}
                       error={fieldState.error ?? null}
                       className={styles.itemQty}
                     />
@@ -278,17 +258,14 @@ export default function QuotationForm({
                       onChange={(e) => {
                         const price = parseFloat(e.target.value) || 0;
                         field.onChange(price);
-                        const qty = watchedItems?.[index]?.quantity ?? 0;
-                        setValue(`items.${index}.total`, qty * price);
                       }}
-                      inputProps={{ onBlur: () => recalcItemTotal(index) }}
                       error={fieldState.error ?? null}
                       className={styles.itemPrice}
                     />
                   )}
                 />
                 <div className={styles.itemTotal}>
-                  {formatCurrency((watchedItems?.[index]?.quantity ?? 0) * (watchedItems?.[index]?.unitPrice ?? 0))}
+                  {formatCurrency(calcItemTotal(watchedItems?.[index] ?? { quantity: 0, unitPrice: 0 }))}
                 </div>
                 <button className={styles.removeItem} onClick={() => remove(index)}>
                   <Icon name="X" size={16} />

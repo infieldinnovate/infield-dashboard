@@ -13,6 +13,8 @@ import {
   generateBarcode,
   generateBarcodePng,
   fetchImageBytes,
+  calcItemTotal,
+  calcQuotationTotals,
 } from '../../lib/documentUtils';
 import styles from './QuotationDocument.module.scss';
 import Stamp from '../InvoiceDocument/Stamp';
@@ -44,7 +46,7 @@ function paginateItems(items: QuotationItem[]): QuotationItem[][] {
 function padToMinimum(rows: QuotationItem[], min: number): QuotationItem[] {
   const padded = [...rows];
   while (padded.length < min) {
-    padded.push({ productId: `blank-${padded.length}`, productName: '', quantity: 0, unitPrice: 0, total: 0, size: '' });
+    padded.push({ productId: `blank-${padded.length}`, productName: '', quantity: 0, unitPrice: 0, size: '' });
   }
   return padded;
 }
@@ -169,7 +171,7 @@ function ItemsTable({ items, pad }: { items: QuotationItem[]; pad?: boolean }) {
               <td className={styles.sizeColumn}>{isBlank ? '' : (item.size || '-')}</td>
               <td className={styles.qtyColumn}>{isBlank ? '' : `${item.quantity} Units`}</td>
               <td className={styles.priceColumn}>{isBlank ? '' : formatAmount(item.unitPrice)}</td>
-              <td className={styles.totalColumn}>{isBlank ? '-' : formatAmount(item.total)}</td>
+              <td className={styles.totalColumn}>{isBlank ? '-' : formatAmount(calcItemTotal(item))}</td>
             </tr>
           );
         })}
@@ -180,11 +182,12 @@ function ItemsTable({ items, pad }: { items: QuotationItem[]; pad?: boolean }) {
 
 /* === Totals === */
 function Totals({ quotation }: { quotation: Quotation }) {
+  const { subtotal, tax, total } = calcQuotationTotals(quotation.items, quotation.taxRate);
   return (
     <div className={styles.totals}>
-      <div className={styles.totalsRow}><span>Sub-Total</span><strong>{formatCurrency(quotation.subtotal)}</strong></div>
-      <div className={styles.totalsRow}><span>Tax <em>({quotation.taxRate}%)</em></span><strong>{formatCurrency(quotation.tax)}</strong></div>
-      <div className={styles.grandTotal}><strong>Grand Total</strong><span>{formatCurrency(quotation.total)}</span></div>
+      <div className={styles.totalsRow}><span>Sub-Total</span><strong>{formatCurrency(subtotal)}</strong></div>
+      <div className={styles.totalsRow}><span>Tax <em>({quotation.taxRate}%)</em></span><strong>{formatCurrency(tax)}</strong></div>
+      <div className={styles.grandTotal}><strong>Grand Total</strong><span>{formatCurrency(total)}</span></div>
     </div>
   );
 }
@@ -406,15 +409,16 @@ function buildQuotationHTML(quotation: Quotation): string {
         <td class="qt-size-col">${isBlank ? '' : escapeHtml(item.size || '-')}</td>
         <td class="qt-qty-col">${isBlank ? '' : item.quantity + ' Units'}</td>
         <td class="qt-price-col">${isBlank ? '' : formatAmount(item.unitPrice)}</td>
-        <td class="qt-total-col">${isBlank ? '-' : formatAmount(item.total)}</td>
+        <td class="qt-total-col">${isBlank ? '-' : formatAmount(calcItemTotal(item))}</td>
       </tr>`;
     }).join('')}</tbody></table>`;
   };
 
+  const { subtotal, tax, total } = calcQuotationTotals(quotation.items, quotation.taxRate);
   const buildTotals = () => `<div class="qt-totals">
-    <div class="qt-totals-row"><span>Sub-Total</span><strong>${formatCurrency(quotation.subtotal)}</strong></div>
-    <div class="qt-totals-row"><span>Tax <em>(${quotation.taxRate}%)</em></span><strong>${formatCurrency(quotation.tax)}</strong></div>
-    <div class="qt-grand-total"><strong>Grand Total</strong><span>${formatCurrency(quotation.total)}</span></div>
+    <div class="qt-totals-row"><span>Sub-Total</span><strong>${formatCurrency(subtotal)}</strong></div>
+    <div class="qt-totals-row"><span>Tax <em>(${quotation.taxRate}%)</em></span><strong>${formatCurrency(tax)}</strong></div>
+    <div class="qt-grand-total"><strong>Grand Total</strong><span>${formatCurrency(total)}</span></div>
   </div>`;
 
   const stampHTML = `<div class="qt-footer-stamp"><div style="width:88px;height:88px;border:2.5px solid #c0392b;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#c0392b;font-family:Georgia,serif;transform:rotate(-8deg);opacity:0.85">
@@ -711,7 +715,7 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
         page.drawText(qtyStr, { x: colXs.qty + (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
         const priceStr = formatAmount(item.unitPrice);
         page.drawText(priceStr, { x: colXs.price + colWidths.price - serifFont.widthOfTextAtSize(priceStr, 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
-        const totalStr = formatAmount(item.total);
+        const totalStr = formatAmount(calcItemTotal(item));
         page.drawText(totalStr, { x: colXs.total + colWidths.total - serifFont.widthOfTextAtSize(totalStr, 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
       }
       y = rowY;
@@ -736,15 +740,16 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
     page.drawLine({ start: { x: totalsX, y: rowY }, end: { x: totalsX + totalsW, y: rowY }, thickness: 1, color: rgb(0.82, 0.82, 0.82) });
     y = rowY;
   };
-  drawTotalsRow('Sub-Total', formatCurrency(quotation.subtotal));
-  drawTotalsRow(`Tax (${quotation.taxRate}%)`, formatCurrency(quotation.tax));
+  const { subtotal, tax, total } = calcQuotationTotals(quotation.items, quotation.taxRate);
+  drawTotalsRow('Sub-Total', formatCurrency(subtotal));
+  drawTotalsRow(`Tax (${quotation.taxRate}%)`, formatCurrency(tax));
   y -= 4;
   const gtH = 32; const gtY = y - gtH;
   const gtLabelW = (totalsW * 1.15) / 2.15; const gtValW = totalsW - gtLabelW;
   page.drawRectangle({ x: totalsX, y: gtY, width: gtLabelW, height: gtH, color: TABLE_GREEN });
   page.drawText('Grand Total', { x: totalsX + 14, y: gtY + 9, size: 14, font: boldFont, color: WHITE });
   page.drawRectangle({ x: totalsX + gtLabelW, y: gtY, width: gtValW, height: gtH, color: GRAND_TOTAL_BG });
-  const gtValStr = formatCurrency(quotation.total);
+  const gtValStr = formatCurrency(total);
   page.drawText(gtValStr, { x: totalsX + gtLabelW + gtValW - boldFont.widthOfTextAtSize(gtValStr, 14) - 14, y: gtY + 9, size: 14, font: boldFont, color: DARK });
   y = gtY;
 

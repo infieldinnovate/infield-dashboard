@@ -80,10 +80,7 @@ export interface Quotation {
   createdBySignature?: string;
   userId: string;
   items: QuotationItem[];
-  subtotal: number;
-  tax: number;
   taxRate: number;
-  total: number;
   status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
   createdAt: string;
   notes: string;
@@ -94,7 +91,6 @@ export interface QuotationItem {
   productName: string;
   quantity: number;
   unitPrice: number;
-  total: number;
   size?: string;
 }
 

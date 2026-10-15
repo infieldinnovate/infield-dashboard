@@ -6,6 +6,7 @@ import { invoices } from '../data/invoices';
 import { receipts } from '../data/receipts';
 import { quotations } from '../data/quotations';
 import { deliveryNotes } from '../data/deliveryNotes';
+import { calcQuotationTotals } from '../lib/documentUtils';
 
 export type SearchCategory =
   | 'products'
@@ -103,7 +104,7 @@ const quotationRecords: SearchRecord[] = quotations.map((q) => ({
   categoryLabel: categoryLabelMap.quotations,
   title: q.id.toUpperCase(),
   subtitle: q.customerName,
-  meta: `$${q.total.toFixed(2)} • ${q.status}`,
+  meta: `${calcQuotationTotals(q.items, q.taxRate).total.toFixed(2)} • ${q.status}`,
   href: hrefMap.quotations,
   icon: iconMap.quotations,
 }));

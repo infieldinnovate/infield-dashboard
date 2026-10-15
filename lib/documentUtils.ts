@@ -1,8 +1,47 @@
-import type { AppSettings } from '../types';
+import type { AppSettings, QuotationItem } from '../types';
 import { defaultSettings } from '../data/settings';
 
 export function getSettings(): AppSettings {
   return defaultSettings;
+}
+
+export function calcItemTotal(item: Pick<QuotationItem, 'quantity' | 'unitPrice'>): number {
+  return item.quantity * item.unitPrice;
+}
+
+export interface QuotationTotals {
+  subtotal: number;
+  tax: number;
+  total: number;
+}
+
+export function calcQuotationTotals(
+  items: Pick<QuotationItem, 'quantity' | 'unitPrice'>[],
+  taxRate: number,
+): QuotationTotals {
+  const subtotal = items.reduce((sum, i) => sum + calcItemTotal(i), 0);
+  const tax = (subtotal * taxRate) / 100;
+  return { subtotal, tax, total: subtotal + tax };
+}
+
+export interface TemplateTotals {
+  subtotal: number;
+  discountAmount: number;
+  tax: number;
+  total: number;
+}
+
+export function calcTemplateTotals(
+  items: Pick<QuotationItem, 'quantity' | 'unitPrice'>[],
+  discount: number,
+  discountType: 'percentage' | 'fixed',
+  taxRate: number,
+): TemplateTotals {
+  const subtotal = items.reduce((sum, i) => sum + calcItemTotal(i), 0);
+  const discountAmount = discountType === 'percentage' ? (subtotal * discount) / 100 : discount;
+  const afterDiscount = Math.max(0, subtotal - discountAmount);
+  const tax = (afterDiscount * taxRate) / 100;
+  return { subtotal, discountAmount, tax, total: afterDiscount + tax };
 }
 
 export function formatCurrency(amount: number): string {

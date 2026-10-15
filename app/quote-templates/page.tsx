@@ -16,7 +16,7 @@ import QuoteTemplateForm from "../../components/forms/QuoteTemplateForm";
 import { quoteTemplates as initialTemplates } from "../../data/quoteTemplates";
 import { products } from "../../data/products";
 import { QuoteTemplate, QuotationItem } from "../../types";
-import { formatCurrency } from "../../lib/documentUtils";
+import { formatCurrency, calcItemTotal, calcTemplateTotals } from "../../lib/documentUtils";
 import { QuoteTemplateFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
@@ -29,15 +29,6 @@ const categoryOptions = [
   { value: "Borehole Solutions", label: "Borehole Solutions" },
   { value: "Irrigation Systems", label: "Irrigation Systems" },
 ];
-
-function calcTotals(items: QuotationItem[], discount: number, discountType: "percentage" | "fixed", taxRate: number) {
-  const subtotal = items.reduce((sum, i) => sum + i.total, 0);
-  const discountAmount = discountType === "percentage" ? (subtotal * discount) / 100 : discount;
-  const afterDiscount = Math.max(0, subtotal - discountAmount);
-  const tax = (afterDiscount * taxRate) / 100;
-  const total = afterDiscount + tax;
-  return { subtotal, discountAmount, tax, total };
-}
 
 export default function QuoteTemplatesPage() {
   const [search, setSearch] = useState("");
@@ -67,7 +58,7 @@ export default function QuoteTemplatesPage() {
   const handleSearch = useCallback((value: string) => setSearch(value), []);
 
   const templateTotal = (t: QuoteTemplate) => {
-    return calcTotals(t.items, t.discount, t.discountType, t.taxRate).total;
+    return calcTemplateTotals(t.items, t.discount, t.discountType, t.taxRate).total;
   };
 
   const openCreate = () => {
@@ -281,7 +272,7 @@ export default function QuoteTemplatesPage() {
                       <td>{item.productName}</td>
                       <td className={styles.numCol}>{item.quantity}</td>
                       <td className={styles.numCol}>{formatCurrency(item.unitPrice)}</td>
-                      <td className={styles.numCol}>{formatCurrency(item.total)}</td>
+                      <td className={styles.numCol}>{formatCurrency(calcItemTotal(item))}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -291,11 +282,15 @@ export default function QuoteTemplatesPage() {
             <div className={styles.previewTotals}>
               <div className={styles.totalRow}>
                 <span>Subtotal</span>
-                <span>{formatCurrency(templateTotal(previewTemplate) - calcTotals(previewTemplate.items, previewTemplate.discount, previewTemplate.discountType, previewTemplate.taxRate).tax)}</span>
+                <span>{formatCurrency(calcTemplateTotals(previewTemplate.items, previewTemplate.discount, previewTemplate.discountType, previewTemplate.taxRate).subtotal)}</span>
+              </div>
+              <div className={styles.totalRow}>
+                <span>Discount</span>
+                <span>-{formatCurrency(calcTemplateTotals(previewTemplate.items, previewTemplate.discount, previewTemplate.discountType, previewTemplate.taxRate).discountAmount)}</span>
               </div>
               <div className={styles.totalRow}>
                 <span>Tax ({previewTemplate.taxRate}%)</span>
-                <span>{formatCurrency(calcTotals(previewTemplate.items, previewTemplate.discount, previewTemplate.discountType, previewTemplate.taxRate).tax)}</span>
+                <span>{formatCurrency(calcTemplateTotals(previewTemplate.items, previewTemplate.discount, previewTemplate.discountType, previewTemplate.taxRate).tax)}</span>
               </div>
               <div className={styles.grandTotal}>
                 <span>Estimated Total</span>

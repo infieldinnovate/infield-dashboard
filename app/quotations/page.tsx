@@ -23,7 +23,7 @@ import QuotationDocument, {
   printQuotation,
   downloadQuotationPDF,
 } from "../../components/QuotationDocument";
-import { formatCurrency, generateNumericId } from "../../lib/documentUtils";
+import { formatCurrency, generateNumericId, calcQuotationTotals } from "../../lib/documentUtils";
 import { QuotationFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
@@ -152,10 +152,8 @@ export default function QuotationsPage() {
     if (!customer) return;
 
     const items = data.items;
-    const subtotal = items.reduce((sum, i) => sum + i.total, 0);
     const taxRate = parseFloat(data.taxRate) || 0;
-    const tax = (subtotal * taxRate) / 100;
-    const total = subtotal + tax;
+    const { subtotal, tax, total } = calcQuotationTotals(items, taxRate);
 
     const existingCodes = new Set(quotationList.map((q) => q.quotationCode));
     const qCode = editQuotation?.quotationCode || generateQuotationCode(existingCodes);
@@ -173,10 +171,7 @@ export default function QuotationsPage() {
       createdBySignature: editQuotation?.createdBySignature || defaultUser.signature,
       userId,
       items,
-      subtotal,
-      tax,
       taxRate,
-      total,
       status: editQuotation?.status || "draft",
       createdAt:
         editQuotation?.createdAt || new Date().toISOString().split("T")[0],
@@ -237,7 +232,7 @@ export default function QuotationsPage() {
       header: "Amount",
       align: "right" as const,
       render: (row: Quotation) => (
-        <span className={styles.amount}>{formatCurrency(row.total)}</span>
+        <span className={styles.amount}>{formatCurrency(calcQuotationTotals(row.items, row.taxRate).total)}</span>
       ),
     },
     {
