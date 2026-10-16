@@ -5,7 +5,7 @@ interface StampProps {
   date?: string;
 }
 
-export default function Stamp({ date = '26/Nov/2026' }: StampProps) {
+export default function Stamp({ date = "** *** ****" }: StampProps) {
   return (
     <div className={styles.stamp}>
       <span className={styles.date}>{date}</span>
