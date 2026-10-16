@@ -71,6 +71,13 @@ export function formatDateShort(dateStr: string): string {
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+export function formatStampDate(dateStr: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
 export const statusLabels: Record<string, string> = {
   draft: 'Draft', sent: 'Sent', accepted: 'Accepted', rejected: 'Rejected', expired: 'Expired',
   paid: 'Paid', unpaid: 'Unpaid', overdue: 'Overdue', partial: 'Partially Paid',

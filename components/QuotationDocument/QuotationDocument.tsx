@@ -9,6 +9,7 @@ import {
   fetchImageBytes,
   formatCurrency,
   formatDate,
+  formatStampDate,
   generateBarcode,
   generateBarcodePng,
   getSettings,
@@ -58,7 +59,7 @@ const printStyles = `
 *{margin:0;padding:0;box-sizing:border-box}
 @page{size:A4 portrait;margin:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111;background:#fff}
-.qt-page{width:210mm;min-height:297mm;padding:15mm;position:relative;page-break-after:always}
+.qt-page{width:210mm;min-height:297mm;padding:15mm;position:relative;page-break-after:always;background:#fff url('/backgrounds/qt-bg.jpg') center/cover no-repeat}
 .qt-page:last-child{page-break-after:auto}
 .qt-header{margin-bottom:20px;overflow:hidden}
 .qt-header-top{display:grid;grid-template-columns:1.15fr 1fr 1fr;align-items:stretch;min-height:132px;padding:18px 28px 22px;gap:24px}
@@ -212,6 +213,7 @@ function buildQuotationHTML(quotation: Quotation): string {
       <span style="font-size:11px;font-weight:800;text-transform:uppercase">Infield</span>
       <span style="font-size:7px;letter-spacing:1px">* * * *</span>
       <span style="font-size:7px;font-weight:600">+254 702 393 677</span>
+      <span style="font-size:6px;font-weight:600">${escapeHtml(formatDate(quotation.createdAt))}</span>
     </div>
     <span style="font-size:6px;font-weight:700;text-transform:uppercase;border-top:1px solid #c0392b;padding-top:1px;margin-top:2px">DIGITAL STAMP</span>
   </div></div>`;
@@ -346,6 +348,16 @@ export async function generateQuotationPDF(
     }
   }
 
+  const backgroundBytes = await fetchImageBytes('/backgrounds/qt-bg.jpg');
+  let backgroundImg = null;
+  if (backgroundBytes) {
+    try {
+      backgroundImg = await doc.embedJpg(backgroundBytes);
+    } catch {
+      /* ignore unavailable background */
+    }
+  }
+
   const sigBytes = await fetchImageBytes(signatureSrc);
   let sigImg = null;
   if (sigBytes) {
@@ -369,9 +381,16 @@ export async function generateQuotationPDF(
 
   let page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
+  const drawPageBackground = () => {
+    if (backgroundImg) {
+      page.drawImage(backgroundImg, { x: 0, y: 0, width: PAGE_WIDTH, height: PAGE_HEIGHT });
+    }
+  };
+  drawPageBackground();
 
   const addPage = (): PDFPage => {
     page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    drawPageBackground();
     y = PAGE_HEIGHT - MARGIN;
     page.drawText(businessName, {
       x: MARGIN,
@@ -1060,6 +1079,14 @@ export async function generateQuotationPDF(
     start: { x: stampCx - 18, y: stampCy - 12 },
     end: { x: stampCx + 18, y: stampCy - 12 },
     thickness: 0.5,
+    color: STAMP_RED,
+  });
+  const stampDate = formatStampDate(quotation.createdAt);
+  page.drawText(stampDate, {
+    x: stampCx - font.widthOfTextAtSize(stampDate, 4) / 2,
+    y: stampCy - 25,
+    size: 4,
+    font,
     color: STAMP_RED,
   });
   page.drawText("DIGITAL STAMP", {

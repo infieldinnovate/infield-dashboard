@@ -1,5 +1,5 @@
 import type { Quotation } from "../../types";
-import { getSettings } from "../../lib/documentUtils";
+import { formatStampDate, getSettings } from "../../lib/documentUtils";
 import Stamp from "../InvoiceDocument/Stamp";
 import { ImageWithFallback } from "../ui/ImageWithFallback";
 import styles from "./QuotationDocument.module.scss";
@@ -18,7 +18,7 @@ export default function Footer({ quotation }: { quotation: Quotation }) {
           Thank you for choosing Infield Innovations!
         </div>
         <div className={styles.footerStamp}>
-          <Stamp />
+          <Stamp date={formatStampDate(quotation.createdAt)} />
         </div>
         <div className={styles.authorizedSignature}>
           <ImageWithFallback

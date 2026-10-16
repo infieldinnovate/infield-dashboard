@@ -9,7 +9,7 @@
   width: 210mm;
   min-height: 297mm;
   padding: 14mm 15mm 12mm;
-  background: #fff;
+  background: #fff url('/backgrounds/qt-bg.jpg') center / cover no-repeat;
   position: relative;
   page-break-after: always;
   color: #101820;
@@ -247,7 +247,7 @@
 
 .footer {
   color: #111;
-  background: #0bd6a3;
+  background: transparent;
 }
 .footerNotes {
   min-height: 86px;
