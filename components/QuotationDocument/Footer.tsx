@@ -25,22 +25,18 @@ export default function Footer({ quotation }: { quotation: Quotation }) {
         />
       </div>
 
-      <div className={styles.footerBottom}>
-        <div className={styles.footerThankYou}>
-          Thank you for choosing Infield Innovations!
+      <div className={styles.row2}>
+        <div className={styles.contactAndThankYou}>
+          <div className={styles.footerContact}>
+            <b>CONTACT US:</b> <span>{phone}</span>
+          </div>
+          <span className={styles.footerThankYou}>
+            Thank you for choosing Infield Innovations.
+            <br /> We deliver exceptional results with unmatched expertise and
+            dedication.
+          </span>
         </div>
-        <ImageWithFallback
-          src={signatureSrc}
-          alt="Signature"
-          width={140}
-          height={50}
-          animation="fadeUp"
-          className={styles.signatureImage}
-        />
-        <strong>{quotation.createdBy}</strong>
-      </div>
-      <div className={styles.footerContact}>
-        CONTACT US: <span>{phone}</span>
+        <div className={styles.createdBy}>{quotation.createdBy}</div>
       </div>
     </footer>
   );
