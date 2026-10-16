@@ -12,7 +12,7 @@
 .a4Page {
   width: 210mm;
   min-height: 297mm;
-  padding: 12mm 15mm;
+  padding: 12mm 15mm 0 15mm;
   background: #fff url("/backgrounds/qt-bg.jpg") center / cover no-repeat;
   position: relative;
   page-break-after: always;
@@ -141,13 +141,6 @@
   font-family: Georgia, "Times New Roman", serif;
 }
 
-.dateBar {
-  display: none;
-}
-.dateItem {
-  display: none;
-}
-
 .itemsTable {
   width: 100%;
   border-collapse: collapse;
@@ -269,22 +262,35 @@
 }
 
 .footer {
+  margin-top: 45px;
+  height: 52mm;
   color: #111;
-  background: transparent;
+}
+
+.row1 {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background: #92afe7;
 }
 .footerNotes {
-  min-height: 86px;
-  padding-left: 13%;
+  height: 23mm;
+  width: 80mm;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 15px;
   font-style: italic;
+  line-height: 1.2;
 }
 .footerNotes strong {
   display: block;
-  font-weight: 700;
+  font-weight: bold;
+  font-size: 11pt;
+  text-align: center;
+  padding-bottom: 4px;
 }
 .footerNotes span {
-  display: none;
+  font-size: 9pt;
 }
 .footerBottom {
   display: grid;
@@ -303,33 +309,13 @@
   font-style: italic;
   line-height: 1.2;
 }
-.footerStamp {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  justify-self: center;
-  align-self: center;
-}
-.authorizedSignature {
-  grid-column: 3;
-  grid-row: 1 / 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding-top: 12px;
-}
 .signatureImage {
-  width: 140px;
-  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 60mm;
+  height: 20mm;
   object-fit: contain;
-}
-.authorizedSignature strong {
-  width: 140px;
-  padding-top: 6px;
-  border-top: 1px solid #aaa;
-  text-align: center;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 14px;
 }
 .footerContact {
   grid-column: 1;
@@ -470,8 +456,7 @@
   }
   .footerContact,
   .footerThankYou,
-  .footerStamp,
-  .authorizedSignature {
+  .footerStamp {
     grid-column: 1;
     grid-row: auto;
   }
