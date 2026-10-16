@@ -27,27 +27,38 @@ import {
 
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
-const MARGIN = 50;
-const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 
-const BRAND_GREEN = rgb(0.086, 0.282, 0.388);
-const TABLE_GREEN = rgb(0.063, 0.294, 0.408);
+const MM = 2.834646;
+const PT = 1.0;
+
+const PAD_TOP = 12 * MM;
+const PAD_SIDE = 15 * MM;
+const CONTENT_WIDTH = PAGE_WIDTH - PAD_SIDE * 2;
+
+const HEADER_HEIGHT = 43 * MM;
+const HEADER_GAP = 23;
+const HEADER_BORDER = rgb(0.369, 0.369, 0.369);
+
+const BRAND_BLUE = rgb(0.086, 0.282, 0.396);
+const TABLE_HEADER_BG = rgb(0.063, 0.294, 0.408);
+const TABLE_HEADER_BORDER = rgb(1, 1, 1);
+const ROW_BORDER = rgb(0.843, 0.898, 0.922);
+const EVEN_ROW_BG = rgb(0.941, 0.961, 0.953);
 const FOR_LABEL_BG = rgb(0.741, 0.741, 0.741);
 const FOR_CONTENT_BG = rgb(0.831, 0.831, 0.831);
-const GRAND_TOTAL_BG = rgb(0.953, 0.969, 0.965);
-const EVEN_ROW_BG = rgb(0.941, 0.961, 0.953);
+const GRAND_TOTAL_BG = rgb(0.835, 0.922, 0.925);
+const TOTALS_BORDER = rgb(0.737, 0.737, 0.737);
 const STAMP_RED = rgb(0.753, 0.224, 0.169);
-const DARK = rgb(0.067, 0.067, 0.067);
-const DETAILS_DARK = rgb(0.082, 0.082, 0.082);
-const CLIENT_DETAIL = rgb(0.267, 0.267, 0.267);
 const WHITE = rgb(1, 1, 1);
-const ACCENT_LINE = rgb(0.718, 0.718, 0.718);
-const ROW_BORDER = rgb(0.863, 0.898, 0.91);
-const TOTALS_BORDER = rgb(0.824, 0.824, 0.824);
-const COMPACT_GREEN = rgb(0.071, 0.396, 0.259);
-const COMPACT_TITLE = rgb(0.4, 0.4, 0.4);
-const COMPACT_CODE = rgb(0.6, 0.6, 0.6);
-const COMPACT_BORDER = rgb(0.898, 0.898, 0.898);
+const DARK = rgb(0.063, 0.094, 0.125);
+const DETAILS_DARK = rgb(0.082, 0.082, 0.082);
+const CONTACT_BLUE = rgb(0.0, 0.585, 1.0);
+const COMPACT_BORDER = rgb(0.816, 0.816, 0.816);
+const COMPACT_CODE = rgb(0.333, 0.333, 0.333);
+
+function mm(v: number): number {
+  return v * MM;
+}
 
 export async function generateQuotationPDF(
   quotation: Quotation,
@@ -56,6 +67,7 @@ export async function generateQuotationPDF(
   const font: PDFFont = await doc.embedFont(StandardFonts.Helvetica);
   const boldFont: PDFFont = await doc.embedFont(StandardFonts.HelveticaBold);
   const serifFont: PDFFont = await doc.embedFont(StandardFonts.TimesRoman);
+  const serifBold: PDFFont = await doc.embedFont(StandardFonts.TimesRomanBold);
   const serifItalic: PDFFont = await doc.embedFont(
     StandardFonts.TimesRomanItalic,
   );
@@ -95,13 +107,41 @@ export async function generateQuotationPDF(
     }
   }
 
-  const backgroundBytes = await fetchImageBytes("/backgrounds/qt-bg.jpg");
-  let backgroundImg = null;
-  if (backgroundBytes) {
+  const bgBytes = await fetchImageBytes("/backgrounds/plain.jpg");
+  let bgImg = null;
+  if (bgBytes) {
     try {
-      backgroundImg = await doc.embedJpg(backgroundBytes);
+      bgImg = await doc.embedJpg(bgBytes);
     } catch {
       /* ignore */
+    }
+  }
+
+  const headerBgBytes = await fetchImageBytes("/backgrounds/qt-header.png");
+  let headerBgImg = null;
+  if (headerBgBytes) {
+    try {
+      headerBgImg = await doc.embedPng(headerBgBytes);
+    } catch {
+      try {
+        headerBgImg = await doc.embedJpg(headerBgBytes);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
+  const footerBgBytes = await fetchImageBytes("/backgrounds/qt-footer.png");
+  let footerBgImg = null;
+  if (footerBgBytes) {
+    try {
+      footerBgImg = await doc.embedPng(footerBgBytes);
+    } catch {
+      try {
+        footerBgImg = await doc.embedJpg(footerBgBytes);
+      } catch {
+        /* ignore */
+      }
     }
   }
 
@@ -119,22 +159,24 @@ export async function generateQuotationPDF(
     }
   }
 
-  const HEADER_GAP = 28;
-  const headerLeftW = (CONTENT_WIDTH - HEADER_GAP) * 0.6;
-  const headerRightW = (CONTENT_WIDTH - HEADER_GAP) * 0.4;
-  const headerRightX = MARGIN + headerLeftW + HEADER_GAP;
+  const headerLeftW = (CONTENT_WIDTH - HEADER_GAP) * (1.2 / 2.0);
+  const headerRightW = (CONTENT_WIDTH - HEADER_GAP) * (0.8 / 2.0);
+  const headerRightX = PAD_SIDE + headerLeftW + HEADER_GAP;
 
-  const BF_GAP = 28;
-  const billToW = (CONTENT_WIDTH - BF_GAP) / 2.55;
-  const forW = ((CONTENT_WIDTH - BF_GAP) * 1.55) / 2.55;
-  const forX = MARGIN + billToW + BF_GAP;
+  const BF_GAP = 20;
+  const bfLeftW = (CONTENT_WIDTH - BF_GAP) * (1.0 / 2.8);
+  const bfRightW = (CONTENT_WIDTH - BF_GAP) * (1.8 / 2.8);
+  const bfRightX = PAD_SIDE + bfLeftW + BF_GAP;
+  const BF_HEIGHT = mm(35);
+  const FOR_HEIGHT = mm(19);
+  const FOR_LABEL_W = mm(74 / MM);
 
   const colWidths: Record<string, number> = {
-    no: CONTENT_WIDTH * 0.08,
-    unit: CONTENT_WIDTH * 0.09,
-    qty: CONTENT_WIDTH * 0.15,
-    price: CONTENT_WIDTH * 0.12,
-    total: CONTENT_WIDTH * 0.16,
+    no: CONTENT_WIDTH * 0.06,
+    unit: CONTENT_WIDTH * 0.12,
+    qty: CONTENT_WIDTH * 0.10,
+    price: CONTENT_WIDTH * 0.13,
+    total: CONTENT_WIDTH * 0.17,
   };
   colWidths.desc =
     CONTENT_WIDTH -
@@ -144,14 +186,14 @@ export async function generateQuotationPDF(
     colWidths.price -
     colWidths.total;
   const colXs: Record<string, number> = {
-    no: MARGIN,
-    desc: MARGIN + colWidths.no,
-    unit: MARGIN + colWidths.no + colWidths.desc,
-    qty: MARGIN + colWidths.no + colWidths.desc + colWidths.unit,
+    no: PAD_SIDE,
+    desc: PAD_SIDE + colWidths.no,
+    unit: PAD_SIDE + colWidths.no + colWidths.desc,
+    qty: PAD_SIDE + colWidths.no + colWidths.desc + colWidths.unit,
     price:
-      MARGIN + colWidths.no + colWidths.desc + colWidths.unit + colWidths.qty,
+      PAD_SIDE + colWidths.no + colWidths.desc + colWidths.unit + colWidths.qty,
     total:
-      MARGIN +
+      PAD_SIDE +
       colWidths.no +
       colWidths.desc +
       colWidths.unit +
@@ -160,11 +202,11 @@ export async function generateQuotationPDF(
   };
 
   let page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-  let y = PAGE_HEIGHT - MARGIN;
+  let y = PAGE_HEIGHT - PAD_TOP;
 
   const drawPageBackground = (p: PDFPage) => {
-    if (backgroundImg) {
-      p.drawImage(backgroundImg, {
+    if (bgImg) {
+      p.drawImage(bgImg, {
         x: 0,
         y: 0,
         width: PAGE_WIDTH,
@@ -177,25 +219,25 @@ export async function generateQuotationPDF(
   const addPage = (): PDFPage => {
     page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     drawPageBackground(page);
-    y = PAGE_HEIGHT - MARGIN;
+    y = PAGE_HEIGHT - PAD_TOP;
     page.drawText(businessName, {
-      x: MARGIN,
+      x: PAD_SIDE,
       y,
       size: 14,
       font: boldFont,
-      color: COMPACT_GREEN,
+      color: BRAND_BLUE,
     });
     const compactTitle = "QUOTATION";
     page.drawText(compactTitle, {
-      x: PAGE_WIDTH - MARGIN - font.widthOfTextAtSize(compactTitle, 12),
+      x: PAGE_WIDTH - PAD_SIDE - boldFont.widthOfTextAtSize(compactTitle, 12),
       y,
       size: 12,
-      font,
-      color: COMPACT_TITLE,
+      font: boldFont,
+      color: BRAND_BLUE,
     });
     const compactCode = quotation.quotationCode || "";
     page.drawText(compactCode, {
-      x: PAGE_WIDTH - MARGIN - font.widthOfTextAtSize(compactCode, 10),
+      x: PAGE_WIDTH - PAD_SIDE - font.widthOfTextAtSize(compactCode, 10),
       y: y - 14,
       size: 10,
       font,
@@ -203,8 +245,8 @@ export async function generateQuotationPDF(
     });
     y -= 26;
     page.drawLine({
-      start: { x: MARGIN, y: y + 8 },
-      end: { x: PAGE_WIDTH - MARGIN, y: y + 8 },
+      start: { x: PAD_SIDE, y: y + 8 },
+      end: { x: PAGE_WIDTH - PAD_SIDE, y: y + 8 },
       thickness: 1,
       color: COMPACT_BORDER,
     });
@@ -213,95 +255,107 @@ export async function generateQuotationPDF(
   };
 
   const ensureSpace = (needed: number) => {
-    if (y - needed < MARGIN + 60) addPage();
+    if (y - needed < PAD_TOP + 60) addPage();
   };
 
-  const headerTop = PAGE_HEIGHT - MARGIN;
+  // ─── Header (43mm, background image, 1.2fr/0.8fr grid) ───
+  const headerTop = y;
+  const headerBottom = headerTop - HEADER_HEIGHT;
 
-  let logoH = 0;
-  if (logoImg) {
-    const targetW = 174;
-    const targetH = 52;
-    const imgRatio = logoImg.width / logoImg.height;
-    const targetRatio = targetW / targetH;
-    if (imgRatio > targetRatio) {
-      logoH = targetW / imgRatio;
-      page.drawImage(logoImg, {
-        x: MARGIN,
-        y: headerTop - logoH,
-        width: targetW,
-        height: logoH,
-      });
-    } else {
-      const w = targetH * imgRatio;
-      logoH = targetH;
-      page.drawImage(logoImg, {
-        x: MARGIN,
-        y: headerTop - logoH,
-        width: w,
-        height: logoH,
-      });
-    }
+  if (headerBgImg) {
+    page.drawImage(headerBgImg, {
+      x: PAD_SIDE,
+      y: headerBottom,
+      width: CONTENT_WIDTH,
+      height: HEADER_HEIGHT,
+    });
   }
-
-  const bizNameY = headerTop - logoH - 14 - 17;
-  page.drawText(businessName, {
-    x: MARGIN,
-    y: bizNameY,
-    size: 21,
-    font: boldFont,
-    color: BRAND_GREEN,
+  page.drawLine({
+    start: { x: PAD_SIDE, y: headerBottom },
+    end: { x: PAGE_WIDTH - PAD_SIDE, y: headerBottom },
+    thickness: 1,
+    color: HEADER_BORDER,
   });
 
-  const detailsY = bizNameY - 21 - 5;
-  const detailLineH = 15;
+  // Left column: brand
+  const logoMarginLeft = 90;
+  const logoH = mm(12);
+  if (logoImg) {
+    const imgRatio = logoImg.width / logoImg.height;
+    const logoW = logoH * imgRatio;
+    page.drawImage(logoImg, {
+      x: PAD_SIDE + logoMarginLeft,
+      y: headerTop - logoH,
+      width: logoW,
+      height: logoH,
+    });
+  }
+
+  const bizNameY = headerTop - logoH - 10 - 22 * 1.6;
+  page.drawText(businessName, {
+    x: PAD_SIDE,
+    y: bizNameY,
+    size: 22,
+    font: boldFont,
+    color: BRAND_BLUE,
+  });
+
+  const detailsY = bizNameY - 12 * 1.3 - 2;
+  const detailLineH = 12 * 1.3;
+  const drawDetailLine = (
+    label: string,
+    value: string,
+    dy: number,
+  ) => {
+    const labelW = boldFont.widthOfTextAtSize(label, 12);
+    page.drawText(label, {
+      x: PAD_SIDE,
+      y: dy,
+      size: 12,
+      font: boldFont,
+      color: DETAILS_DARK,
+    });
+    page.drawText(value, {
+      x: PAD_SIDE + labelW + 5,
+      y: dy,
+      size: 12,
+      font: serifFont,
+      color: DETAILS_DARK,
+    });
+  };
   page.drawText(address, {
-    x: MARGIN,
+    x: PAD_SIDE,
     y: detailsY,
     size: 12,
     font: serifFont,
     color: DETAILS_DARK,
   });
-  page.drawText(`Tel: ${phone}`, {
-    x: MARGIN,
-    y: detailsY - detailLineH,
-    size: 12,
-    font: serifFont,
-    color: DETAILS_DARK,
-  });
-  page.drawText(`Email: ${email}`, {
-    x: MARGIN,
-    y: detailsY - detailLineH * 2,
-    size: 12,
-    font: serifFont,
-    color: DETAILS_DARK,
-  });
-  page.drawText(`Website: ${siteUrl}`, {
-    x: MARGIN,
-    y: detailsY - detailLineH * 3,
-    size: 12,
-    font: serifFont,
-    color: DETAILS_DARK,
-  });
+  drawDetailLine("Tel:", phone, detailsY - detailLineH);
+  drawDetailLine("Email:", email, detailsY - detailLineH * 2);
+  drawDetailLine("Website:", siteUrl, detailsY - detailLineH * 3);
 
-  const titleY = headerTop - 17;
-  page.drawText("QUOTATION", {
-    x:
-      headerRightX +
-      headerRightW -
-      boldFont.widthOfTextAtSize("QUOTATION", 21),
-    y: titleY,
-    size: 21,
+  // Right column: title block (align-items: flex-end)
+  const titleH = mm(11);
+  const titleW = mm(62);
+  const titleX = headerRightX + headerRightW - titleW;
+  const titleY = headerTop - titleH;
+  // h1: white text, 14pt, bold, centered in 62mm x 11mm block
+  const titleText = "QUOTATION";
+  const titleTextW = boldFont.widthOfTextAtSize(titleText, 14 * PT);
+  page.drawText(titleText, {
+    x: titleX + (titleW - titleTextW) / 2,
+    y: titleY + (titleH - 14 * PT) / 2,
+    size: 14 * PT,
     font: boldFont,
-    color: BRAND_GREEN,
+    color: WHITE,
   });
 
-  let barcodeBottomY = titleY - 19;
+  let barcodeBottomY = titleY - 15;
   if (barcodeImg) {
-    const bw = Math.min(205, headerRightW);
-    const bh = (barcodeImg.height / barcodeImg.width) * bw;
+    const bw = Math.min(205, headerRightW - 30);
+    const bh = 31;
     page.drawImage(barcodeImg, {
-      x: headerRightX + headerRightW - bw,
+      x: headerRightX + headerRightW - bw - 30,
       y: barcodeBottomY - bh,
       width: bw,
       height: bh,
@@ -309,137 +363,132 @@ export async function generateQuotationPDF(
     barcodeBottomY = barcodeBottomY - bh;
   }
 
-  const codeY = barcodeBottomY - 9 - 12;
+  const codeY = barcodeBottomY - 5 - 16;
   const codeText = quotation.quotationCode || "";
   page.drawText(codeText, {
-    x:
-      headerRightX +
-      headerRightW -
-      boldFont.widthOfTextAtSize(codeText, 15),
+    x: headerRightX + headerRightW - boldFont.widthOfTextAtSize(codeText, 16) - 45,
     y: codeY,
-    size: 15,
+    size: 16,
     font: boldFont,
-    color: BRAND_GREEN,
+    color: BRAND_BLUE,
   });
 
-  const dateY = codeY - 15 - 7 - 11;
+  const dateY = codeY - 5 - 14;
   const dateLabel = "Date:";
   const dateValue = formatDate(quotation.createdAt);
   const dateLabelW = boldFont.widthOfTextAtSize(dateLabel, 14);
   const dateValueW = font.widthOfTextAtSize(dateValue, 14);
-  const dateTotalW = dateLabelW + 4 + dateValueW;
+  const dateTotalW = dateLabelW + 5 + dateValueW;
   page.drawText(dateLabel, {
-    x: headerRightX + headerRightW - dateTotalW,
+    x: headerRightX + headerRightW - dateTotalW - 45,
     y: dateY,
     size: 14,
     font: boldFont,
-    color: BRAND_GREEN,
+    color: BRAND_BLUE,
   });
   page.drawText(dateValue, {
-    x: headerRightX + headerRightW - dateTotalW + dateLabelW + 4,
+    x: headerRightX + headerRightW - dateTotalW - 45 + dateLabelW + 5,
     y: dateY,
     size: 14,
     font,
     color: DARK,
   });
 
-  const leftColBottom = detailsY - detailLineH * 3;
-  const rightColBottom = dateY - 14;
-  const accentY = Math.min(leftColBottom, rightColBottom) - 17;
-  page.drawLine({
-    start: { x: MARGIN, y: accentY },
-    end: { x: PAGE_WIDTH - MARGIN, y: accentY },
-    thickness: 1,
-    color: ACCENT_LINE,
-  });
+  y = headerBottom;
 
-  const bfTop = accentY - 45;
-  const bfHeight = 51;
-  const bfY = bfTop - bfHeight;
+  // ─── Bill To & For (35mm height, 1fr/1.8fr grid, 20px gap) ───
+  const bfTop = y;
+  const bfBottom = bfTop - BF_HEIGHT;
+  const bfCenterY = bfTop - BF_HEIGHT / 2;
 
+  // Bill To (left column)
   page.drawText("BILL TO:", {
-    x: MARGIN,
-    y: bfTop - 14,
+    x: PAD_SIDE,
+    y: bfCenterY + 6,
     size: 16,
-    font,
-    color: DARK,
+    font: font,
+    color: rgb(0.071, 0.071, 0.071),
   });
   page.drawText(quotation.customerName, {
-    x: MARGIN,
-    y: bfTop - 30,
-    size: 12,
+    x: PAD_SIDE,
+    y: bfCenterY - 8,
+    size: 10 * PT,
     font: boldFont,
     color: DARK,
   });
-  let clientY = bfTop - 42;
+  let clientY = bfCenterY - 20;
   if (quotation.customerAddress) {
     page.drawText(quotation.customerAddress, {
-      x: MARGIN,
+      x: PAD_SIDE,
       y: clientY,
-      size: 10,
-      font,
-      color: CLIENT_DETAIL,
+      size: 10 * PT,
+      font: serifFont,
+      color: DARK,
     });
     clientY -= 12;
   }
   page.drawText(quotation.customerContact, {
-    x: MARGIN,
+    x: PAD_SIDE,
     y: clientY,
-    size: 10,
-    font,
-    color: CLIENT_DETAIL,
+    size: 10 * PT,
+    font: serifFont,
+    color: DARK,
   });
 
+  // For section (19mm height, 74px label + content, bg #d4d4d4, label bg #bdbdbd)
+  const forTop = bfCenterY + FOR_HEIGHT / 2;
+  const forBottom = forTop - FOR_HEIGHT;
   page.drawRectangle({
-    x: forX,
-    y: bfY,
-    width: forW,
-    height: bfHeight,
+    x: bfRightX,
+    y: forBottom,
+    width: bfRightW,
+    height: FOR_HEIGHT,
     color: FOR_CONTENT_BG,
   });
   page.drawRectangle({
-    x: forX,
-    y: bfY,
-    width: 74,
-    height: bfHeight,
+    x: bfRightX,
+    y: forBottom,
+    width: FOR_LABEL_W,
+    height: FOR_HEIGHT,
     color: FOR_LABEL_BG,
   });
   page.drawText("FOR:", {
-    x: forX + 14,
-    y: bfTop - 21,
+    x: bfRightX + 14,
+    y: forBottom + (FOR_HEIGHT - 16) / 2,
     size: 16,
-    font,
+    font: font,
     color: DARK,
   });
   let forText = quotation.quoteFor || "";
-  const maxForW = forW - 74 - 32;
-  if (font.widthOfTextAtSize(forText, 14) > maxForW) {
+  const maxForW = bfRightW - FOR_LABEL_W - 32;
+  if (serifFont.widthOfTextAtSize(forText, 10 * PT) > maxForW) {
     while (
-      font.widthOfTextAtSize(forText + "...", 14) > maxForW &&
+      serifFont.widthOfTextAtSize(forText + "...", 10 * PT) > maxForW &&
       forText.length > 0
     )
       forText = forText.slice(0, -1);
     forText += "...";
   }
   page.drawText(forText, {
-    x: forX + 74 + 16,
-    y: bfTop - 21,
-    size: 14,
-    font,
+    x: bfRightX + FOR_LABEL_W + 16,
+    y: forBottom + (FOR_HEIGHT - 10 * PT) / 2,
+    size: 10 * PT,
+    font: serifFont,
     color: DARK,
   });
 
-  y = bfY - 45;
+  y = bfBottom;
 
+  // ─── Items table ───
   const drawTableHeader = () => {
-    const thH = 28;
+    const thH = 30;
     const thY = y - thH;
     page.drawRectangle({
-      x: MARGIN,
+      x: PAD_SIDE,
       y: thY,
       width: CONTENT_WIDTH,
       height: thH,
-      color: TABLE_GREEN,
+      color: TABLE_HEADER_BG,
     });
     const headers = [
       { text: "No.", x: colXs.no, w: colWidths.no, align: "center" as const },
@@ -447,7 +496,7 @@ export async function generateQuotationPDF(
         text: "Description",
         x: colXs.desc,
         w: colWidths.desc,
-        align: "left" as const,
+        align: "center" as const,
       },
       {
         text: "Size",
@@ -460,24 +509,31 @@ export async function generateQuotationPDF(
         text: "Price",
         x: colXs.price,
         w: colWidths.price,
-        align: "right" as const,
+        align: "center" as const,
       },
       {
         text: "Total",
         x: colXs.total,
         w: colWidths.total,
-        align: "right" as const,
+        align: "center" as const,
       },
     ];
-    for (const h of headers) {
+    for (let i = 0; i < headers.length; i++) {
+      const h = headers[i];
+      if (i < headers.length - 1) {
+        const sepX = h.x + h.w;
+        page.drawLine({
+          start: { x: sepX, y: thY },
+          end: { x: sepX, y: thY + thH },
+          thickness: 2,
+          color: TABLE_HEADER_BORDER,
+        });
+      }
       const tw = boldFont.widthOfTextAtSize(h.text, 14);
-      let tx: number;
-      if (h.align === "center") tx = h.x + (h.w - tw) / 2;
-      else if (h.align === "right") tx = h.x + h.w - tw - 8;
-      else tx = h.x + 8;
+      const tx = h.x + (h.w - tw) / 2;
       page.drawText(h.text, {
         x: tx,
-        y: thY + 9,
+        y: thY + (thH - 14) / 2,
         size: 14,
         font: boldFont,
         color: WHITE,
@@ -496,7 +552,7 @@ export async function generateQuotationPDF(
       const rowY = y - rowH;
       if ((startIndex + i + 1) % 2 === 0) {
         page.drawRectangle({
-          x: MARGIN,
+          x: PAD_SIDE,
           y: rowY,
           width: CONTENT_WIDTH,
           height: rowH,
@@ -504,36 +560,36 @@ export async function generateQuotationPDF(
         });
       }
       page.drawLine({
-        start: { x: MARGIN, y: rowY },
-        end: { x: PAGE_WIDTH - MARGIN, y: rowY },
+        start: { x: PAD_SIDE, y: rowY },
+        end: { x: PAGE_WIDTH - PAD_SIDE, y: rowY },
         thickness: 0.5,
         color: ROW_BORDER,
       });
-      const cellY = rowY + 7;
+      const cellY = rowY + (rowH - 11 * PT) / 2;
       const noStr = String(startIndex + i + 1);
       page.drawText(noStr, {
         x:
           colXs.no +
-          (colWidths.no - serifFont.widthOfTextAtSize(noStr, 12)) / 2,
+          (colWidths.no - serifFont.widthOfTextAtSize(noStr, 11 * PT)) / 2,
         y: cellY,
-        size: 12,
+        size: 11 * PT,
         font: serifFont,
         color: DARK,
       });
       let descText = item.productName;
-      const maxDescW = colWidths.desc - 16;
-      if (serifFont.widthOfTextAtSize(descText, 12) > maxDescW) {
+      const maxDescW = colWidths.desc - 10 - 4;
+      if (serifFont.widthOfTextAtSize(descText, 11 * PT) > maxDescW) {
         while (
-          serifFont.widthOfTextAtSize(descText + "...", 12) > maxDescW &&
+          serifFont.widthOfTextAtSize(descText + "...", 11 * PT) > maxDescW &&
           descText.length > 0
         )
           descText = descText.slice(0, -1);
         descText += "...";
       }
       page.drawText(descText, {
-        x: colXs.desc + 8,
+        x: colXs.desc + 10,
         y: cellY,
-        size: 12,
+        size: 11 * PT,
         font: serifFont,
         color: DARK,
       });
@@ -541,19 +597,19 @@ export async function generateQuotationPDF(
       page.drawText(unitStr, {
         x:
           colXs.unit +
-          (colWidths.unit - serifFont.widthOfTextAtSize(unitStr, 12)) / 2,
+          (colWidths.unit - serifFont.widthOfTextAtSize(unitStr, 11 * PT)) / 2,
         y: cellY,
-        size: 12,
+        size: 11 * PT,
         font: serifFont,
         color: DARK,
       });
-      const qtyStr = String(item.quantity);
+      const qtyStr = `${item.quantity} Rolls`;
       page.drawText(qtyStr, {
         x:
           colXs.qty +
-          (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 12)) / 2,
+          (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 11 * PT)) / 2,
         y: cellY,
-        size: 12,
+        size: 11 * PT,
         font: serifFont,
         color: DARK,
       });
@@ -562,10 +618,10 @@ export async function generateQuotationPDF(
         x:
           colXs.price +
           colWidths.price -
-          serifFont.widthOfTextAtSize(priceStr, 12) -
-          8,
+          serifFont.widthOfTextAtSize(priceStr, 11 * PT) -
+          10,
         y: cellY,
-        size: 12,
+        size: 11 * PT,
         font: serifFont,
         color: DARK,
       });
@@ -574,10 +630,10 @@ export async function generateQuotationPDF(
         x:
           colXs.total +
           colWidths.total -
-          serifFont.widthOfTextAtSize(totalStr, 12) -
-          8,
+          serifFont.widthOfTextAtSize(totalStr, 11 * PT) -
+          10,
         y: cellY,
-        size: 12,
+        size: 11 * PT,
         font: serifFont,
         color: DARK,
       });
@@ -596,118 +652,144 @@ export async function generateQuotationPDF(
     );
   }
 
-  y -= 29;
-  const totalsW = CONTENT_WIDTH * 0.41;
-  const totalsX = PAGE_WIDTH - MARGIN - totalsW;
+  // ─── Totals (margin-top 15px, margin-left 60%) ───
+  y -= 15;
+  const totalsW = CONTENT_WIDTH * 0.4;
+  const totalsX = PAD_SIDE + CONTENT_WIDTH * 0.6;
+  const totalsPadH = 7;
+  const totalsPadV = 7;
 
-  const drawTotalsRow = (label: string, value: string) => {
-    const rowH = 28;
-    const rowY = y - rowH;
+  const drawTotalsRow = (label: string, value: string, isGrandTotal: boolean) => {
+    const fontSize = isGrandTotal ? 15 : 13;
+    const pt = isGrandTotal ? 10 : totalsPadV;
+    const pb = isGrandTotal ? 10 : totalsPadV;
+    const rowH = isGrandTotal ? 0 : 28;
+    const labelFont = isGrandTotal ? boldFont : serifFont;
+    const valueFont = isGrandTotal ? serifFont : serifFont;
+
+    if (isGrandTotal) {
+      page.drawRectangle({
+        x: totalsX,
+        y: y - pt - fontSize - pb,
+        width: totalsW,
+        height: pt + fontSize + pb,
+        color: GRAND_TOTAL_BG,
+      });
+    }
+
+    const textY = y - pt - fontSize;
     page.drawText(label, {
-      x: totalsX + 18,
-      y: rowY + 9,
-      size: 13,
-      font: serifFont,
+      x: totalsX + 12,
+      y: textY,
+      size: fontSize,
+      font: labelFont,
       color: DARK,
     });
-    const vw = serifFont.widthOfTextAtSize(value, 13);
+    const vw = valueFont.widthOfTextAtSize(value, fontSize);
     page.drawText(value, {
-      x: totalsX + totalsW - vw - 14,
-      y: rowY + 9,
-      size: 13,
-      font: serifFont,
+      x: totalsX + totalsW - vw - 12,
+      y: textY,
+      size: fontSize,
+      font: valueFont,
       color: DARK,
     });
-    page.drawLine({
-      start: { x: totalsX, y: rowY },
-      end: { x: totalsX + totalsW, y: rowY },
-      thickness: 2,
-      color: TOTALS_BORDER,
-    });
-    y = rowY;
+
+    if (!isGrandTotal) {
+      page.drawLine({
+        start: { x: totalsX, y: y - pt - fontSize - pb },
+        end: { x: totalsX + totalsW, y: y - pt - fontSize - pb },
+        thickness: 1,
+        color: TOTALS_BORDER,
+      });
+    }
+
+    y = y - pt - fontSize - pb;
   };
 
   const { subtotal, tax, total } = calcQuotationTotals(
     quotation.items,
     quotation.taxRate,
   );
-  drawTotalsRow("Sub-Total", formatCurrency(subtotal));
-  drawTotalsRow(`Tax (${quotation.taxRate}%)`, formatCurrency(tax));
+  drawTotalsRow("Sub-Total", formatCurrency(subtotal), false);
+  drawTotalsRow(`Tax (${quotation.taxRate}%)`, formatCurrency(tax), false);
+  drawTotalsRow("Grand Total", formatCurrency(total), true);
 
-  y -= 4;
-  const gtH = 34;
-  const gtY = y - gtH;
-  page.drawRectangle({
-    x: totalsX,
-    y: gtY,
-    width: totalsW,
-    height: gtH,
-    color: GRAND_TOTAL_BG,
-  });
-  page.drawText("Grand Total", {
-    x: totalsX + 18,
-    y: gtY + 11,
-    size: 15,
+  // ─── Footer (margin-top 20px, height 52mm, background image) ───
+  const footerMarginTop = 20;
+  const footerHeight = mm(52);
+  ensureSpace(footerHeight + footerMarginTop);
+  y -= footerMarginTop;
+  const footerTop = y;
+  const footerBottom = footerTop - footerHeight;
+
+  if (footerBgImg) {
+    page.drawImage(footerBgImg, {
+      x: PAD_SIDE,
+      y: footerBottom,
+      width: CONTENT_WIDTH,
+      height: footerHeight,
+    });
+  }
+
+  // row1: flex row, space-between, align flex-end
+  // Notes (80mm wide, 23mm tall) | Stamp | Signature (50mm wide, 23mm tall)
+  const row1Height = mm(23);
+  const notesW = mm(80);
+  const sigMaxW = mm(50);
+  const sigH = row1Height;
+  const row1Bottom = footerTop - row1Height;
+
+  // Notes
+  const notesX = PAD_SIDE;
+  page.drawText("Notes:", {
+    x: notesX + notesW / 2 - boldFont.widthOfTextAtSize("Notes:", 11 * PT) / 2,
+    y: footerTop - 4 - 11 * PT,
+    size: 11 * PT,
     font: boldFont,
     color: DARK,
   });
-  const gtValStr = formatCurrency(total);
-  page.drawText(gtValStr, {
-    x: totalsX + totalsW - serifFont.widthOfTextAtSize(gtValStr, 15) - 14,
-    y: gtY + 11,
-    size: 15,
-    font: serifFont,
-    color: DARK,
-  });
-  y = gtY;
+  if (quotation.notes) {
+    let notesText = quotation.notes;
+    const maxNotesW = notesW - 8;
+    if (serifItalic.widthOfTextAtSize(notesText, 9 * PT) > maxNotesW) {
+      while (
+        serifItalic.widthOfTextAtSize(notesText + "...", 9 * PT) > maxNotesW &&
+        notesText.length > 0
+      )
+        notesText = notesText.slice(0, -1);
+      notesText += "...";
+    }
+    page.drawText(notesText, {
+      x: notesX,
+      y: footerTop - 4 - 11 * PT - 4 - 9 * PT,
+      size: 9 * PT,
+      font: serifItalic,
+      color: DARK,
+    });
+  }
 
-  ensureSpace(130);
-  y -= 63;
+  // Signature (right side of row1, margin-right 50px)
+  const sigX = PAD_SIDE + CONTENT_WIDTH - 50 - sigMaxW;
+  if (sigImg) {
+    const imgRatio = sigImg.width / sigImg.height;
+    let drawW = sigMaxW;
+    let drawH = sigH;
+    if (drawW / drawH > imgRatio) {
+      drawW = sigH * imgRatio;
+    } else {
+      drawH = sigMaxW / imgRatio;
+    }
+    page.drawImage(sigImg, {
+      x: sigX + (sigMaxW - drawW) / 2,
+      y: row1Bottom + (sigH - drawH) / 2,
+      width: drawW,
+      height: drawH,
+    });
+  }
 
-  const termsX = MARGIN + CONTENT_WIDTH * 0.13;
-  page.drawText("Terms & Conditions", {
-    x: termsX,
-    y,
-    size: 15,
-    font: serifItalic,
-    color: DARK,
-  });
-  y -= 24;
-
-  const fbCol1W = (CONTENT_WIDTH * 1.25) / 3.35;
-  const fbCol2W = CONTENT_WIDTH / 3.35;
-  const fbCol3W = (CONTENT_WIDTH * 1.1) / 3.35;
-  const fbCol1X = MARGIN;
-  const fbCol2X = MARGIN + fbCol1W;
-  const fbCol3X = fbCol2X + fbCol2W;
-
-  const fbTop = y;
-
-  page.drawText("CONTACT US:", {
-    x: fbCol1X,
-    y: fbTop,
-    size: 11,
-    font: boldFont,
-    color: DARK,
-  });
-  page.drawText(phone, {
-    x: fbCol1X + 26 + boldFont.widthOfTextAtSize("CONTACT US:", 11),
-    y: fbTop,
-    size: 11,
-    font,
-    color: DARK,
-  });
-
-  page.drawText("Thank you for choosing Infield Innovations!", {
-    x: fbCol1X,
-    y: fbTop - 40,
-    size: 11,
-    font: serifItalic,
-    color: DARK,
-  });
-
-  const stampCx = fbCol2X + fbCol2W / 2;
-  const stampCy = fbTop - 44;
+  // Stamp (centered between notes and signature)
+  const stampCx = notesX + notesW + 40 + mm(15);
+  const stampCy = row1Bottom + row1Height / 2;
   const stampR = 44;
   page.drawCircle({
     x: stampCx,
@@ -762,33 +844,67 @@ export async function generateQuotationPDF(
   });
   drawStampText("DIGITAL STAMP", -27, 6, boldFont, STAMP_RED);
 
-  const sigCenterX = fbCol3X + fbCol3W / 2;
-  if (sigImg) {
-    const sigMaxW = 140;
-    const sigMaxH = 50;
-    let sigW = sigMaxW;
-    let sigH = (sigImg.height / sigImg.width) * sigW;
-    if (sigH > sigMaxH) {
-      sigH = sigMaxH;
-      sigW = sigMaxH * (sigImg.width / sigImg.height);
-    }
-    page.drawImage(sigImg, {
-      x: sigCenterX - sigW / 2,
-      y: fbTop - sigH,
-      width: sigW,
-      height: sigH,
-    });
-  }
-  const sigLabel = quotation.createdBy || "";
-  if (sigLabel) {
-    page.drawText(sigLabel, {
-      x: sigCenterX - boldFont.widthOfTextAtSize(sigLabel, 12) / 2,
-      y: fbTop - 58,
-      size: 12,
-      font: boldFont,
+  // row2: flex row, space-between, align center, height 28mm
+  const row2Height = mm(28);
+  const row2Bottom = footerBottom;
+  const row2CenterY = row2Bottom + row2Height / 2;
+
+  // Left: contact + thank you (90mm wide, flex column, align flex-start, justify flex-end, gap 25px)
+  const ctW = mm(90);
+  const ctX = PAD_SIDE;
+  // Contact at bottom area
+  const contactY = row2Bottom + 10;
+  page.drawText("CONTACT US:", {
+    x: ctX,
+    y: contactY,
+    size: 10 * PT,
+    font: boldFont,
+    color: CONTACT_BLUE,
+  });
+  const contactLabelW = boldFont.widthOfTextAtSize("CONTACT US:", 10 * PT);
+  page.drawText(phone, {
+    x: ctX + contactLabelW + 5,
+    y: contactY,
+    size: 10 * PT,
+    font: font,
+    color: DARK,
+  });
+  // Thank you (above contact, gap 25px)
+  const thankY = contactY + 25 + 7.5 * PT;
+  const thankLines = [
+    "Thank you for choosing Infield Innovations.",
+    "We deliver exceptional results with unmatched expertise and dedication.",
+  ];
+  for (let i = 0; i < thankLines.length; i++) {
+    page.drawText(thankLines[i], {
+      x: ctX,
+      y: thankY + (thankLines.length - 1 - i) * (7.5 * PT * 1.2),
+      size: 7.5 * PT,
+      font: serifItalic,
       color: DARK,
     });
   }
+
+  // Right: created by (54mm wide, white text, centered, border-bottom white)
+  const cbW = mm(54);
+  const cbX = PAD_SIDE + CONTENT_WIDTH - 60 - cbW;
+  const cbY = row2CenterY - 12 * PT / 2;
+  const cbLabel = quotation.createdBy || "";
+  if (cbLabel) {
+    page.drawText(cbLabel, {
+      x: cbX + (cbW - boldFont.widthOfTextAtSize(cbLabel, 12 * PT)) / 2,
+      y: cbY,
+      size: 12 * PT,
+      font: serifBold,
+      color: WHITE,
+    });
+  }
+  page.drawLine({
+    start: { x: cbX, y: cbY - 4 },
+    end: { x: cbX + cbW, y: cbY - 4 },
+    thickness: 2,
+    color: WHITE,
+  });
 
   return doc.save();
 }
