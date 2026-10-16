@@ -11,7 +11,7 @@ export default function Footer({ quotation }: { quotation: Quotation }) {
     <footer className={styles.footer}>
       <div className={styles.row1}>
         <div className={styles.footerNotes}>
-          <strong>Notes</strong>
+          <strong>Notes:</strong>
           {quotation.notes && <span>{quotation.notes}</span>}
         </div>{" "}
         <Stamp date={formatStampDate(quotation.createdAt)} />
