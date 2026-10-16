@@ -279,7 +279,14 @@ export function printQuotation(quotation: Quotation): void {
 }
 
 /* === PDF === */
-import { PDFDocument, PDFFont, PDFPage, degrees, rgb, StandardFonts } from "pdf-lib";
+import {
+  PDFDocument,
+  PDFFont,
+  PDFPage,
+  degrees,
+  rgb,
+  StandardFonts,
+} from "pdf-lib";
 
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
@@ -545,9 +552,7 @@ export async function generateQuotationPDF(
   const titleY = headerTop - 17;
   page.drawText("QUOTATION", {
     x:
-      headerRightX +
-      headerRightW -
-      boldFont.widthOfTextAtSize("QUOTATION", 21),
+      headerRightX + headerRightW - boldFont.widthOfTextAtSize("QUOTATION", 21),
     y: titleY,
     size: 21,
     font: boldFont,
@@ -570,10 +575,7 @@ export async function generateQuotationPDF(
   const codeY = barcodeBottomY - 9 - 12;
   const codeText = quotation.quotationCode || "";
   page.drawText(codeText, {
-    x:
-      headerRightX +
-      headerRightW -
-      boldFont.widthOfTextAtSize(codeText, 15),
+    x: headerRightX + headerRightW - boldFont.widthOfTextAtSize(codeText, 15),
     y: codeY,
     size: 15,
     font: boldFont,

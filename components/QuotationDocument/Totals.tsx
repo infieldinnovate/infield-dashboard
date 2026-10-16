@@ -1,12 +1,32 @@
-import type { Quotation } from '../../types';
-import { calcQuotationTotals, formatCurrency } from '../../lib/documentUtils';
-import styles from './QuotationDocument.module.scss';
+import type { Quotation } from "../../types";
+import { calcQuotationTotals, formatCurrency } from "../../lib/documentUtils";
+import styles from "./QuotationDocument.module.scss";
 
 export default function Totals({ quotation }: { quotation: Quotation }) {
-  const { subtotal, tax, total } = calcQuotationTotals(quotation.items, quotation.taxRate);
-  return <div className={styles.totals}>
-    <div className={styles.totalsRow}><span>Sub-Total</span><strong>{formatCurrency(subtotal)}</strong></div>
-    <div className={styles.totalsRow}><span>Tax <em>({quotation.taxRate}%)</em></span><strong>{formatCurrency(tax)}</strong></div>
-    <div className={styles.grandTotal}><strong>Grand Total</strong><span>{formatCurrency(total)}</span></div>
-  </div>;
+  const { subtotal, tax, total } = calcQuotationTotals(
+    quotation.items,
+    quotation.taxRate,
+  );
+  return (
+    <table className={styles.totals}>
+      <tbody>
+        <tr className={styles.totalsRow}>
+          <td>Sub-Total</td>
+          <td>{formatCurrency(subtotal)}</td>
+        </tr>
+
+        <tr className={styles.totalsRow}>
+          <td>
+            Tax <em>({quotation.taxRate}%)</em>
+          </td>
+          <td>{formatCurrency(tax)}</td>
+        </tr>
+
+        <tr className={styles.grandTotal}>
+          <td>Grand Total</td>
+          <td>{formatCurrency(total)}</td>
+        </tr>
+      </tbody>
+    </table>
+  );
 }

@@ -29,7 +29,7 @@ export const defaultSettings: AppSettings = {
     currency: "KES - Kenya Shilling",
     currencySymbol: "KSh",
     currencyPosition: "before",
-    decimalPlaces: 0,
+    decimalPlaces: 2,
     thousandSeparator: ",",
     decimalSeparator: ".",
   },
