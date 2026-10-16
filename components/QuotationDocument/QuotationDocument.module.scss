@@ -177,6 +177,9 @@
   font-family: Georgia, "Times New Roman", serif;
   font-size: 12px;
 }
+.itemsTable tbody tr.evenRow td {
+  background: #f0f6f3;
+}
 .noColumn {
   width: 8%;
   text-align: center !important;

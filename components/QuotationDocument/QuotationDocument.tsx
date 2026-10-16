@@ -22,7 +22,6 @@ import {
   ITEMS_PER_MIDDLE_PAGE,
   ITEMS_PER_PAGE,
   paginateItems,
-  padToMinimum,
   formatAmount,
 } from "./documentHelpers";
 import type { QuotationDocumentActions, QuotationDocumentProps } from "./types";
@@ -102,7 +101,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-items-table thead th{height:34px;background:#36b976;color:#fff;font-size:15px;font-weight:800;border-right:2px solid #fff}
 .qt-items-table thead th:nth-child(3),.qt-items-table thead th:nth-child(4){background:#888b8b}
 .qt-items-table thead th:last-child{border-right:0}
-.qt-items-table tbody td{height:34px;font-family:Georgia,'Times New Roman',serif;font-size:13px}
+.qt-items-table tbody td{height:34px;font-family:Georgia,'Times New Roman',serif;font-size:13px}.qt-items-table tbody tr:nth-child(even) td{background:#f0f6f3}
 .qt-no-col{width:8%;text-align:center}
 .qt-unit-col{width:9%;text-align:center}
 .qt-qty-col{width:15%;text-align:center}
@@ -178,21 +177,19 @@ function buildQuotationHTML(quotation: Quotation): string {
     ? `<img src="${barcodeDataUrl}" alt="Barcode" class="qt-barcode-img" />`
     : "";
 
-  const buildItemsTable = (items: QuotationItem[], pad = false): string => {
-    const rows = pad ? padToMinimum(items, 15) : items;
+  const buildItemsTable = (items: QuotationItem[]): string => {
     return `<table class="qt-items-table"><thead><tr>
       <th class="qt-no-col">No.</th><th>Description</th><th class="qt-unit-col">Size</th>
       <th class="qt-qty-col">Qty</th><th class="qt-price-col">Price</th><th class="qt-total-col">Total</th>
-    </tr></thead><tbody>${rows
+    </tr></thead><tbody>${items
       .map((item, i) => {
-        const isBlank = !item.productName;
         return `<tr>
-        <td class="qt-no-col">${isBlank ? "" : i + 1}</td>
+        <td class="qt-no-col">${i + 1}</td>
         <td>${escapeHtml(item.productName)}</td>
-        <td class="qt-unit-col">${isBlank ? "" : escapeHtml(item.unit || "-")}</td>
-        <td class="qt-qty-col">${isBlank ? "" : item.quantity}</td>
-        <td class="qt-price-col">${isBlank ? "" : formatAmount(item.unitPrice)}</td>
-        <td class="qt-total-col">${isBlank ? "-" : formatAmount(calcItemTotal(item))}</td>
+        <td class="qt-unit-col">${escapeHtml(item.unit || "-")}</td>
+        <td class="qt-qty-col">${item.quantity}</td>
+        <td class="qt-price-col">${formatAmount(item.unitPrice)}</td>
+        <td class="qt-total-col">${formatAmount(calcItemTotal(item))}</td>
       </tr>`;
       })
       .join("")}</tbody></table>`;
@@ -265,7 +262,7 @@ function buildQuotationHTML(quotation: Quotation): string {
       const isFirst = i === 0;
       const isLast = i === pages.length - 1;
       if (isFirst)
-        return `<div class="qt-page">${headerFull}${billToFor}${dateBar}${buildItemsTable(pageItems, true)}${isLast ? buildTotals() + buildFooter() : ""}</div>`;
+        return `<div class="qt-page">${headerFull}${billToFor}${dateBar}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildFooter() : ""}</div>`;
       return `<div class="qt-page">${headerCompact}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildFooter() : ""}</div>`;
     })
     .join("");
@@ -304,6 +301,7 @@ const DARK = rgb(0.067, 0.067, 0.067);
 const GRAY = rgb(0.5, 0.5, 0.5);
 const LIGHT_GRAY = rgb(0.93, 0.93, 0.93);
 const WHITE = rgb(1, 1, 1);
+const EVEN_ROW_BG = rgb(0.941, 0.961, 0.953);
 
 export async function generateQuotationPDF(
   quotation: Quotation,
@@ -826,8 +824,16 @@ export async function generateQuotationPDF(
     for (let i = 0; i < items.length; i++) {
       ensureSpace(rowH + 4);
       const item = items[i];
-      const isBlank = !item.productName;
       const rowY = y - rowH;
+      if ((startIndex + i + 1) % 2 === 0) {
+        page.drawRectangle({
+          x: MARGIN,
+          y: rowY,
+          width: CONTENT_WIDTH,
+          height: rowH,
+          color: EVEN_ROW_BG,
+        });
+      }
       page.drawLine({
         start: { x: MARGIN, y: rowY },
         end: { x: PAGE_WIDTH - MARGIN, y: rowY },
@@ -835,97 +841,83 @@ export async function generateQuotationPDF(
         color: rgb(0.86, 0.9, 0.91),
       });
       const cellY = rowY + 7;
-      if (!isBlank) {
-        const noStr = String(startIndex + i + 1);
-        page.drawText(noStr, {
-          x:
-            colXs.no +
-            (colWidths.no - serifFont.widthOfTextAtSize(noStr, 11)) / 2,
-          y: cellY,
-          size: 11,
-          font: serifFont,
-          color: DARK,
-        });
-        let descText = item.productName;
-        const maxDescW = colWidths.desc - 16;
-        if (serifFont.widthOfTextAtSize(descText, 11) > maxDescW) {
-          while (
-            serifFont.widthOfTextAtSize(descText + "...", 11) > maxDescW &&
-            descText.length > 0
-          )
-            descText = descText.slice(0, -1);
-          descText += "...";
-        }
-        page.drawText(descText, {
-          x: colXs.desc + 8,
-          y: cellY,
-          size: 11,
-          font: serifFont,
-          color: DARK,
-        });
-        const unitStr = item.unit || "-";
-        page.drawText(unitStr, {
-          x:
-            colXs.unit +
-            (colWidths.unit - serifFont.widthOfTextAtSize(unitStr, 11)) / 2,
-          y: cellY,
-          size: 11,
-          font: serifFont,
-          color: DARK,
-        });
-        const qtyStr = String(item.quantity);
-        page.drawText(qtyStr, {
-          x:
-            colXs.qty +
-            (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 11)) / 2,
-          y: cellY,
-          size: 11,
-          font: serifFont,
-          color: DARK,
-        });
-        const priceStr = formatAmount(item.unitPrice);
-        page.drawText(priceStr, {
-          x:
-            colXs.price +
-            colWidths.price -
-            serifFont.widthOfTextAtSize(priceStr, 11) -
-            8,
-          y: cellY,
-          size: 11,
-          font: serifFont,
-          color: DARK,
-        });
-        const totalStr = formatAmount(calcItemTotal(item));
-        page.drawText(totalStr, {
-          x:
-            colXs.total +
-            colWidths.total -
-            serifFont.widthOfTextAtSize(totalStr, 11) -
-            8,
-          y: cellY,
-          size: 11,
-          font: serifFont,
-          color: DARK,
-        });
-      } else {
-        page.drawText("-", {
-          x:
-            colXs.total +
-            colWidths.total -
-            serifFont.widthOfTextAtSize("-", 11) -
-            8,
-          y: cellY,
-          size: 11,
-          font: serifFont,
-          color: DARK,
-        });
+      const noStr = String(startIndex + i + 1);
+      page.drawText(noStr, {
+        x:
+          colXs.no +
+          (colWidths.no - serifFont.widthOfTextAtSize(noStr, 11)) / 2,
+        y: cellY,
+        size: 11,
+        font: serifFont,
+        color: DARK,
+      });
+      let descText = item.productName;
+      const maxDescW = colWidths.desc - 16;
+      if (serifFont.widthOfTextAtSize(descText, 11) > maxDescW) {
+        while (
+          serifFont.widthOfTextAtSize(descText + "...", 11) > maxDescW &&
+          descText.length > 0
+        )
+          descText = descText.slice(0, -1);
+        descText += "...";
       }
+      page.drawText(descText, {
+        x: colXs.desc + 8,
+        y: cellY,
+        size: 11,
+        font: serifFont,
+        color: DARK,
+      });
+      const unitStr = item.unit || "-";
+      page.drawText(unitStr, {
+        x:
+          colXs.unit +
+          (colWidths.unit - serifFont.widthOfTextAtSize(unitStr, 11)) / 2,
+        y: cellY,
+        size: 11,
+        font: serifFont,
+        color: DARK,
+      });
+      const qtyStr = String(item.quantity);
+      page.drawText(qtyStr, {
+        x:
+          colXs.qty +
+          (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 11)) / 2,
+        y: cellY,
+        size: 11,
+        font: serifFont,
+        color: DARK,
+      });
+      const priceStr = formatAmount(item.unitPrice);
+      page.drawText(priceStr, {
+        x:
+          colXs.price +
+          colWidths.price -
+          serifFont.widthOfTextAtSize(priceStr, 11) -
+          8,
+        y: cellY,
+        size: 11,
+        font: serifFont,
+        color: DARK,
+      });
+      const totalStr = formatAmount(calcItemTotal(item));
+      page.drawText(totalStr, {
+        x:
+          colXs.total +
+          colWidths.total -
+          serifFont.widthOfTextAtSize(totalStr, 11) -
+          8,
+        y: cellY,
+        size: 11,
+        font: serifFont,
+        color: DARK,
+      });
       y = rowY;
     }
   };
 
   const firstPageItems = quotation.items.slice(0, ITEMS_PER_PAGE);
-  drawItems(padToMinimum(firstPageItems, 15), 0);
+  drawItems(firstPageItems, 0);
   const remainingItems = quotation.items.slice(ITEMS_PER_PAGE);
   for (let i = 0; i < remainingItems.length; i += ITEMS_PER_MIDDLE_PAGE) {
     addPage();

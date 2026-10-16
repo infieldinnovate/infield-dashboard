@@ -21,7 +21,7 @@ export default function A4Layout({ quotation }: { quotation: Quotation }) {
               <>
                 <BrandedHeader quotation={quotation} />
                 <BillToAndFor quotation={quotation} />
-                <ItemsTable items={pageItems} pad />
+                <ItemsTable items={pageItems} />
               </>
             ) : (
               <>
