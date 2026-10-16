@@ -1,24 +1,50 @@
-'use client';
+"use client";
 
-import JsBarcode from 'jsbarcode';
-import type { Quotation, QuotationItem } from '../../types';
-import { calcItemTotal, calcQuotationTotals, downloadPDF, fetchImageBytes, formatCurrency, formatDate, generateBarcode, generateBarcodePng, getSettings, statusLabels } from '../../lib/documentUtils';
-import A4Layout from './A4Layout';
-import ActionBar from './ActionBar';
-import StatusBadge from './StatusBadge';
-import { ITEMS_PER_MIDDLE_PAGE, ITEMS_PER_PAGE, paginateItems, padToMinimum, formatAmount } from './documentHelpers';
-import type { QuotationDocumentActions, QuotationDocumentProps } from './types';
-import styles from './QuotationDocument.module.scss';
+import JsBarcode from "jsbarcode";
+import type { Quotation, QuotationItem } from "../../types";
+import {
+  calcItemTotal,
+  calcQuotationTotals,
+  downloadPDF,
+  fetchImageBytes,
+  formatCurrency,
+  formatDate,
+  generateBarcode,
+  generateBarcodePng,
+  getSettings,
+  statusLabels,
+} from "../../lib/documentUtils";
+import A4Layout from "./A4Layout";
+import ActionBar from "./ActionBar";
+import StatusBadge from "./StatusBadge";
+import {
+  ITEMS_PER_MIDDLE_PAGE,
+  ITEMS_PER_PAGE,
+  paginateItems,
+  padToMinimum,
+  formatAmount,
+} from "./documentHelpers";
+import type { QuotationDocumentActions, QuotationDocumentProps } from "./types";
+import styles from "./QuotationDocument.module.scss";
 
-export type { QuotationDocumentActions } from './types';
+export type { QuotationDocumentActions } from "./types";
 
 /* === Main Component === */
-export default function QuotationDocument({ quotation, actions }: QuotationDocumentProps) {
+export default function QuotationDocument({
+  quotation,
+  actions,
+}: QuotationDocumentProps) {
   return (
     <div className={styles.previewContainer}>
       <div className={styles.previewToolbar}>
-        <div className={styles.previewStatus}><StatusBadge status={quotation.status} /></div>
-        <ActionBar actions={actions} onPrint={() => printQuotation(quotation)} onDownload={() => downloadQuotationPDF(quotation)} />
+        <div className={styles.previewStatus}>
+          <StatusBadge status={quotation.status} />
+        </div>
+        <ActionBar
+          actions={actions}
+          onPrint={() => printQuotation(quotation)}
+          onDownload={() => downloadQuotationPDF(quotation)}
+        />
       </div>
       <div className={styles.previewBody}>
         <A4Layout quotation={quotation} />
@@ -109,56 +135,72 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 `;
 
 function escapeHtml(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function generateBarcodeDataUrl(value: string): string {
   try {
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     JsBarcode(canvas, value, {
-      format: 'CODE128',
+      format: "CODE128",
       displayValue: false,
       height: 34,
       width: 1.35,
       margin: 0,
-      background: '#ffffff',
-      lineColor: '#111111',
+      background: "#ffffff",
+      lineColor: "#111111",
     });
-    return canvas.toDataURL('image/png');
+    return canvas.toDataURL("image/png");
   } catch {
-    return '';
+    return "";
   }
 }
 
 function buildQuotationHTML(quotation: Quotation): string {
   const settings = getSettings();
-  const { businessName, address, phone, email, website, logo } = settings.business;
-  const siteUrl = website || 'www.infield.co.ke';
+  const { businessName, address, phone, email, website, logo } =
+    settings.business;
+  const siteUrl = website || "www.infield.co.ke";
   const pages = paginateItems(quotation.items);
-  const signatureSrc = quotation.createdBySignature || settings.business.signature;
-  const barcodeValue = generateBarcode(quotation.userId, quotation.quotationCode);
+  const signatureSrc =
+    quotation.createdBySignature || settings.business.signature;
+  const barcodeValue = generateBarcode(
+    quotation.userId,
+    quotation.quotationCode,
+  );
   const barcodeDataUrl = generateBarcodeDataUrl(barcodeValue);
-  const barcodeImg = barcodeDataUrl ? `<img src="${barcodeDataUrl}" alt="Barcode" class="qt-barcode-img" />` : '';
+  const barcodeImg = barcodeDataUrl
+    ? `<img src="${barcodeDataUrl}" alt="Barcode" class="qt-barcode-img" />`
+    : "";
 
   const buildItemsTable = (items: QuotationItem[], pad = false): string => {
     const rows = pad ? padToMinimum(items, 15) : items;
     return `<table class="qt-items-table"><thead><tr>
       <th class="qt-no-col">No.</th><th>Description</th><th class="qt-unit-col">Size</th>
       <th class="qt-qty-col">Qty</th><th class="qt-price-col">Price</th><th class="qt-total-col">Total</th>
-    </tr></thead><tbody>${rows.map((item, i) => {
-      const isBlank = !item.productName;
-      return `<tr>
-        <td class="qt-no-col">${isBlank ? '' : i + 1}</td>
+    </tr></thead><tbody>${rows
+      .map((item, i) => {
+        const isBlank = !item.productName;
+        return `<tr>
+        <td class="qt-no-col">${isBlank ? "" : i + 1}</td>
         <td>${escapeHtml(item.productName)}</td>
-        <td class="qt-unit-col">${isBlank ? '' : escapeHtml(item.unit || '-')}</td>
-        <td class="qt-qty-col">${isBlank ? '' : item.quantity}</td>
-        <td class="qt-price-col">${isBlank ? '' : formatAmount(item.unitPrice)}</td>
-        <td class="qt-total-col">${isBlank ? '-' : formatAmount(calcItemTotal(item))}</td>
+        <td class="qt-unit-col">${isBlank ? "" : escapeHtml(item.unit || "-")}</td>
+        <td class="qt-qty-col">${isBlank ? "" : item.quantity}</td>
+        <td class="qt-price-col">${isBlank ? "" : formatAmount(item.unitPrice)}</td>
+        <td class="qt-total-col">${isBlank ? "-" : formatAmount(calcItemTotal(item))}</td>
       </tr>`;
-    }).join('')}</tbody></table>`;
+      })
+      .join("")}</tbody></table>`;
   };
 
-  const { subtotal, tax, total } = calcQuotationTotals(quotation.items, quotation.taxRate);
+  const { subtotal, tax, total } = calcQuotationTotals(
+    quotation.items,
+    quotation.taxRate,
+  );
   const buildTotals = () => `<div class="qt-totals">
     <div class="qt-totals-row"><span>Sub-Total</span><strong>${formatCurrency(subtotal)}</strong></div>
     <div class="qt-totals-row"><span>Tax <em>(${quotation.taxRate}%)</em></span><strong>${formatCurrency(tax)}</strong></div>
@@ -174,14 +216,16 @@ function buildQuotationHTML(quotation: Quotation): string {
     <span style="font-size:6px;font-weight:700;text-transform:uppercase;border-top:1px solid #c0392b;padding-top:1px;margin-top:2px">DIGITAL STAMP</span>
   </div></div>`;
 
-  const sigHTML = signatureSrc ? `<img src="${escapeHtml(signatureSrc)}" alt="Signature" style="max-width:140px;max-height:50px;object-fit:contain" />` : '';
+  const sigHTML = signatureSrc
+    ? `<img src="${escapeHtml(signatureSrc)}" alt="Signature" style="max-width:140px;max-height:50px;object-fit:contain" />`
+    : "";
 
   const buildFooter = () => `<footer class="qt-footer">
-    <div class="qt-footer-notes"><strong>Terms &amp; Conditions</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ''}</div>
+    <div class="qt-footer-notes"><strong>Terms &amp; Conditions</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ""}</div>
     <div class="qt-footer-bottom">
       <div class="qt-footer-thank">Thank you for choosing Infield Innovations!</div>
       ${stampHTML}
-      <div class="qt-authorised-sig">${sigHTML}<strong>${escapeHtml(quotation.createdBy || '')}</strong></div>
+      <div class="qt-authorised-sig">${sigHTML}<strong>${escapeHtml(quotation.createdBy || "")}</strong></div>
     </div>
     <div class="qt-footer-contact">CONTACT US: <span>${escapeHtml(phone)}</span></div>
   </footer>`;
@@ -191,14 +235,14 @@ function buildQuotationHTML(quotation: Quotation): string {
       <div class="qt-business-name">${escapeHtml(businessName)}</div>
       <div class="qt-business-details"><p>${escapeHtml(address)}</p><p><strong>Tel:</strong> ${escapeHtml(phone)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Website:</strong> ${escapeHtml(siteUrl)}</p></div>
     </div>
-    <div class="qt-title-block"><h1>QUOTATION</h1>${barcodeImg}<span class="qt-code-text">${escapeHtml(quotation.quotationCode || '')}</span><span class="qt-date-text"><strong>Date:</strong><span>${escapeHtml(formatDate(quotation.createdAt))}</span></span></div>
+    <div class="qt-title-block"><h1>QUOTATION</h1>${barcodeImg}<span class="qt-code-text">${escapeHtml(quotation.quotationCode || "")}</span><span class="qt-date-text"><strong>Date:</strong><span>${escapeHtml(formatDate(quotation.createdAt))}</span></span></div>
   </div><div class="qt-accent-bar"><span></span></div></header>`;
 
   const billToFor = `<div class="qt-billto-for">
     <div class="qt-billto">
       <span class="qt-billto-label">BILL TO:</span>
       <p class="qt-client-name">${escapeHtml(quotation.customerName)}</p>
-      ${quotation.customerAddress ? `<p class="qt-client-address">${escapeHtml(quotation.customerAddress)}</p>` : ''}
+      ${quotation.customerAddress ? `<p class="qt-client-address">${escapeHtml(quotation.customerAddress)}</p>` : ""}
       <p class="qt-client-contact">${escapeHtml(quotation.customerContact)}</p>
     </div>
     <div class="qt-for-section">
@@ -212,26 +256,31 @@ function buildQuotationHTML(quotation: Quotation): string {
     <div class="qt-date-item"><span class="qt-date-label">Status</span><span class="qt-date-value">${statusLabels[quotation.status] || quotation.status}</span></div>
   </div>`;
 
-  const headerCompact = `<div class="qt-compact-header"><div class="qt-compact-company">${escapeHtml(businessName)}</div><div class="qt-compact-info"><span class="qt-compact-title">QUOTATION</span><span class="qt-compact-number">${escapeHtml(quotation.quotationCode || '')}</span></div></div>`;
+  const headerCompact = `<div class="qt-compact-header"><div class="qt-compact-company">${escapeHtml(businessName)}</div><div class="qt-compact-info"><span class="qt-compact-title">QUOTATION</span><span class="qt-compact-number">${escapeHtml(quotation.quotationCode || "")}</span></div></div>`;
 
-  return pages.map((pageItems, i) => {
-    const isFirst = i === 0;
-    const isLast = i === pages.length - 1;
-    if (isFirst) return `<div class="qt-page">${headerFull}${billToFor}${dateBar}${buildItemsTable(pageItems, true)}${isLast ? buildTotals() + buildFooter() : ''}</div>`;
-    return `<div class="qt-page">${headerCompact}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildFooter() : ''}</div>`;
-  }).join('');
+  return pages
+    .map((pageItems, i) => {
+      const isFirst = i === 0;
+      const isLast = i === pages.length - 1;
+      if (isFirst)
+        return `<div class="qt-page">${headerFull}${billToFor}${dateBar}${buildItemsTable(pageItems, true)}${isLast ? buildTotals() + buildFooter() : ""}</div>`;
+      return `<div class="qt-page">${headerCompact}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildFooter() : ""}</div>`;
+    })
+    .join("");
 }
 
 export function printQuotation(quotation: Quotation): void {
-  const printWindow = window.open('', '_blank');
+  const printWindow = window.open("", "_blank");
   if (!printWindow) return;
-  printWindow.document.write(`<!DOCTYPE html><html><head><title>Quotation ${quotation.quotationCode || quotation.id}</title><style>${printStyles}</style></head><body>${buildQuotationHTML(quotation)}</body></html>`);
+  printWindow.document.write(
+    `<!DOCTYPE html><html><head><title>Quotation ${quotation.quotationCode || quotation.id}</title><style>${printStyles}</style></head><body>${buildQuotationHTML(quotation)}</body></html>`,
+  );
   printWindow.document.close();
   setTimeout(() => printWindow.print(), 300);
 }
 
 /* === PDF === */
-import { PDFDocument, PDFFont, PDFPage, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, PDFFont, PDFPage, rgb, StandardFonts } from "pdf-lib";
 
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
@@ -254,33 +303,69 @@ const GRAY = rgb(0.5, 0.5, 0.5);
 const LIGHT_GRAY = rgb(0.93, 0.93, 0.93);
 const WHITE = rgb(1, 1, 1);
 
-export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8Array> {
+export async function generateQuotationPDF(
+  quotation: Quotation,
+): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const font: PDFFont = await doc.embedFont(StandardFonts.Helvetica);
   const boldFont: PDFFont = await doc.embedFont(StandardFonts.HelveticaBold);
   const serifFont: PDFFont = await doc.embedFont(StandardFonts.TimesRoman);
 
   const settings = getSettings();
-  const { businessName, address, phone, email, website, logo } = settings.business;
-  const siteUrl = website || 'www.infield.co.ke';
-  const barcodeValue = generateBarcode(quotation.userId, quotation.quotationCode);
-  const signatureSrc = quotation.createdBySignature || settings.business.signature;
+  const { businessName, address, phone, email, website, logo } =
+    settings.business;
+  const siteUrl = website || "www.infield.co.ke";
+  const barcodeValue = generateBarcode(
+    quotation.userId,
+    quotation.quotationCode,
+  );
+  const signatureSrc =
+    quotation.createdBySignature || settings.business.signature;
 
   const logoBytes = await fetchImageBytes(logo);
   let logoImg = null;
-  if (logoBytes) { try { logoImg = await doc.embedPng(logoBytes); } catch { try { logoImg = await doc.embedJpg(logoBytes); } catch { /* ignore */ } } }
+  if (logoBytes) {
+    try {
+      logoImg = await doc.embedPng(logoBytes);
+    } catch {
+      try {
+        logoImg = await doc.embedJpg(logoBytes);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
 
   const barcodeBytes = await generateBarcodePng(barcodeValue);
   let barcodeImg = null;
-  if (barcodeBytes) { try { barcodeImg = await doc.embedPng(barcodeBytes); } catch { /* ignore */ } }
+  if (barcodeBytes) {
+    try {
+      barcodeImg = await doc.embedPng(barcodeBytes);
+    } catch {
+      /* ignore */
+    }
+  }
 
   const sigBytes = await fetchImageBytes(signatureSrc);
   let sigImg = null;
-  if (sigBytes) { try { sigImg = await doc.embedPng(sigBytes); } catch { /* try jpg */ try { sigImg = await doc.embedJpg(sigBytes); } catch { /* ignore */ } } }
+  if (sigBytes) {
+    try {
+      sigImg = await doc.embedPng(sigBytes);
+    } catch {
+      /* try jpg */ try {
+        sigImg = await doc.embedJpg(sigBytes);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
 
-  const col1X = MARGIN; const col1W = 166;
-  const col2X = col1X + col1W + 20; const col2W = 145;
-  const col3X = col2X + col2W + 20; const col3W = PAGE_WIDTH - MARGIN - col3X;
+  const col1X = MARGIN;
+  const col1W = 166;
+  const col2X = col1X + col1W + 20;
+  const col2W = 145;
+  const col3X = col2X + col2W + 20;
+  const col3W = PAGE_WIDTH - MARGIN - col3X;
 
   let page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
@@ -288,165 +373,533 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   const addPage = (): PDFPage => {
     page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     y = PAGE_HEIGHT - MARGIN;
-    page.drawText(businessName, { x: MARGIN, y, size: 12, font: boldFont, color: BRAND_GREEN });
+    page.drawText(businessName, {
+      x: MARGIN,
+      y,
+      size: 12,
+      font: boldFont,
+      color: BRAND_GREEN,
+    });
     const info = `QUOTATION  ${quotation.quotationCode || quotation.id}`;
-    page.drawText(info, { x: PAGE_WIDTH - MARGIN - boldFont.widthOfTextAtSize(info, 10), y, size: 10, font, color: GRAY });
+    page.drawText(info, {
+      x: PAGE_WIDTH - MARGIN - boldFont.widthOfTextAtSize(info, 10),
+      y,
+      size: 10,
+      font,
+      color: GRAY,
+    });
     y -= 16;
-    page.drawLine({ start: { x: MARGIN, y: y + 4 }, end: { x: PAGE_WIDTH - MARGIN, y: y + 4 }, thickness: 1, color: ACCENT_GREEN });
+    page.drawLine({
+      start: { x: MARGIN, y: y + 4 },
+      end: { x: PAGE_WIDTH - MARGIN, y: y + 4 },
+      thickness: 1,
+      color: ACCENT_GREEN,
+    });
     y -= 14;
     return page;
   };
 
-  const ensureSpace = (needed: number) => { if (y - needed < MARGIN + 60) addPage(); };
+  const ensureSpace = (needed: number) => {
+    if (y - needed < MARGIN + 60) addPage();
+  };
 
-  const drawWrappedTextAt = (text: string, x: number, maxWidth: number, size: number, f: PDFFont, color: ReturnType<typeof rgb>, startY: number): number => {
-    const words = text.split(' '); let line = ''; let cy = startY;
+  const drawWrappedTextAt = (
+    text: string,
+    x: number,
+    maxWidth: number,
+    size: number,
+    f: PDFFont,
+    color: ReturnType<typeof rgb>,
+    startY: number,
+  ): number => {
+    const words = text.split(" ");
+    let line = "";
+    let cy = startY;
     for (const word of words) {
       const testLine = line ? `${line} ${word}` : word;
-      if (f.widthOfTextAtSize(testLine, size) > maxWidth) { page.drawText(line, { x, y: cy, size, font: f, color }); cy -= size + 4; line = word; }
-      else { line = testLine; }
+      if (f.widthOfTextAtSize(testLine, size) > maxWidth) {
+        page.drawText(line, { x, y: cy, size, font: f, color });
+        cy -= size + 4;
+        line = word;
+      } else {
+        line = testLine;
+      }
     }
-    if (line) { page.drawText(line, { x, y: cy, size, font: f, color }); cy -= size + 4; }
+    if (line) {
+      page.drawText(line, { x, y: cy, size, font: f, color });
+      cy -= size + 4;
+    }
     return cy;
   };
 
   // Header
   const headerTop = PAGE_HEIGHT - MARGIN - 18;
   if (logoImg) {
-    const logoW = 120; const logoH = Math.min((logoImg.height / logoImg.width) * logoW, 42);
-    page.drawImage(logoImg, { x: col1X, y: headerTop - logoH + 4, width: logoW, height: logoH });
+    const logoW = 120;
+    const logoH = Math.min((logoImg.height / logoImg.width) * logoW, 42);
+    page.drawImage(logoImg, {
+      x: col1X,
+      y: headerTop - logoH + 4,
+      width: logoW,
+      height: logoH,
+    });
   }
   const bizY = headerTop - 58;
-  page.drawText(businessName, { x: col1X, y: bizY, size: 16, font: boldFont, color: BRAND_GREEN });
-  page.drawText(address, { x: col1X, y: bizY - 16, size: 8, font: serifFont, color: DARK });
-  page.drawText(`Tel: ${phone}`, { x: col1X, y: bizY - 28, size: 8, font: serifFont, color: DARK });
-  page.drawText(`Email: ${email}`, { x: col1X, y: bizY - 40, size: 8, font: serifFont, color: DARK });
-  page.drawText(`Website: ${siteUrl}`, { x: col1X, y: bizY - 52, size: 8, font: serifFont, color: DARK });
+  page.drawText(businessName, {
+    x: col1X,
+    y: bizY,
+    size: 16,
+    font: boldFont,
+    color: BRAND_GREEN,
+  });
+  page.drawText(address, {
+    x: col1X,
+    y: bizY - 16,
+    size: 8,
+    font: serifFont,
+    color: DARK,
+  });
+  page.drawText(`Tel: ${phone}`, {
+    x: col1X,
+    y: bizY - 28,
+    size: 8,
+    font: serifFont,
+    color: DARK,
+  });
+  page.drawText(`Email: ${email}`, {
+    x: col1X,
+    y: bizY - 40,
+    size: 8,
+    font: serifFont,
+    color: DARK,
+  });
+  page.drawText(`Website: ${siteUrl}`, {
+    x: col1X,
+    y: bizY - 52,
+    size: 8,
+    font: serifFont,
+    color: DARK,
+  });
 
-  const titleText = 'QUOTATION';
-  page.drawText(titleText, { x: col2X + (col2W - boldFont.widthOfTextAtSize(titleText, 24)) / 2, y: headerTop - 6, size: 24, font: boldFont, color: BRAND_GREEN });
-  const codeText = quotation.quotationCode || '';
-  page.drawText(codeText, { x: col2X + (col2W - boldFont.widthOfTextAtSize(codeText, 14)) / 2, y: headerTop - 28, size: 14, font: boldFont, color: BRAND_GREEN });
+  const titleText = "QUOTATION";
+  page.drawText(titleText, {
+    x: col2X + (col2W - boldFont.widthOfTextAtSize(titleText, 24)) / 2,
+    y: headerTop - 6,
+    size: 24,
+    font: boldFont,
+    color: BRAND_GREEN,
+  });
+  const codeText = quotation.quotationCode || "";
+  page.drawText(codeText, {
+    x: col2X + (col2W - boldFont.widthOfTextAtSize(codeText, 14)) / 2,
+    y: headerTop - 28,
+    size: 14,
+    font: boldFont,
+    color: BRAND_GREEN,
+  });
   const barcodeText = barcodeValue;
-  page.drawText(barcodeText, { x: col2X + (col2W - font.widthOfTextAtSize(barcodeText, 7)) / 2, y: headerTop - 44, size: 7, font: font, color: GRAY });
+  page.drawText(barcodeText, {
+    x: col2X + (col2W - font.widthOfTextAtSize(barcodeText, 7)) / 2,
+    y: headerTop - 44,
+    size: 7,
+    font: font,
+    color: GRAY,
+  });
   if (barcodeImg) {
-    const bw = 100; const bh = (barcodeImg.height / barcodeImg.width) * bw;
-    page.drawImage(barcodeImg, { x: col2X + (col2W - bw) / 2, y: headerTop - 44 - bh - 2, width: bw, height: bh });
+    const bw = 100;
+    const bh = (barcodeImg.height / barcodeImg.width) * bw;
+    page.drawImage(barcodeImg, {
+      x: col2X + (col2W - bw) / 2,
+      y: headerTop - 44 - bh - 2,
+      width: bw,
+      height: bh,
+    });
   }
 
   const contactTop = headerTop + 8;
-  const contactH = 62; const contactBottom = contactTop - contactH;
-  page.drawRectangle({ x: col3X, y: contactBottom, width: 4, height: contactH + 8, color: DARK });
-  page.drawRectangle({ x: col3X + col3W - 36, y: contactTop + 10, width: 36, height: 14, color: ACCENT_GRAY });
-  const cLabelX = col3X + 4 + 14; const cValX = cLabelX + 18;
+  const contactH = 62;
+  const contactBottom = contactTop - contactH;
+  page.drawRectangle({
+    x: col3X,
+    y: contactBottom,
+    width: 4,
+    height: contactH + 8,
+    color: DARK,
+  });
+  page.drawRectangle({
+    x: col3X + col3W - 36,
+    y: contactTop + 10,
+    width: 36,
+    height: 14,
+    color: ACCENT_GRAY,
+  });
+  const cLabelX = col3X + 4 + 14;
+  const cValX = cLabelX + 18;
   let cy = contactTop;
-  page.drawText('T.', { x: cLabelX, y: cy, size: 11, font: boldFont, color: BRAND_GREEN });
+  page.drawText("T.", {
+    x: cLabelX,
+    y: cy,
+    size: 11,
+    font: boldFont,
+    color: BRAND_GREEN,
+  });
   page.drawText(phone, { x: cValX, y: cy, size: 9, font: font, color: DARK });
-  page.drawLine({ start: { x: cLabelX, y: cy - 4 }, end: { x: col3X + col3W, y: cy - 4 }, thickness: 0.5, color: ACCENT_GRAY });
+  page.drawLine({
+    start: { x: cLabelX, y: cy - 4 },
+    end: { x: col3X + col3W, y: cy - 4 },
+    thickness: 0.5,
+    color: ACCENT_GRAY,
+  });
   cy -= 15;
-  page.drawText('W.', { x: cLabelX, y: cy, size: 11, font: boldFont, color: BRAND_GREEN });
+  page.drawText("W.", {
+    x: cLabelX,
+    y: cy,
+    size: 11,
+    font: boldFont,
+    color: BRAND_GREEN,
+  });
   page.drawText(siteUrl, { x: cValX, y: cy, size: 9, font: font, color: DARK });
-  page.drawLine({ start: { x: cLabelX, y: cy - 4 }, end: { x: col3X + col3W, y: cy - 4 }, thickness: 0.5, color: ACCENT_GRAY });
+  page.drawLine({
+    start: { x: cLabelX, y: cy - 4 },
+    end: { x: col3X + col3W, y: cy - 4 },
+    thickness: 0.5,
+    color: ACCENT_GRAY,
+  });
   cy -= 15;
-  page.drawText('E.', { x: cLabelX, y: cy, size: 11, font: boldFont, color: BRAND_GREEN });
+  page.drawText("E.", {
+    x: cLabelX,
+    y: cy,
+    size: 11,
+    font: boldFont,
+    color: BRAND_GREEN,
+  });
   page.drawText(email, { x: cValX, y: cy, size: 9, font: font, color: DARK });
-  page.drawLine({ start: { x: cLabelX, y: cy - 4 }, end: { x: col3X + col3W, y: cy - 4 }, thickness: 0.5, color: ACCENT_GRAY });
+  page.drawLine({
+    start: { x: cLabelX, y: cy - 4 },
+    end: { x: col3X + col3W, y: cy - 4 },
+    thickness: 0.5,
+    color: ACCENT_GRAY,
+  });
   cy -= 15;
-  page.drawText(address, { x: cLabelX, y: cy, size: 9, font: font, color: DARK });
+  page.drawText(address, {
+    x: cLabelX,
+    y: cy,
+    size: 9,
+    font: font,
+    color: DARK,
+  });
 
   const headerBottomY = Math.min(bizY - 40, cy - 12);
-  page.drawLine({ start: { x: MARGIN, y: headerBottomY }, end: { x: PAGE_WIDTH - MARGIN, y: headerBottomY }, thickness: 3, color: LOGO_BLUE });
+  page.drawLine({
+    start: { x: MARGIN, y: headerBottomY },
+    end: { x: PAGE_WIDTH - MARGIN, y: headerBottomY },
+    thickness: 3,
+    color: LOGO_BLUE,
+  });
   const accentY = headerBottomY - 10;
-  page.drawRectangle({ x: MARGIN, y: accentY - 8, width: CONTENT_WIDTH, height: 8, color: ACCENT_GREEN });
-  page.drawRectangle({ x: MARGIN, y: accentY - 8, width: CONTENT_WIDTH * 0.07, height: 8, color: ACCENT_GRAY });
+  page.drawRectangle({
+    x: MARGIN,
+    y: accentY - 8,
+    width: CONTENT_WIDTH,
+    height: 8,
+    color: ACCENT_GREEN,
+  });
+  page.drawRectangle({
+    x: MARGIN,
+    y: accentY - 8,
+    width: CONTENT_WIDTH * 0.07,
+    height: 8,
+    color: ACCENT_GRAY,
+  });
 
   // Bill To + For
-  const bfHeight = 50; const bfY = accentY - 18; const halfW = CONTENT_WIDTH / 2;
-  page.drawRectangle({ x: MARGIN, y: bfY - bfHeight, width: halfW, height: bfHeight, color: FOR_CONTENT_BG });
-  page.drawText('BILL TO:', { x: MARGIN + 14, y: bfY - 12, size: 11, font: boldFont, color: BRAND_GREEN });
-  page.drawText(quotation.customerName, { x: MARGIN + 14, y: bfY - 26, size: 12, font: boldFont, color: DARK });
+  const bfHeight = 50;
+  const bfY = accentY - 18;
+  const halfW = CONTENT_WIDTH / 2;
+  page.drawRectangle({
+    x: MARGIN,
+    y: bfY - bfHeight,
+    width: halfW,
+    height: bfHeight,
+    color: FOR_CONTENT_BG,
+  });
+  page.drawText("BILL TO:", {
+    x: MARGIN + 14,
+    y: bfY - 12,
+    size: 11,
+    font: boldFont,
+    color: BRAND_GREEN,
+  });
+  page.drawText(quotation.customerName, {
+    x: MARGIN + 14,
+    y: bfY - 26,
+    size: 12,
+    font: boldFont,
+    color: DARK,
+  });
   let addrY = bfY - 38;
-  if (quotation.customerAddress) { page.drawText(quotation.customerAddress, { x: MARGIN + 14, y: addrY, size: 9, font: font, color: GRAY }); addrY -= 12; }
-  page.drawText(quotation.customerContact, { x: MARGIN + 14, y: addrY, size: 9, font: font, color: GRAY });
-  page.drawRectangle({ x: MARGIN + halfW, y: bfY - bfHeight, width: halfW, height: bfHeight, color: FOR_CONTENT_BG });
-  page.drawRectangle({ x: MARGIN + halfW, y: bfY - bfHeight, width: 74, height: bfHeight, color: FOR_LABEL_BG });
-  page.drawText('FOR:', { x: MARGIN + halfW + 14, y: bfY - 12, size: 11, font: font, color: DARK });
-  let forDisplay = quotation.quoteFor || '';
+  if (quotation.customerAddress) {
+    page.drawText(quotation.customerAddress, {
+      x: MARGIN + 14,
+      y: addrY,
+      size: 9,
+      font: font,
+      color: GRAY,
+    });
+    addrY -= 12;
+  }
+  page.drawText(quotation.customerContact, {
+    x: MARGIN + 14,
+    y: addrY,
+    size: 9,
+    font: font,
+    color: GRAY,
+  });
+  page.drawRectangle({
+    x: MARGIN + halfW,
+    y: bfY - bfHeight,
+    width: halfW,
+    height: bfHeight,
+    color: FOR_CONTENT_BG,
+  });
+  page.drawRectangle({
+    x: MARGIN + halfW,
+    y: bfY - bfHeight,
+    width: 74,
+    height: bfHeight,
+    color: FOR_LABEL_BG,
+  });
+  page.drawText("FOR:", {
+    x: MARGIN + halfW + 14,
+    y: bfY - 12,
+    size: 11,
+    font: font,
+    color: DARK,
+  });
+  let forDisplay = quotation.quoteFor || "";
   const maxForW = halfW - 28;
   if (font.widthOfTextAtSize(forDisplay, 11) > maxForW) {
-    while (font.widthOfTextAtSize(forDisplay + '...', 11) > maxForW && forDisplay.length > 0) forDisplay = forDisplay.slice(0, -1);
-    forDisplay += '...';
+    while (
+      font.widthOfTextAtSize(forDisplay + "...", 11) > maxForW &&
+      forDisplay.length > 0
+    )
+      forDisplay = forDisplay.slice(0, -1);
+    forDisplay += "...";
   }
-  page.drawText(forDisplay, { x: MARGIN + halfW + 88, y: bfY - 28, size: 11, font: font, color: DARK });
+  page.drawText(forDisplay, {
+    x: MARGIN + halfW + 88,
+    y: bfY - 28,
+    size: 11,
+    font: font,
+    color: DARK,
+  });
 
   y = bfY - bfHeight - 42;
 
   // Items table
   const colWidths: Record<string, number> = {
-    no: CONTENT_WIDTH * 0.08, unit: CONTENT_WIDTH * 0.09, qty: CONTENT_WIDTH * 0.15,
-    price: CONTENT_WIDTH * 0.12, total: CONTENT_WIDTH * 0.16,
+    no: CONTENT_WIDTH * 0.08,
+    unit: CONTENT_WIDTH * 0.09,
+    qty: CONTENT_WIDTH * 0.15,
+    price: CONTENT_WIDTH * 0.12,
+    total: CONTENT_WIDTH * 0.16,
   };
-  colWidths.desc = CONTENT_WIDTH - colWidths.no - colWidths.unit - colWidths.qty - colWidths.price - colWidths.total;
+  colWidths.desc =
+    CONTENT_WIDTH -
+    colWidths.no -
+    colWidths.unit -
+    colWidths.qty -
+    colWidths.price -
+    colWidths.total;
   const colXs: Record<string, number> = {
-    no: MARGIN, desc: MARGIN + colWidths.no, unit: MARGIN + colWidths.no + colWidths.desc,
+    no: MARGIN,
+    desc: MARGIN + colWidths.no,
+    unit: MARGIN + colWidths.no + colWidths.desc,
     qty: MARGIN + colWidths.no + colWidths.desc + colWidths.unit,
-    price: MARGIN + colWidths.no + colWidths.desc + colWidths.unit + colWidths.qty,
-    total: MARGIN + colWidths.no + colWidths.desc + colWidths.unit + colWidths.qty + colWidths.price,
+    price:
+      MARGIN + colWidths.no + colWidths.desc + colWidths.unit + colWidths.qty,
+    total:
+      MARGIN +
+      colWidths.no +
+      colWidths.desc +
+      colWidths.unit +
+      colWidths.qty +
+      colWidths.price,
   };
 
   const drawTableHeader = () => {
-    const thH = 24; const thY = y - thH;
-    page.drawRectangle({ x: MARGIN, y: thY, width: CONTENT_WIDTH, height: thH, color: TABLE_GREEN });
-    page.drawRectangle({ x: colXs.unit, y: thY, width: colWidths.unit + colWidths.qty, height: thH, color: TABLE_GRAY });
+    const thH = 24;
+    const thY = y - thH;
+    page.drawRectangle({
+      x: MARGIN,
+      y: thY,
+      width: CONTENT_WIDTH,
+      height: thH,
+      color: TABLE_GREEN,
+    });
+    page.drawRectangle({
+      x: colXs.unit,
+      y: thY,
+      width: colWidths.unit + colWidths.qty,
+      height: thH,
+      color: TABLE_GRAY,
+    });
     const sepW = 1.5;
-    [colXs.desc, colXs.unit, colXs.qty, colXs.price, colXs.total].forEach(sx => page.drawRectangle({ x: sx - sepW / 2, y: thY, width: sepW, height: thH, color: WHITE }));
+    [colXs.desc, colXs.unit, colXs.qty, colXs.price, colXs.total].forEach(
+      (sx) =>
+        page.drawRectangle({
+          x: sx - sepW / 2,
+          y: thY,
+          width: sepW,
+          height: thH,
+          color: WHITE,
+        }),
+    );
     const headers = [
-      { text: 'No.', x: colXs.no, w: colWidths.no, align: 'center' as const },
-      { text: 'Description', x: colXs.desc, w: colWidths.desc, align: 'left' as const },
-      { text: 'Size', x: colXs.unit, w: colWidths.unit, align: 'center' as const },
-      { text: 'Qty', x: colXs.qty, w: colWidths.qty, align: 'center' as const },
-      { text: 'Price', x: colXs.price, w: colWidths.price, align: 'right' as const },
-      { text: 'Total', x: colXs.total, w: colWidths.total, align: 'right' as const },
+      { text: "No.", x: colXs.no, w: colWidths.no, align: "center" as const },
+      {
+        text: "Description",
+        x: colXs.desc,
+        w: colWidths.desc,
+        align: "left" as const,
+      },
+      {
+        text: "Size",
+        x: colXs.unit,
+        w: colWidths.unit,
+        align: "center" as const,
+      },
+      { text: "Qty", x: colXs.qty, w: colWidths.qty, align: "center" as const },
+      {
+        text: "Price",
+        x: colXs.price,
+        w: colWidths.price,
+        align: "right" as const,
+      },
+      {
+        text: "Total",
+        x: colXs.total,
+        w: colWidths.total,
+        align: "right" as const,
+      },
     ];
     for (const h of headers) {
       const tw = boldFont.widthOfTextAtSize(h.text, 13);
       let tx: number;
-      if (h.align === 'center') tx = h.x + (h.w - tw) / 2;
-      else if (h.align === 'right') tx = h.x + h.w - tw - 8;
+      if (h.align === "center") tx = h.x + (h.w - tw) / 2;
+      else if (h.align === "right") tx = h.x + h.w - tw - 8;
       else tx = h.x + 8;
-      page.drawText(h.text, { x: tx, y: thY + 8, size: 13, font: boldFont, color: WHITE });
+      page.drawText(h.text, {
+        x: tx,
+        y: thY + 8,
+        size: 13,
+        font: boldFont,
+        color: WHITE,
+      });
     }
     y = thY;
   };
 
   const drawItems = (items: QuotationItem[], startIndex: number) => {
-    drawTableHeader(); y -= 2;
+    drawTableHeader();
+    y -= 2;
     const rowH = 20;
     for (let i = 0; i < items.length; i++) {
       ensureSpace(rowH + 4);
-      const item = items[i]; const isBlank = !item.productName;
+      const item = items[i];
+      const isBlank = !item.productName;
       const rowY = y - rowH;
-      page.drawLine({ start: { x: MARGIN, y: rowY }, end: { x: PAGE_WIDTH - MARGIN, y: rowY }, thickness: 0.5, color: rgb(0.86, 0.90, 0.91) });
+      page.drawLine({
+        start: { x: MARGIN, y: rowY },
+        end: { x: PAGE_WIDTH - MARGIN, y: rowY },
+        thickness: 0.5,
+        color: rgb(0.86, 0.9, 0.91),
+      });
       const cellY = rowY + 7;
       if (!isBlank) {
         const noStr = String(startIndex + i + 1);
-        page.drawText(noStr, { x: colXs.no + (colWidths.no - serifFont.widthOfTextAtSize(noStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
-        let descText = item.productName; const maxDescW = colWidths.desc - 16;
+        page.drawText(noStr, {
+          x:
+            colXs.no +
+            (colWidths.no - serifFont.widthOfTextAtSize(noStr, 11)) / 2,
+          y: cellY,
+          size: 11,
+          font: serifFont,
+          color: DARK,
+        });
+        let descText = item.productName;
+        const maxDescW = colWidths.desc - 16;
         if (serifFont.widthOfTextAtSize(descText, 11) > maxDescW) {
-          while (serifFont.widthOfTextAtSize(descText + '...', 11) > maxDescW && descText.length > 0) descText = descText.slice(0, -1);
-          descText += '...';
+          while (
+            serifFont.widthOfTextAtSize(descText + "...", 11) > maxDescW &&
+            descText.length > 0
+          )
+            descText = descText.slice(0, -1);
+          descText += "...";
         }
-        page.drawText(descText, { x: colXs.desc + 8, y: cellY, size: 11, font: serifFont, color: DARK });
-        const unitStr = item.unit || '-';
-        page.drawText(unitStr, { x: colXs.unit + (colWidths.unit - serifFont.widthOfTextAtSize(unitStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
+        page.drawText(descText, {
+          x: colXs.desc + 8,
+          y: cellY,
+          size: 11,
+          font: serifFont,
+          color: DARK,
+        });
+        const unitStr = item.unit || "-";
+        page.drawText(unitStr, {
+          x:
+            colXs.unit +
+            (colWidths.unit - serifFont.widthOfTextAtSize(unitStr, 11)) / 2,
+          y: cellY,
+          size: 11,
+          font: serifFont,
+          color: DARK,
+        });
         const qtyStr = String(item.quantity);
-        page.drawText(qtyStr, { x: colXs.qty + (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 11)) / 2, y: cellY, size: 11, font: serifFont, color: DARK });
+        page.drawText(qtyStr, {
+          x:
+            colXs.qty +
+            (colWidths.qty - serifFont.widthOfTextAtSize(qtyStr, 11)) / 2,
+          y: cellY,
+          size: 11,
+          font: serifFont,
+          color: DARK,
+        });
         const priceStr = formatAmount(item.unitPrice);
-        page.drawText(priceStr, { x: colXs.price + colWidths.price - serifFont.widthOfTextAtSize(priceStr, 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
+        page.drawText(priceStr, {
+          x:
+            colXs.price +
+            colWidths.price -
+            serifFont.widthOfTextAtSize(priceStr, 11) -
+            8,
+          y: cellY,
+          size: 11,
+          font: serifFont,
+          color: DARK,
+        });
         const totalStr = formatAmount(calcItemTotal(item));
-        page.drawText(totalStr, { x: colXs.total + colWidths.total - serifFont.widthOfTextAtSize(totalStr, 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
+        page.drawText(totalStr, {
+          x:
+            colXs.total +
+            colWidths.total -
+            serifFont.widthOfTextAtSize(totalStr, 11) -
+            8,
+          y: cellY,
+          size: 11,
+          font: serifFont,
+          color: DARK,
+        });
       } else {
-        page.drawText('-', { x: colXs.total + colWidths.total - serifFont.widthOfTextAtSize('-', 11) - 8, y: cellY, size: 11, font: serifFont, color: DARK });
+        page.drawText("-", {
+          x:
+            colXs.total +
+            colWidths.total -
+            serifFont.widthOfTextAtSize("-", 11) -
+            8,
+          y: cellY,
+          size: 11,
+          font: serifFont,
+          color: DARK,
+        });
       }
       y = rowY;
     }
@@ -455,68 +908,216 @@ export async function generateQuotationPDF(quotation: Quotation): Promise<Uint8A
   const firstPageItems = quotation.items.slice(0, ITEMS_PER_PAGE);
   drawItems(padToMinimum(firstPageItems, 15), 0);
   const remainingItems = quotation.items.slice(ITEMS_PER_PAGE);
-  for (let i = 0; i < remainingItems.length; i += ITEMS_PER_MIDDLE_PAGE) { addPage(); drawItems(remainingItems.slice(i, i + ITEMS_PER_MIDDLE_PAGE), i + ITEMS_PER_PAGE); }
+  for (let i = 0; i < remainingItems.length; i += ITEMS_PER_MIDDLE_PAGE) {
+    addPage();
+    drawItems(
+      remainingItems.slice(i, i + ITEMS_PER_MIDDLE_PAGE),
+      i + ITEMS_PER_PAGE,
+    );
+  }
 
   // Totals — flow from current y position (works on any page)
   y -= 30;
-  const totalsW = CONTENT_WIDTH * 0.52; const totalsX = PAGE_WIDTH - MARGIN - totalsW;
+  const totalsW = CONTENT_WIDTH * 0.52;
+  const totalsX = PAGE_WIDTH - MARGIN - totalsW;
   const drawTotalsRow = (label: string, value: string) => {
-    const rowH = 28; const rowY = y - rowH;
-    page.drawText(label, { x: totalsX + 14, y: rowY + 8, size: 11, font: font, color: GRAY });
+    const rowH = 28;
+    const rowY = y - rowH;
+    page.drawText(label, {
+      x: totalsX + 14,
+      y: rowY + 8,
+      size: 11,
+      font: font,
+      color: GRAY,
+    });
     const vw = font.widthOfTextAtSize(value, 11);
-    page.drawText(value, { x: totalsX + totalsW - vw - 14, y: rowY + 8, size: 11, font: font, color: DARK });
-    page.drawLine({ start: { x: totalsX, y: rowY }, end: { x: totalsX + totalsW, y: rowY }, thickness: 1, color: rgb(0.82, 0.82, 0.82) });
+    page.drawText(value, {
+      x: totalsX + totalsW - vw - 14,
+      y: rowY + 8,
+      size: 11,
+      font: font,
+      color: DARK,
+    });
+    page.drawLine({
+      start: { x: totalsX, y: rowY },
+      end: { x: totalsX + totalsW, y: rowY },
+      thickness: 1,
+      color: rgb(0.82, 0.82, 0.82),
+    });
     y = rowY;
   };
-  const { subtotal, tax, total } = calcQuotationTotals(quotation.items, quotation.taxRate);
-  drawTotalsRow('Sub-Total', formatCurrency(subtotal));
+  const { subtotal, tax, total } = calcQuotationTotals(
+    quotation.items,
+    quotation.taxRate,
+  );
+  drawTotalsRow("Sub-Total", formatCurrency(subtotal));
   drawTotalsRow(`Tax (${quotation.taxRate}%)`, formatCurrency(tax));
   y -= 4;
-  const gtH = 32; const gtY = y - gtH;
-  const gtLabelW = (totalsW * 1.15) / 2.15; const gtValW = totalsW - gtLabelW;
-  page.drawRectangle({ x: totalsX, y: gtY, width: gtLabelW, height: gtH, color: TABLE_GREEN });
-  page.drawText('Grand Total', { x: totalsX + 14, y: gtY + 9, size: 14, font: boldFont, color: WHITE });
-  page.drawRectangle({ x: totalsX + gtLabelW, y: gtY, width: gtValW, height: gtH, color: GRAND_TOTAL_BG });
+  const gtH = 32;
+  const gtY = y - gtH;
+  const gtLabelW = (totalsW * 1.15) / 2.15;
+  const gtValW = totalsW - gtLabelW;
+  page.drawRectangle({
+    x: totalsX,
+    y: gtY,
+    width: gtLabelW,
+    height: gtH,
+    color: TABLE_GREEN,
+  });
+  page.drawText("Grand Total", {
+    x: totalsX + 14,
+    y: gtY + 9,
+    size: 14,
+    font: boldFont,
+    color: WHITE,
+  });
+  page.drawRectangle({
+    x: totalsX + gtLabelW,
+    y: gtY,
+    width: gtValW,
+    height: gtH,
+    color: GRAND_TOTAL_BG,
+  });
   const gtValStr = formatCurrency(total);
-  page.drawText(gtValStr, { x: totalsX + gtLabelW + gtValW - boldFont.widthOfTextAtSize(gtValStr, 14) - 14, y: gtY + 9, size: 14, font: boldFont, color: DARK });
+  page.drawText(gtValStr, {
+    x:
+      totalsX +
+      gtLabelW +
+      gtValW -
+      boldFont.widthOfTextAtSize(gtValStr, 14) -
+      14,
+    y: gtY + 9,
+    size: 14,
+    font: boldFont,
+    color: DARK,
+  });
   y = gtY;
 
   // Footer — flows right after totals on whatever page we're on
   ensureSpace(110);
   let fy = y - 20;
-  page.drawText('Terms & Conditions:', { x: MARGIN + 70, y: fy, size: 12, font: boldFont, color: DARK });
+  page.drawText("Terms & Conditions:", {
+    x: MARGIN + 70,
+    y: fy,
+    size: 12,
+    font: boldFont,
+    color: DARK,
+  });
   fy -= 16;
-  if (quotation.notes) fy = drawWrappedTextAt(quotation.notes, MARGIN, CONTENT_WIDTH, 10, font, DARK, fy);
+  if (quotation.notes)
+    fy = drawWrappedTextAt(
+      quotation.notes,
+      MARGIN,
+      CONTENT_WIDTH,
+      10,
+      font,
+      DARK,
+      fy,
+    );
   fy -= 20;
   const bottomY = Math.max(fy, MARGIN + 50);
-  page.drawText('THANK YOU FOR CHOOSING INFIELD INNOVATIONS!', { x: MARGIN, y: bottomY, size: 11, font: boldFont, color: BRAND_GREEN });
+  page.drawText("THANK YOU FOR CHOOSING INFIELD INNOVATIONS!", {
+    x: MARGIN,
+    y: bottomY,
+    size: 11,
+    font: boldFont,
+    color: BRAND_GREEN,
+  });
   // Stamp
-  const stampCx = PAGE_WIDTH / 2; const stampCy = bottomY + 8; const stampR = 30;
-  page.drawCircle({ x: stampCx, y: stampCy, size: stampR, borderWidth: 2, borderColor: STAMP_RED, color: WHITE });
-  page.drawText('INFIELD', { x: stampCx - boldFont.widthOfTextAtSize('INFIELD', 8) / 2, y: stampCy + 10, size: 8, font: boldFont, color: STAMP_RED });
-  page.drawText('* * * *', { x: stampCx - font.widthOfTextAtSize('* * * *', 5) / 2, y: stampCy + 1, size: 5, font: font, color: STAMP_RED });
-  page.drawText('+254 702 393 677', { x: stampCx - font.widthOfTextAtSize('+254 702 393 677', 5) / 2, y: stampCy - 7, size: 5, font: font, color: STAMP_RED });
-  page.drawLine({ start: { x: stampCx - 18, y: stampCy - 12 }, end: { x: stampCx + 18, y: stampCy - 12 }, thickness: 0.5, color: STAMP_RED });
-  page.drawText('DIGITAL STAMP', { x: stampCx - boldFont.widthOfTextAtSize('DIGITAL STAMP', 4) / 2, y: stampCy - 18, size: 4, font: boldFont, color: STAMP_RED });
+  const stampCx = PAGE_WIDTH / 2;
+  const stampCy = bottomY + 8;
+  const stampR = 30;
+  page.drawCircle({
+    x: stampCx,
+    y: stampCy,
+    size: stampR,
+    borderWidth: 2,
+    borderColor: STAMP_RED,
+    color: WHITE,
+  });
+  page.drawText("INFIELD", {
+    x: stampCx - boldFont.widthOfTextAtSize("INFIELD", 8) / 2,
+    y: stampCy + 10,
+    size: 8,
+    font: boldFont,
+    color: STAMP_RED,
+  });
+  page.drawText("* * * *", {
+    x: stampCx - font.widthOfTextAtSize("* * * *", 5) / 2,
+    y: stampCy + 1,
+    size: 5,
+    font: font,
+    color: STAMP_RED,
+  });
+  page.drawText("+254 702 393 677", {
+    x: stampCx - font.widthOfTextAtSize("+254 702 393 677", 5) / 2,
+    y: stampCy - 7,
+    size: 5,
+    font: font,
+    color: STAMP_RED,
+  });
+  page.drawLine({
+    start: { x: stampCx - 18, y: stampCy - 12 },
+    end: { x: stampCx + 18, y: stampCy - 12 },
+    thickness: 0.5,
+    color: STAMP_RED,
+  });
+  page.drawText("DIGITAL STAMP", {
+    x: stampCx - boldFont.widthOfTextAtSize("DIGITAL STAMP", 4) / 2,
+    y: stampCy - 18,
+    size: 4,
+    font: boldFont,
+    color: STAMP_RED,
+  });
   // Signature
   const sigX = PAGE_WIDTH - MARGIN - 140;
-  page.drawLine({ start: { x: sigX, y: bottomY + 18 }, end: { x: sigX + 140, y: bottomY + 18 }, thickness: 1, color: DARK });
+  page.drawLine({
+    start: { x: sigX, y: bottomY + 18 },
+    end: { x: sigX + 140, y: bottomY + 18 },
+    thickness: 1,
+    color: DARK,
+  });
   if (sigImg) {
-    const sigW = 120; const sigH = (sigImg.height / sigImg.width) * sigW;
-    page.drawImage(sigImg, { x: sigX + (140 - sigW) / 2, y: bottomY + 20, width: sigW, height: Math.min(sigH, 40) });
+    const sigW = 120;
+    const sigH = (sigImg.height / sigImg.width) * sigW;
+    page.drawImage(sigImg, {
+      x: sigX + (140 - sigW) / 2,
+      y: bottomY + 20,
+      width: sigW,
+      height: Math.min(sigH, 40),
+    });
   }
-  const sigLabel = quotation.createdBy || 'Authorised Sign';
-  page.drawText(sigLabel, { x: sigX + (140 - boldFont.widthOfTextAtSize(sigLabel, 10)) / 2, y: bottomY + 4, size: 10, font: boldFont, color: DARK });
+  const sigLabel = quotation.createdBy || "Authorised Sign";
+  page.drawText(sigLabel, {
+    x: sigX + (140 - boldFont.widthOfTextAtSize(sigLabel, 10)) / 2,
+    y: bottomY + 4,
+    size: 10,
+    font: boldFont,
+    color: DARK,
+  });
   // Contact us
   fy = bottomY - 16;
-  page.drawLine({ start: { x: MARGIN, y: fy }, end: { x: PAGE_WIDTH - MARGIN, y: fy }, thickness: 0.5, color: LIGHT_GRAY });
+  page.drawLine({
+    start: { x: MARGIN, y: fy },
+    end: { x: PAGE_WIDTH - MARGIN, y: fy },
+    thickness: 0.5,
+    color: LIGHT_GRAY,
+  });
   fy -= 14;
-  page.drawText(`Contact us: ${phone}`, { x: MARGIN, y: fy, size: 9, font: font, color: GRAY });
+  page.drawText(`Contact us: ${phone}`, {
+    x: MARGIN,
+    y: fy,
+    size: 9,
+    font: font,
+    color: GRAY,
+  });
 
   return doc.save();
 }
 
-export async function downloadQuotationPDF(quotation: Quotation): Promise<void> {
+export async function downloadQuotationPDF(
+  quotation: Quotation,
+): Promise<void> {
   const bytes = await generateQuotationPDF(quotation);
   const filename = `Quotation_${quotation.quotationCode || quotation.id.toUpperCase()}.pdf`;
   downloadPDF(bytes, filename);
