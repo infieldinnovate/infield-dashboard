@@ -11,10 +11,7 @@ import styles from "./QuotationDocument.module.scss";
 
 export type { QuotationDocumentActions } from "./types";
 export { printQuotation } from "./quotationPrint";
-export {
-  generateQuotationPDF,
-  downloadQuotationPDF,
-} from "./quotationPDF";
+export { generateQuotationPDF, downloadQuotationPDF } from "./quotationPDF";
 
 export default function QuotationDocument({
   quotation,
