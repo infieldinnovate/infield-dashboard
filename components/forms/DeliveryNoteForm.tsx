@@ -123,7 +123,7 @@ export default function DeliveryNoteForm({
 
   const onProductChange = (index: number, productId: string) => {
     const product = products.find((p) => p.id === productId);
-    setValue(`items.${index}.productName`, product?.name || '');
+    setValue(`items.${index}.productName`, product?.productName || '');
   };
 
   const addItem = () => {

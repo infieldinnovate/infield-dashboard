@@ -20,7 +20,7 @@ import { formatCurrency, calcItemTotal, calcTemplateTotals } from "../../lib/doc
 import { QuoteTemplateFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
-const productOptions = products.map((p) => ({ value: p.id, label: p.name }));
+const productOptions = products.map((p) => ({ value: p.id, label: `${p.productName} (${p.size})` }));
 
 const categoryOptions = [
   { value: "Solar Solutions", label: "Solar Solutions" },
@@ -261,6 +261,7 @@ export default function QuoteTemplatesPage() {
                 <thead>
                   <tr>
                     <th>Item</th>
+                    <th>Size</th>
                     <th className={styles.numCol}>Qty</th>
                     <th className={styles.numCol}>Unit Price</th>
                     <th className={styles.numCol}>Total</th>
@@ -270,7 +271,8 @@ export default function QuoteTemplatesPage() {
                   {previewTemplate.items.map((item, i) => (
                     <tr key={i}>
                       <td>{item.productName}</td>
-                      <td className={styles.numCol}>{item.quantity}</td>
+                      <td>{item.size || '—'}</td>
+                      <td className={styles.numCol}>{item.quantity} {item.unit || ''}</td>
                       <td className={styles.numCol}>{formatCurrency(item.unitPrice)}</td>
                       <td className={styles.numCol}>{formatCurrency(calcItemTotal(item))}</td>
                     </tr>

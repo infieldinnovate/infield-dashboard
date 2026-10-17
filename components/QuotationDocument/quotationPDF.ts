@@ -593,7 +593,7 @@ export async function generateQuotationPDF(
         font: serifFont,
         color: DARK,
       });
-      const unitStr = item.unit || "-";
+      const unitStr = item.size || "-";
       page.drawText(unitStr, {
         x:
           colXs.unit +
@@ -603,7 +603,7 @@ export async function generateQuotationPDF(
         font: serifFont,
         color: DARK,
       });
-      const qtyStr = `${item.quantity} Rolls`;
+      const qtyStr = `${item.quantity} ${item.unit || ""}`;
       page.drawText(qtyStr, {
         x:
           colXs.qty +

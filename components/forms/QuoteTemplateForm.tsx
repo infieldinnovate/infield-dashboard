@@ -100,14 +100,16 @@ export default function QuoteTemplateForm({
   }, [watchedItems, watchedDiscount, watchedDiscountType, watchedTaxRate]);
 
   const addItem = () => {
-    append({ productId: '', productName: '', quantity: 1, unitPrice: 0 });
+    append({ productId: '', productName: '', size: '', quantity: 1, unitPrice: 0, unit: '' });
   };
 
   const onProductChange = (index: number, productId: string) => {
     const product = products.find((p) => p.id === productId);
-    setValue(`items.${index}.productName`, product?.name || '');
+    setValue(`items.${index}.productName`, product?.productName || '');
+    setValue(`items.${index}.size`, product?.size || '');
     const unitPrice = product?.price || 0;
     setValue(`items.${index}.unitPrice`, unitPrice);
+    setValue(`items.${index}.unit`, product?.unit || '');
   };
 
   const onQtyChange = (index: number, rawValue: string) => {
@@ -186,6 +188,12 @@ export default function QuoteTemplateForm({
                     )}
                   />
                 </div>
+                <InputField
+                  placeholder="Size"
+                  register={register}
+                  name={`items.${index}.size`}
+                  className={styles.itemQty}
+                />
                 <Controller
                   control={control}
                   name={`items.${index}.quantity`}

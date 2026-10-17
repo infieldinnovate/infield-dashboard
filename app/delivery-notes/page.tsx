@@ -80,7 +80,7 @@ export default function DeliveryNotesPage() {
     label: `${inv.invoiceNumber} - ${inv.customerName}`,
   }));
 
-  const productOptions = products.map((p) => ({ value: p.id, label: p.name }));
+  const productOptions = products.map((p) => ({ value: p.id, label: `${p.productName} (${p.size})` }));
 
   const openCreate = () => {
     setEditNote(null);

@@ -1,13 +1,10 @@
 export interface Product {
   id: string;
-  name: string;
+  productName: string;
+  size: string;
   price: number;
   category: string;
-  image: string;
   stock: number;
-  sku: string;
-  cost: number;
-  description: string;
   unit: string;
 }
 
@@ -89,6 +86,7 @@ export interface Quotation {
 export interface QuotationItem {
   productId: string;
   productName: string;
+  size?: string;
   quantity: number;
   unitPrice: number;
   unit?: string;

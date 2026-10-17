@@ -107,9 +107,9 @@ export const productReportData: ProductReportData = {
   ],
   lowStock: products
     .filter((p) => p.stock <= 15)
-    .map((p) => ({ name: p.name, stock: p.stock, category: p.category }))
+    .map((p) => ({ name: p.productName, stock: p.stock, category: p.category }))
     .slice(0, 5),
-  inventoryValue: products.reduce((sum, p) => sum + p.cost * p.stock, 0),
+  inventoryValue: products.reduce((sum, p) => sum + p.price * p.stock, 0),
   totalProducts: products.length,
 };
 
@@ -137,7 +137,7 @@ export const customerReportData: CustomerReportData = {
 };
 
 export const inventoryReportData: InventoryReportData = {
-  totalStockValue: products.reduce((sum, p) => sum + p.cost * p.stock, 0),
+  totalStockValue: products.reduce((sum, p) => sum + p.price * p.stock, 0),
   totalItems: products.length,
   lowStockCount: products.filter((p) => p.stock > 0 && p.stock <= 15).length,
   outOfStockCount: products.filter((p) => p.stock === 0).length,
@@ -145,18 +145,18 @@ export const inventoryReportData: InventoryReportData = {
     const existing = acc.find((a) => a.category === p.category);
     if (existing) {
       existing.items += 1;
-      existing.value += p.cost * p.stock;
+      existing.value += p.price * p.stock;
       existing.stock += p.stock;
     } else {
-      acc.push({ category: p.category, items: 1, value: p.cost * p.stock, stock: p.stock });
+      acc.push({ category: p.category, items: 1, value: p.price * p.stock, stock: p.stock });
     }
     return acc;
   }, [] as { category: string; items: number; value: number; stock: number }[]),
   stockLevels: products.map((p) => ({
-    name: p.name,
+    name: p.productName,
     category: p.category,
     stock: p.stock,
-    value: p.cost * p.stock,
+    value: p.price * p.stock,
     status: p.stock === 0 ? 'out' as const : p.stock <= 15 ? 'low' as const : 'in_stock' as const,
   })),
 };

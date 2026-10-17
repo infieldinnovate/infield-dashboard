@@ -53,7 +53,7 @@ const statusVariant: Record<
   expired: "warning",
 };
 
-const productOptions = products.map((p) => ({ value: p.id, label: p.name }));
+const productOptions = products.map((p) => ({ value: p.id, label: `${p.productName} (${p.size})` }));
 
 export default function QuotationsPage() {
   const [search, setSearch] = useState("");

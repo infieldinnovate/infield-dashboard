@@ -30,7 +30,7 @@ const statusVariant: Record<string, 'primary' | 'success' | 'warning' | 'error' 
 };
 
 const customerOptions = customers.map((c) => ({ value: c.id, label: c.name }));
-const productOptions = products.map((p) => ({ value: p.id, label: p.name }));
+const productOptions = products.map((p) => ({ value: p.id, label: `${p.productName} (${p.size})` }));
 
 function generateInvoiceNumber(existingInvoices: Invoice[]): string {
   const year = new Date().getFullYear();

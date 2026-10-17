@@ -43,7 +43,7 @@ export default function POSPage() {
     if (search.trim()) {
       const q = search.toLowerCase();
       data = data.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)
+        (p) => p.productName.toLowerCase().includes(q) || p.size.toLowerCase().includes(q)
       );
     }
     if (activeCategory !== 'all') {
@@ -55,7 +55,7 @@ export default function POSPage() {
 
   const addToCart = (product: Product) => {
     if (product.stock <= 0) {
-      toast.error(`${product.name} is out of stock`);
+      toast.error(`${product.productName} is out of stock`);
       return;
     }
     setCart((prev) => {
@@ -121,7 +121,7 @@ export default function POSPage() {
     const sale: CompletedSale = {
       receiptNumber: `POS-${Date.now().toString().slice(-6)}`,
       date: new Date().toLocaleString('en-KE'),
-      items: cart.map((i) => ({ name: i.product.name, quantity: i.quantity, price: i.product.price, total: i.total })),
+      items: cart.map((i) => ({ name: i.product.productName, quantity: i.quantity, price: i.product.price, total: i.total })),
       subtotal: totals.subtotal,
       discount: totals.discountAmount,
       tax: totals.tax,
@@ -197,11 +197,12 @@ export default function POSPage() {
                   <div className={styles.productIcon}>
                     <Icon name={getCategoryIcon(product.category)} size={18} />
                   </div>
-                  <div className={styles.productName}>{product.name}</div>
+                  <div className={styles.productName}>{product.productName}</div>
                   <div className={styles.productPrice}>{formatCurrency(product.price)}</div>
                   <div className={`${styles.productStock} ${getStockClass(product.stock)}`}>
                     {product.stock > 0 ? `${product.stock} ${product.unit} in stock` : 'Out of stock'}
                   </div>
+                  {product.size && <div className={styles.productSize}>{product.size}</div>}
                 </button>
               ))}
             </div>
@@ -237,7 +238,7 @@ export default function POSPage() {
               cart.map((item) => (
                 <div key={item.product.id} className={styles.cartItem}>
                   <div className={styles.cartItemInfo}>
-                    <div className={styles.cartItemName}>{item.product.name}</div>
+                    <div className={styles.cartItemName}>{item.product.productName}</div>
                     <div className={styles.cartItemPrice}>{formatCurrency(item.product.price)} each</div>
                   </div>
                   <div className={styles.qtyControls}>

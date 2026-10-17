@@ -67,7 +67,7 @@
   letter-spacing: 0.03em;
 }
 
-.colHeadingUnit,
+.colHeadingSize,
 .colHeadingQty,
 .colHeadingPrice {
   font-size: 12px;
@@ -79,8 +79,8 @@
   flex-shrink: 0;
 }
 
-.colHeadingUnit {
-  width: 80px;
+.colHeadingSize {
+  width: 100px;
 }
 
 .colHeadingQty {

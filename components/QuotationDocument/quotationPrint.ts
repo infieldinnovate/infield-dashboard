@@ -135,8 +135,8 @@ function buildQuotationHTML(quotation: Quotation): string {
         return `<tr${rowClass}>
         <td class="qt-no-col">${i + 1}</td>
         <td class="qt-product-col">${escapeHtml(item.productName)}</td>
-        <td class="qt-unit-col">${escapeHtml(item.unit || "-")}</td>
-        <td class="qt-qty-col">${item.quantity} Rolls</td>
+        <td class="qt-unit-col">${escapeHtml(item.size || "-")}</td>
+        <td class="qt-qty-col">${item.quantity} ${escapeHtml(item.unit || "")}</td>
         <td class="qt-price-col">${formatAmount(item.unitPrice)}</td>
         <td class="qt-total-col">${formatAmount(calcItemTotal(item))}</td>
       </tr>`;

@@ -113,12 +113,13 @@ export default function QuotationForm({
   }, [watchedItems, watchedTaxRate]);
 
   const addItem = () => {
-    append({ productId: '', productName: '', quantity: 1, unitPrice: 0, unit: '' });
+    append({ productId: '', productName: '', size: '', quantity: 1, unitPrice: 0, unit: '' });
   };
 
   const onProductChange = (index: number, productId: string) => {
     const product = products.find((p) => p.id === productId);
-    setValue(`items.${index}.productName`, product?.name || '');
+    setValue(`items.${index}.productName`, product?.productName || '');
+    setValue(`items.${index}.size`, product?.size || '');
     const unitPrice = product?.price || 0;
     setValue(`items.${index}.unitPrice`, unitPrice);
     setValue(`items.${index}.unit`, product?.unit || '');
@@ -199,7 +200,7 @@ export default function QuotationForm({
           <div className={styles.itemsList}>
             <div className={styles.itemRowHeader}>
               <div className={styles.itemProduct}>Product</div>
-              <span className={styles.colHeadingUnit}>Unit</span>
+              <span className={styles.colHeadingSize}>Size</span>
               <span className={styles.colHeadingQty}>Qty</span>
               <span className={styles.colHeadingPrice}>Price</span>
               <span className={styles.itemTotal}>Total</span>
@@ -226,9 +227,9 @@ export default function QuotationForm({
                   />
                 </div>
                 <InputField
-                  placeholder="Unit"
+                  placeholder="Size"
                   register={register}
-                  name={`items.${index}.unit`}
+                  name={`items.${index}.size`}
                   className={styles.itemQty}
                 />
                 <Controller

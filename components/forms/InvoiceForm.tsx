@@ -115,7 +115,7 @@ export default function InvoiceForm({
 
   const onProductChange = (index: number, productId: string) => {
     const product = products.find((p) => p.id === productId);
-    setValue(`items.${index}.productName`, product?.name || '');
+    setValue(`items.${index}.productName`, product?.productName || '');
     const unitPrice = product?.price || 0;
     setValue(`items.${index}.unitPrice`, unitPrice);
     const qty = watchedItems?.[index]?.quantity ?? 0;

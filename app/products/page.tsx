@@ -18,14 +18,14 @@ import { products } from '../../data/products';
 import { categories } from '../../data/categories';
 import { Product } from '../../types';
 import { ProductFormData } from '../../schema/formSchema';
-import { formatCurrency } from '../../lib/documentUtils';
+import { formatCurrency, generateProductId } from '../../lib/documentUtils';
 import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 5;
 
 const sortOptions = [
-  { value: 'name-asc', label: 'Name (A-Z)' },
-  { value: 'name-desc', label: 'Name (Z-A)' },
+  { value: 'productName-asc', label: 'Name (A-Z)' },
+  { value: 'productName-desc', label: 'Name (Z-A)' },
   { value: 'price-asc', label: 'Price (Low to High)' },
   { value: 'price-desc', label: 'Price (High to Low)' },
   { value: 'stock-asc', label: 'Stock (Low to High)' },
@@ -40,7 +40,7 @@ const categoryOptions = [
 export default function ProductsPage() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [sortBy, setSortBy] = useState('name-asc');
+  const [sortBy, setSortBy] = useState('productName-asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [productList, setProductList] = useState<Product[]>(products);
 
@@ -53,7 +53,7 @@ export default function ProductsPage() {
     let data = [...productList];
     if (search.trim()) {
       const q = search.toLowerCase();
-      data = data.filter((p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+      data = data.filter((p) => p.productName.toLowerCase().includes(q) || p.size.toLowerCase().includes(q));
     }
     if (categoryFilter) {
       data = data.filter((p) => p.category === categoryFilter);
@@ -101,14 +101,12 @@ export default function ProductsPage() {
         p.id === editProduct.id
           ? {
               ...p,
-              name: data.name,
+              productName: data.productName,
+              size: data.size,
               price: parseFloat(data.price) || 0,
-              cost: parseFloat(data.cost) || 0,
               stock: parseInt(data.stock) || 0,
               category: data.category,
-              sku: data.sku,
               unit: data.unit,
-              description: data.description,
             }
           : p
       )
@@ -119,16 +117,13 @@ export default function ProductsPage() {
 
   const onAddSubmit = (data: ProductFormData) => {
     const newProduct: Product = {
-      id: `prod-${Date.now()}`,
-      name: data.name,
+      id: generateProductId(),
+      productName: data.productName,
+      size: data.size,
       price: parseFloat(data.price) || 0,
-      cost: parseFloat(data.cost) || 0,
       stock: parseInt(data.stock) || 0,
       category: data.category || 'Uncategorized',
-      sku: data.sku,
       unit: data.unit,
-      description: data.description,
-      image: '/images/placeholder.jpg',
     };
     setProductList((prev) => [newProduct, ...prev]);
     setIsAddOpen(false);
@@ -142,18 +137,17 @@ export default function ProductsPage() {
   };
 
   const columns = [
-    { key: 'name', header: 'Product', render: (row: Product) => (
+    { key: 'productName', header: 'Product', render: (row: Product) => (
       <div className={styles.productCell}>
-        <div className={styles.productAvatar}>{row.name.charAt(0)}</div>
+        <div className={styles.productAvatar}>{row.productName.charAt(0)}</div>
         <div className={styles.productInfo}>
-          <span className={styles.productName}>{row.name}</span>
-          <span className={styles.productSku}>{row.sku}</span>
+          <span className={styles.productName}>{row.productName}</span>
+          <span className={styles.productSku}>{row.size}</span>
         </div>
       </div>
     )},
     { key: 'category', header: 'Category', render: (row: Product) => <Badge size="sm">{row.category}</Badge> },
     { key: 'price', header: 'Price', align: 'right' as const, render: (row: Product) => <span className={styles.price}>{formatCurrency(row.price)}</span> },
-    { key: 'cost', header: 'Cost', align: 'right' as const, render: (row: Product) => <span className={styles.cost}>{formatCurrency(row.cost)}</span> },
     { key: 'stock', header: 'Stock', align: 'center' as const, render: (row: Product) => <Badge variant={stockVariant(row.stock)} size="sm">{row.stock}</Badge> },
     { key: 'actions', header: '', align: 'right' as const, render: (row: Product) => (
       <RowActions actions={[
@@ -193,23 +187,17 @@ export default function ProductsPage() {
         {detailProduct && (
           <div className={styles.detail}>
             <div className={styles.detailHeader}>
-              <div className={styles.detailAvatar}>{detailProduct.name.charAt(0)}</div>
+              <div className={styles.detailAvatar}>{detailProduct.productName.charAt(0)}</div>
               <div className={styles.detailInfo}>
-                <h3 className={styles.detailName}>{detailProduct.name}</h3>
+                <h3 className={styles.detailName}>{detailProduct.productName}</h3>
                 <Badge size="sm">{detailProduct.category}</Badge>
               </div>
             </div>
             <div className={styles.detailGrid}>
-              <div className={styles.detailField}><span className={styles.detailLabel}>SKU</span><span>{detailProduct.sku}</span></div>
+              <div className={styles.detailField}><span className={styles.detailLabel}>Size</span><span>{detailProduct.size}</span></div>
               <div className={styles.detailField}><span className={styles.detailLabel}>Unit</span><span>{detailProduct.unit}</span></div>
               <div className={styles.detailField}><span className={styles.detailLabel}>Price</span><span className={styles.price}>{formatCurrency(detailProduct.price)}</span></div>
-              <div className={styles.detailField}><span className={styles.detailLabel}>Cost</span><span className={styles.cost}>{formatCurrency(detailProduct.cost)}</span></div>
               <div className={styles.detailField}><span className={styles.detailLabel}>Stock</span><Badge variant={stockVariant(detailProduct.stock)} size="sm">{detailProduct.stock}</Badge></div>
-              <div className={styles.detailField}><span className={styles.detailLabel}>Margin</span><span>{(((detailProduct.price - detailProduct.cost) / detailProduct.price) * 100).toFixed(1)}%</span></div>
-            </div>
-            <div className={styles.detailDesc}>
-              <span className={styles.detailLabel}>Description</span>
-              <p>{detailProduct.description}</p>
             </div>
           </div>
         )}
@@ -231,7 +219,7 @@ export default function ProductsPage() {
         onClose={() => setDeleteProduct(null)}
         onConfirm={handleDeleteConfirm}
         title="Delete Product"
-        message={deleteProduct ? `Are you sure you want to delete "${deleteProduct.name}"? This action cannot be undone.` : ''}
+        message={deleteProduct ? `Are you sure you want to delete "${deleteProduct.productName}"? This action cannot be undone.` : ''}
         confirmLabel="Delete"
         variant="danger"
       />

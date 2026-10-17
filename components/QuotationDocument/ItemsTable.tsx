@@ -24,8 +24,8 @@ export default function ItemsTable({ items }: { items: QuotationItem[] }) {
           >
             <td className={styles.noColumn}>{index + 1}</td>
             <td className={styles.productNameColumn}>{item.productName}</td>
-            <td className={styles.unitColumn}>{item.unit || "-"}</td>
-            <td className={styles.qtyColumn}>{item.quantity} Rolls</td>
+            <td className={styles.unitColumn}>{item.size || "-"}</td>
+            <td className={styles.qtyColumn}>{item.quantity} {item.unit || ""}</td>
             <td className={styles.priceColumn}>{item.unitPrice}</td>
             <td className={styles.totalColumn}>
               {formatAmount(calcItemTotal(item))}
