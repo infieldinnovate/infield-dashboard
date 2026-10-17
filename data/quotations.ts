@@ -54,7 +54,7 @@ export const quotations: Quotation[] = [
         unit: "unit",
       },
       {
-        productId: "10007",
+        productId: "10507",
         productName: "Solar DC Cable",
         size: "6mm²",
         quantity: 100,
@@ -70,7 +70,7 @@ export const quotations: Quotation[] = [
         unit: "metre",
       },
       {
-        productId: "10007",
+        productId: "11007",
         productName: "MC4 Solar Connector Pair",
         size: "Standard",
         quantity: 20,
