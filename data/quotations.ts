@@ -12,6 +12,7 @@ export const quotations: Quotation[] = [
     createdBy: "Jared Oluoch",
     createdBySignature: "/users/signature-jerry.png",
     userId: "J01",
+
     items: [
       {
         productId: "10001",
@@ -86,7 +87,7 @@ export const quotations: Quotation[] = [
         unit: "piece",
       },
       {
-        productId: "10009",
+        productId: "10012",
         productName: "AC Circuit Breaker",
         size: "63A",
         quantity: 4,
@@ -102,7 +103,7 @@ export const quotations: Quotation[] = [
         unit: "unit",
       },
       {
-        productId: "10010",
+        productId: "10013",
         productName: "AC Distribution Board",
         size: "12-Way",
         quantity: 1,
@@ -118,7 +119,7 @@ export const quotations: Quotation[] = [
         unit: "rod",
       },
       {
-        productId: "10015",
+        productId: "10014",
         productName: "Solar Surge Protection Device",
         size: "Standard",
         quantity: 4,
@@ -126,7 +127,7 @@ export const quotations: Quotation[] = [
         unit: "piece",
       },
       {
-        productId: "10005",
+        productId: "10017",
         productName: "Solar Installation and Commissioning",
         size: "Service",
         quantity: 1,
@@ -134,6 +135,7 @@ export const quotations: Quotation[] = [
         unit: "service",
       },
     ],
+
     taxRate: 16,
     status: "accepted",
     createdAt: "2026-06-20",
