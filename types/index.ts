@@ -19,7 +19,7 @@ export interface Order {
   total: number;
   tax: number;
   subtotal: number;
-  status: 'pending' | 'completed' | 'cancelled';
+  status: "pending" | "completed" | "cancelled";
   createdAt: string;
   paymentMethod: string;
 }
@@ -48,9 +48,9 @@ export interface Customer {
   taxId: string;
   creditLimit: number;
   balance: number;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   createdAt: string;
-  type: 'individual' | 'business';
+  type: "individual" | "business";
 }
 
 export interface Supplier {
@@ -78,7 +78,7 @@ export interface Quotation {
   userId: string;
   items: QuotationItem[];
   taxRate: number;
-  status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
+  status: "draft" | "sent" | "accepted" | "rejected" | "expired";
   createdAt: string;
   notes: string;
 }
@@ -99,7 +99,7 @@ export interface QuoteTemplate {
   category: string;
   items: QuotationItem[];
   discount: number;
-  discountType: 'percentage' | 'fixed';
+  discountType: "percentage" | "fixed";
   taxRate: number;
   notes: string;
   createdAt: string;
@@ -113,13 +113,13 @@ export interface Invoice {
   items: InvoiceItem[];
   subtotal: number;
   discount: number;
-  discountType: 'percentage' | 'fixed';
+  discountType: "percentage" | "fixed";
   tax: number;
   taxRate: number;
   total: number;
   paid: number;
   balance: number;
-  status: 'paid' | 'unpaid' | 'overdue' | 'partial';
+  status: "paid" | "unpaid" | "overdue" | "partial";
   issueDate: string;
   dueDate: string;
   paidDate?: string;
@@ -141,7 +141,7 @@ export interface Receipt {
   receiptNumber: string;
   customerName: string;
   amount: number;
-  paymentMethod: 'cash' | 'card' | 'bank_transfer' | 'check' | 'mobile_money';
+  paymentMethod: "cash" | "card" | "bank_transfer" | "check" | "mobile_money";
   date: string;
   reference: string;
   notes: string;
@@ -156,7 +156,7 @@ export interface DeliveryNote {
   recipient: string;
   recipientPhone: string;
   items: DeliveryItem[];
-  status: 'pending' | 'shipped' | 'delivered' | 'returned';
+  status: "pending" | "shipped" | "delivered" | "returned";
   shipDate: string;
   deliveryDate?: string;
   carrier: string;
@@ -175,10 +175,10 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'manager' | 'cashier' | 'sales';
+  role: "admin" | "manager" | "cashier" | "sales";
   avatar?: string;
   phone: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   lastLogin: string;
   createdAt: string;
   permissions: string[];
@@ -190,7 +190,7 @@ export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: "info" | "success" | "warning" | "error";
   read: boolean;
   createdAt: string;
   link?: string;
@@ -227,24 +227,30 @@ export interface TaxSettings {
 export interface CurrencySettings {
   currency: string;
   currencySymbol: string;
-  currencyPosition: 'before' | 'after';
+  currencyPosition: "before" | "after";
   decimalPlaces: number;
   thousandSeparator: string;
   decimalSeparator: string;
 }
 
-export type ThemeMode = 'light' | 'dark';
-export type ThemeColor = 'blue' | 'teal' | 'green' | 'amber' | 'rose' | 'violet';
+export type ThemeMode = "light" | "dark";
+export type ThemeColor =
+  | "blue"
+  | "teal"
+  | "green"
+  | "amber"
+  | "rose"
+  | "violet";
 
 export interface ThemeSettings {
   mode: ThemeMode;
   color: ThemeColor;
-  fontSize: 'small' | 'medium' | 'large';
+  fontSize: "small" | "medium" | "large";
 }
 
 export interface PrintSettings {
-  pageSize: 'a4' | 'letter';
-  orientation: 'portrait' | 'landscape';
+  pageSize: "a4" | "letter";
+  orientation: "portrait" | "landscape";
   showLogo: boolean;
   showBusinessInfo: boolean;
   showTaxId: boolean;
@@ -263,7 +269,7 @@ export interface AppSettings {
 
 /* ---------- Inbox ---------- */
 
-export type InboxPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type InboxPriority = "low" | "medium" | "high" | "urgent";
 
 export interface QuotationRequest {
   id: string;
@@ -275,7 +281,7 @@ export interface QuotationRequest {
   message: string;
   estimatedValue: number;
   items: string;
-  status: 'new' | 'in_review' | 'quoted' | 'closed';
+  status: "new" | "in_review" | "quoted" | "closed";
   priority: InboxPriority;
   createdAt: string;
 }
@@ -287,7 +293,7 @@ export interface CallRequest {
   email: string;
   reason: string;
   preferredTime: string;
-  status: 'pending' | 'scheduled' | 'completed' | 'missed';
+  status: "pending" | "scheduled" | "completed" | "missed";
   priority: InboxPriority;
   createdAt: string;
 }
@@ -299,7 +305,7 @@ export interface Review {
   rating: number;
   title: string;
   comment: string;
-  status: 'published' | 'pending' | 'flagged';
+  status: "published" | "pending" | "flagged";
   createdAt: string;
 }
 
@@ -307,8 +313,8 @@ export interface Subscription {
   id: string;
   customerName: string;
   email: string;
-  plan: 'free' | 'starter' | 'pro' | 'enterprise';
-  status: 'active' | 'trialing' | 'cancelled' | 'expired';
+  plan: "free" | "starter" | "pro" | "enterprise";
+  status: "active" | "trialing" | "cancelled" | "expired";
   startDate: string;
   renewalDate: string;
   amount: number;
@@ -319,8 +325,8 @@ export interface Announcement {
   title: string;
   content: string;
   author: string;
-  audience: 'all' | 'staff' | 'customers';
-  status: 'draft' | 'scheduled' | 'published' | 'archived';
+  audience: "all" | "staff" | "customers";
+  status: "draft" | "scheduled" | "published" | "archived";
   publishedAt: string;
   pinned: boolean;
 }
@@ -332,7 +338,7 @@ export interface Role {
   name: string;
   description: string;
   members: number;
-  color: 'primary' | 'secondary' | 'success' | 'warning' | 'info';
+  color: "primary" | "secondary" | "success" | "warning" | "info";
   permissions: string[];
 }
 
@@ -341,7 +347,13 @@ export interface ActivityLog {
   userId: string;
   userName: string;
   action: string;
-  category: 'auth' | 'sales' | 'inventory' | 'customers' | 'settings' | 'documents';
+  category:
+    | "auth"
+    | "sales"
+    | "inventory"
+    | "customers"
+    | "settings"
+    | "documents";
   detail: string;
   timestamp: string;
   ip: string;
@@ -349,7 +361,7 @@ export interface ActivityLog {
 
 /* ---------- Reports ---------- */
 
-export type ReportPeriod = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type ReportPeriod = "daily" | "weekly" | "monthly" | "yearly";
 
 export interface ReportDateFilter {
   period: ReportPeriod;
@@ -380,7 +392,13 @@ export interface SalesReportData {
 }
 
 export interface ProductReportData {
-  topProducts: { name: string; category: string; sold: number; revenue: number; stock: number }[];
+  topProducts: {
+    name: string;
+    category: string;
+    sold: number;
+    revenue: number;
+    stock: number;
+  }[];
   categoryPerformance: CategoryBreakdown[];
   lowStock: { name: string; stock: number; category: string }[];
   inventoryValue: number;
@@ -392,7 +410,12 @@ export interface CustomerReportData {
   activeCustomers: number;
   newCustomers: number;
   averageBalance: number;
-  topSpenders: { name: string; totalSpent: number; orders: number; type: string }[];
+  topSpenders: {
+    name: string;
+    totalSpent: number;
+    orders: number;
+    type: string;
+  }[];
   byType: CategoryBreakdown[];
   outstandingBalances: { name: string; balance: number; creditLimit: number }[];
 }
@@ -402,8 +425,19 @@ export interface InventoryReportData {
   totalItems: number;
   lowStockCount: number;
   outOfStockCount: number;
-  byCategory: { category: string; items: number; value: number; stock: number }[];
-  stockLevels: { name: string; category: string; stock: number; value: number; status: 'in_stock' | 'low' | 'out' }[];
+  byCategory: {
+    category: string;
+    items: number;
+    value: number;
+    stock: number;
+  }[];
+  stockLevels: {
+    name: string;
+    category: string;
+    stock: number;
+    value: number;
+    status: "in_stock" | "low" | "out";
+  }[];
 }
 
 export interface InvoiceReportData {
@@ -413,7 +447,13 @@ export interface InvoiceReportData {
   overdueAmount: number;
   byStatus: CategoryBreakdown[];
   timeSeries: TimeSeriesPoint[];
-  recentInvoices: { number: string; customer: string; amount: number; status: string; date: string }[];
+  recentInvoices: {
+    number: string;
+    customer: string;
+    amount: number;
+    status: string;
+    date: string;
+  }[];
 }
 
 export interface QuotationReportData {
@@ -424,7 +464,13 @@ export interface QuotationReportData {
   acceptedValue: number;
   byStatus: CategoryBreakdown[];
   timeSeries: TimeSeriesPoint[];
-  recentQuotations: { id: string; customer: string; amount: number; status: string; date: string }[];
+  recentQuotations: {
+    id: string;
+    customer: string;
+    amount: number;
+    status: string;
+    date: string;
+  }[];
 }
 
 export interface ReceiptReportData {
@@ -433,7 +479,13 @@ export interface ReceiptReportData {
   averageReceipt: number;
   byPaymentMethod: CategoryBreakdown[];
   timeSeries: TimeSeriesPoint[];
-  recentReceipts: { number: string; customer: string; amount: number; method: string; date: string }[];
+  recentReceipts: {
+    number: string;
+    customer: string;
+    amount: number;
+    method: string;
+    date: string;
+  }[];
 }
 
 export interface RevenueReportData {
@@ -447,19 +499,31 @@ export interface RevenueReportData {
 }
 
 export type ReportTabId =
-  | 'sales'
-  | 'products'
-  | 'customers'
-  | 'inventory'
-  | 'invoices'
-  | 'quotations'
-  | 'receipts'
-  | 'revenue';
+  | "sales"
+  | "products"
+  | "customers"
+  | "inventory"
+  | "invoices"
+  | "quotations"
+  | "receipts"
+  | "revenue";
 
 /* ---------- Leads (Client Portfolios) ---------- */
 
-export type LeadStatus = 'new' | 'contacted' | 'interested' | 'quoted' | 'won' | 'lost';
-export type LeadService = 'Solar' | 'Electrical' | 'Boreholes' | 'Irrigation' | 'Plumbing' | 'Other';
+export type LeadStatus =
+  | "new"
+  | "contacted"
+  | "interested"
+  | "quoted"
+  | "won"
+  | "lost";
+export type LeadService =
+  | "Solar"
+  | "Electrical"
+  | "Boreholes"
+  | "Irrigation"
+  | "Plumbing"
+  | "Other";
 
 export interface Lead {
   id: string;
