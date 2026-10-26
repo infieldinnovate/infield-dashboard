@@ -283,128 +283,106 @@ function paginateItemsByHeight(
   items: QuotationItem[],
   closingSectionHeight: number,
 ): QuotationItem[][] {
-  const rowHeights = items.length > 0 ? measureItemRowHeights(items, 0, printStyles) : [];
+  if (items.length === 0) return [[]];
+
+  const rowHeights = measureItemRowHeights(items, 0, printStyles);
 
   const firstPageAvail = PRINTABLE_HEIGHT - FIRST_PAGE_FIXED;
   const middlePageAvail = PRINTABLE_HEIGHT - MIDDLE_PAGE_FIXED;
-
-  const packMiddle: QuotationItem[][] = [];
-  let currentPage: QuotationItem[] = [];
-  let used = 0;
-  let isFirstPage = true;
-
-  for (let i = 0; i < items.length; i++) {
-    const h = rowHeights[i];
-    const avail = isFirstPage ? firstPageAvail : middlePageAvail;
-    if (h > avail) {
-      // Oversized row: flush current page, give this row its own page.
-      if (currentPage.length > 0) {
-        packMiddle.push(currentPage);
-        currentPage = [];
-        used = 0;
-      }
-      packMiddle.push([items[i]]);
-      isFirstPage = false;
-      continue;
-    }
-    if (used + h > avail && currentPage.length > 0) {
-      packMiddle.push(currentPage);
-      currentPage = [];
-      used = 0;
-      isFirstPage = false;
-    }
-    currentPage.push(items[i]);
-    used += h;
-  }
-  if (currentPage.length > 0) packMiddle.push(currentPage);
-  if (packMiddle.length === 0) packMiddle.push([]);
-
-  const lastIndex = packMiddle.length - 1;
-  const lastPageRows = packMiddle[lastIndex];
-  const lastRowHeights = rowHeights.slice(items.length - lastPageRows.length);
-  const lastPageRowsHeight = lastRowHeights.reduce((sum, h) => sum + h, 0);
-
-  const isSinglePage = packMiddle.length === 1;
-  const singlePageFixed = isSinglePage
-    ? FIRST_PAGE_FIXED + closingSectionHeight
-    : 0;
   const lastPageAvail =
     PRINTABLE_HEIGHT - LAST_PAGE_FIXED - closingSectionHeight;
-  const effectiveAvail = isSinglePage
-    ? PRINTABLE_HEIGHT - singlePageFixed
-    : lastPageAvail;
 
-  if (lastPageRowsHeight <= effectiveAvail) {
-    return packMiddle;
-  }
+  // Greedy pack all items. Pages at or past lastPageIndex use lastPageAvail;
+  // earlier non-first pages use middlePageAvail. Pass Infinity to disable the
+  // closing-section reserve (used for the initial page-count estimate).
+  const pack = (lastPageIndex: number): QuotationItem[][] => {
+    const pages: QuotationItem[][] = [];
+    let current: QuotationItem[] = [];
+    let used = 0;
+    let isFirstPage = true;
 
-  const newLast: QuotationItem[] = [];
-  const overflow: QuotationItem[] = [];
-  let acc = 0;
-  for (let j = 0; j < lastPageRows.length; j++) {
-    if (acc + lastRowHeights[j] > effectiveAvail && newLast.length > 0) {
-      overflow.push(...lastPageRows.slice(j));
-      break;
-    }
-    newLast.push(lastPageRows[j]);
-    acc += lastRowHeights[j];
-  }
+    for (let i = 0; i < items.length; i++) {
+      const h = rowHeights[i];
+      const pageIndex = pages.length + (current.length > 0 ? 1 : 0);
+      const avail = isFirstPage
+        ? firstPageAvail
+        : pageIndex >= lastPageIndex
+          ? lastPageAvail
+          : middlePageAvail;
 
-  const result = packMiddle.slice(0, lastIndex);
-  if (newLast.length > 0) result.push(newLast);
-  if (overflow.length > 0) {
-    const overflowPages: QuotationItem[][] = [];
-    let page: QuotationItem[] = [];
-    let pageUsed = 0;
-    for (const item of overflow) {
-      const h = rowHeights[items.indexOf(item)];
-      if (h > middlePageAvail) {
+      if (h > avail) {
         // Oversized row: flush current page, give this row its own page.
-        if (page.length > 0) {
-          overflowPages.push(page);
-          page = [];
-          pageUsed = 0;
+        if (current.length > 0) {
+          pages.push(current);
+          current = [];
+          used = 0;
+          isFirstPage = false;
         }
-        overflowPages.push([item]);
+        pages.push([items[i]]);
+        isFirstPage = false;
         continue;
       }
-      if (pageUsed + h > middlePageAvail && page.length > 0) {
-        overflowPages.push(page);
-        page = [];
-        pageUsed = 0;
+
+      if (used + h > avail && current.length > 0) {
+        pages.push(current);
+        current = [];
+        used = 0;
+        isFirstPage = false;
       }
-      page.push(item);
-      pageUsed += h;
+      current.push(items[i]);
+      used += h;
     }
-    if (page.length > 0) overflowPages.push(page);
+    if (current.length > 0) pages.push(current);
+    if (pages.length === 0) pages.push([]);
+    return pages;
+  };
 
-    const finalLast = overflowPages[overflowPages.length - 1];
-    const finalLastHeight = finalLast.reduce(
-      (sum, item) => sum + rowHeights[items.indexOf(item)],
-      0,
-    );
-    if (finalLastHeight <= lastPageAvail) {
-      result.push(...overflowPages);
-    } else {
-      result.push(...overflowPages.slice(0, -1));
-      result.push(finalLast);
+  // Items are packed in order, so the last page holds the final N items.
+  const lastPageItemHeight = (pages: QuotationItem[][]): number => {
+    const count = pages[pages.length - 1]?.length ?? 0;
+    return rowHeights
+      .slice(items.length - count)
+      .reduce((sum, h) => sum + h, 0);
+  };
+
+  // Phase 1: estimate page count without the closing-section reserve.
+  const estimated = pack(Infinity);
+
+  // Single page: check if items + closing section fit together.
+  if (
+    estimated.length === 1 &&
+    lastPageItemHeight(estimated) <= firstPageAvail - closingSectionHeight
+  ) {
+    return estimated;
+  }
+
+  // Multi-page estimate that already accommodates the closing section.
+  if (
+    estimated.length > 1 &&
+    lastPageItemHeight(estimated) <= lastPageAvail
+  ) {
+    return estimated;
+  }
+
+  // Phase 2: repack all items from the start with the closing-section reserve
+  // applied. Pages at or past the estimated last page use lastPageAvail,
+  // guaranteeing the closing section fits on the final page regardless of
+  // how many overflow pages are created.
+  const conservative = pack(Math.max(1, estimated.length - 1));
+
+  // Optimization: the conservative pack may have created extra pages because
+  // every page from the estimated last page onward used the reduced capacity.
+  // Repack with the actual page count so middle pages regain full capacity,
+  // potentially eliminating unnecessary pages. Only accept the optimized
+  // result if its last page still fits with the closing section.
+  if (conservative.length > estimated.length) {
+    const optimized = pack(Math.max(1, conservative.length - 1));
+    if (lastPageItemHeight(optimized) <= lastPageAvail) {
+      return optimized;
     }
   }
 
-  // If the last page is over-capacity (e.g. an oversized row that exceeds the
-  // closing-section budget), append an empty page so the closing section gets
-  // its own page instead of being placed on top of the overflow.
-  const finalPage = result[result.length - 1];
-  if (finalPage && finalPage.length > 0) {
-    const finalPageHeight = finalPage.reduce(
-      (sum, item) => sum + rowHeights[items.indexOf(item)],
-      0,
-    );
-    if (finalPageHeight > lastPageAvail) {
-      result.push([]);
-    }
-  }
-  return result;
+  return conservative;
 }
 
 async function buildQuotationHTML(quotation: Quotation): Promise<string> {
