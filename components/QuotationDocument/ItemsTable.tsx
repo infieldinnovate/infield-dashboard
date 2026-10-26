@@ -3,7 +3,13 @@ import { calcItemTotal } from "../../lib/documentUtils";
 import { formatAmount } from "./documentHelpers";
 import styles from "./QuotationDocument.module.scss";
 
-export default function ItemsTable({ items }: { items: QuotationItem[] }) {
+export default function ItemsTable({
+  items,
+  startIndex = 0,
+}: {
+  items: QuotationItem[];
+  startIndex?: number;
+}) {
   return (
     <table className={styles.itemsTable}>
       <thead>
@@ -22,7 +28,7 @@ export default function ItemsTable({ items }: { items: QuotationItem[] }) {
             key={item.productId}
             className={index % 2 === 1 ? styles.evenRow : undefined}
           >
-            <td className={styles.noColumn}>{index + 1}</td>
+            <td className={styles.noColumn}>{startIndex + index + 1}</td>
             <td className={styles.productNameColumn}>{item.productName}</td>
             <td className={styles.unitColumn}>{item.size || "-"}</td>
             <td className={styles.qtyColumn}>{item.quantity} {item.unit || ""}</td>

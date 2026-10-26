@@ -4,7 +4,7 @@ import BrandedHeader from "./BrandedHeader";
 import Footer from "./Footer";
 import ItemsTable from "./ItemsTable";
 import Totals from "./Totals";
-import { paginateItems } from "./documentHelpers";
+import { ITEMS_PER_MIDDLE_PAGE, ITEMS_PER_PAGE, paginateItems } from "./documentHelpers";
 import styles from "./QuotationDocument.module.scss";
 import StampSign from "./StampSign";
 
@@ -15,6 +15,7 @@ export default function A4Layout({ quotation }: { quotation: Quotation }) {
       {pages.map((pageItems, pageIndex) => {
         const isFirst = pageIndex === 0;
         const isLast = pageIndex === pages.length - 1;
+        const startIndex = isFirst ? 0 : ITEMS_PER_PAGE + (pageIndex - 1) * ITEMS_PER_MIDDLE_PAGE;
         return (
           <div
             key={pageIndex}
@@ -22,7 +23,7 @@ export default function A4Layout({ quotation }: { quotation: Quotation }) {
           >
             <BrandedHeader quotation={quotation} />
             {isFirst && <BillToAndFor quotation={quotation} />}
-            <ItemsTable items={pageItems} />
+            <ItemsTable items={pageItems} startIndex={startIndex} />
             {isLast && <Totals quotation={quotation} />}
             {isLast && <StampSign quotation={quotation} />}
             <Footer quotation={quotation} />
