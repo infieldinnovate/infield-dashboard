@@ -21,6 +21,9 @@
   &:last-child {
     page-break-after: auto;
   }
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
 }
 
 .a4PageLast .footer {
@@ -28,7 +31,6 @@
   left: auto;
   right: auto;
   bottom: auto;
-  margin-top: 20px;
 }
 
 .header {
@@ -39,6 +41,7 @@
   align-items: start;
   background: url("/backgrounds/qt-header.png") center / cover no-repeat;
   border-bottom: #5e5e5e solid 1px;
+  background-color: rgb(107, 236, 245);
 }
 
 .brand {
@@ -110,11 +113,12 @@
 }
 
 .billToFor {
-  height: 35mm;
+  height: 25mm;
   display: grid;
   grid-template-columns: 1fr 1.8fr;
   gap: 20px;
   align-items: center;
+  background-color: yellow;
 }
 .sectionLabel {
   color: #121212;
@@ -156,6 +160,7 @@
   table-layout: fixed;
   color: #1d1d1d;
   font-size: 12px;
+  background-color: #0095ff;
 }
 .itemsTable th,
 .itemsTable td {
@@ -209,7 +214,8 @@
 }
 
 .totals {
-  flex: 1;
+  // flex: 1;
+  width: 72mm;
   height: fit-content;
   border-collapse: collapse;
   border-spacing: 0;
@@ -217,9 +223,8 @@
   color: #111;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 13px;
-  margin-top: 15px;
-  margin-left: 60%;
-  margin-bottom: 25px;
+  margin-left: 108mm;
+  background-color: #674dda;
 
   td {
     padding: 7px 15px;
@@ -279,6 +284,7 @@
   justify-content: space-between;
   align-items: center;
   color: #111;
+  background-color: #4dda4d;
 }
 
 .notes {
@@ -322,7 +328,8 @@
   position: absolute;
   left: 15mm;
   right: 15mm;
-  bottom: 12mm;
+  bottom: 0;
+  background-color: red;
 }
 
 .contactAndThankYou {
@@ -367,8 +374,6 @@
   text-align: center;
   margin-bottom: 45px;
 }
-
-
 
 .actionBar {
   display: flex;
