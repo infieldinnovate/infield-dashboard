@@ -293,41 +293,62 @@ function paginateItemsByHeight(
     PRINTABLE_HEIGHT - LAST_PAGE_FIXED - closingSectionHeight;
 
   // pack packs items greedily. Pages at or past lastPageIndex reserve room
-  // for the closing section; earlier non-first pages use the full middle-page
-  // capacity. Pass Infinity to disable the reserve (initial estimate), or 0
-  // to reserve on every page (single-page test / conservative fallback).
+  // for the closing section; earlier pages use their full capacity. Pass
+  // Infinity to disable the reserve (initial estimate), or 0 to reserve on
+  // every page (single-page test). In multi-page mode page 0 always uses the
+  // full first-page capacity, since the closing section only renders on the
+  // final page — reserving space on page 1 wastes room items could occupy.
   const pack = (lastPageIndex: number): QuotationItem[][] => {
     const pages: QuotationItem[][] = [];
     let current: QuotationItem[] = [];
     let used = 0;
     let isFirstPage = true;
 
-    for (let i = 0; i < items.length; i++) {
-      const h = rowHeights[i];
-      // pages.length is the zero-based index of the page currently being filled.
-      const pageIndex = pages.length;
+    // Capacity for the page currently being filled, accounting for position.
+    // pageIndex is the zero-based index of the page currently being filled.
+    const capacityFor = (pageIndex: number, firstPage: boolean): number => {
       const isLastPageSlot = pageIndex >= lastPageIndex;
-      const avail = isFirstPage
-        ? isLastPageSlot
+      if (firstPage) {
+        // Single-page case (lastPageIndex === 0): page 0 is both first and
+        // last, so it must reserve room for the closing section. Otherwise
+        // page 0 always gets its full capacity.
+        return lastPageIndex === 0
           ? firstPageAvail - closingSectionHeight
-          : firstPageAvail
-        : isLastPageSlot
-          ? lastPageAvail
-          : middlePageAvail;
+          : firstPageAvail;
+      }
+      return isLastPageSlot ? lastPageAvail : middlePageAvail;
+    };
+
+    // Place a single item onto the current page, performing a page break if
+    // it does not fit. After a break the item is re-evaluated against the new
+    // page's capacity, which may differ (middle vs. last). Returns the height
+    // consumed on the current page, or 0 if the item got its own overflow page.
+    const placeItem = (item: QuotationItem, h: number): void => {
+      let pageIndex = pages.length;
+      let avail = capacityFor(pageIndex, isFirstPage);
+
+      if (h > avail && current.length > 0) {
+        pages.push(current);
+        current = [];
+        used = 0;
+        isFirstPage = false;
+        pageIndex = pages.length;
+        avail = capacityFor(pageIndex, isFirstPage);
+      }
 
       if (h > avail) {
-        // Oversized row: flush current page, give this row its own page.
-        // A row taller than the available space still overflows, but it is
-        // isolated so the rest of the document paginates correctly.
+        // Oversized row: give it its own page. A row taller than the
+        // available space still overflows, but it is isolated so the rest of
+        // the document paginates correctly.
         if (current.length > 0) {
           pages.push(current);
           current = [];
           used = 0;
           isFirstPage = false;
         }
-        pages.push([items[i]]);
+        pages.push([item]);
         isFirstPage = false;
-        continue;
+        return;
       }
 
       if (used + h > avail && current.length > 0) {
@@ -335,9 +356,15 @@ function paginateItemsByHeight(
         current = [];
         used = 0;
         isFirstPage = false;
+        // Recompute capacity for the new page before placing this item.
+        avail = capacityFor(pages.length, isFirstPage);
       }
-      current.push(items[i]);
+      current.push(item);
       used += h;
+    };
+
+    for (let i = 0; i < items.length; i++) {
+      placeItem(items[i], rowHeights[i]);
     }
     if (current.length > 0) pages.push(current);
     if (pages.length === 0) pages.push([]);
@@ -378,19 +405,19 @@ function paginateItemsByHeight(
     return estimated;
   }
 
-  // Phase 2: iteratively repack with the closing-section reserve applied to
-  // the last page. Start from the estimated page count and decrease
-  // lastPageIndex until the final page actually has room for the closing
-  // section. This handles the first-and-last-page overflow case: when
-  // pack(N-1) still returns a single page (because page 0 had full capacity),
-  // the capacity check fails and we reduce lastPageIndex to force items onto
-  // subsequent pages.
+  // Phase 2: iteratively repack until the last page has room for the closing
+  // section. When the last page overflows, increase lastPageIndex to the
+  // actual last page index and repack — this redistributes items across more
+  // pages so the final page holds fewer rows. Page 0 always keeps its full
+  // capacity in multi-page mode (lastPageIndex >= 1), so no usable space is
+  // wasted on page 1.
   let lastIdx = Math.max(1, estimated.length - 1);
   let result = pack(lastIdx);
 
   while (lastPageItemHeight(result) > lastPageCapacity(result)) {
-    if (lastIdx === 0) break; // oversized row; accept best effort
-    lastIdx -= 1;
+    const nextIdx = result.length - 1;
+    if (nextIdx <= lastIdx) break; // oversized row; accept best effort
+    lastIdx = nextIdx;
     result = pack(lastIdx);
   }
 
