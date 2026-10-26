@@ -11,9 +11,7 @@ import {
   generateBarcode,
   getSettings,
 } from "../../lib/documentUtils";
-import {
-  formatAmount,
-} from "./documentHelpers";
+import { formatAmount } from "./documentHelpers";
 
 const PX_PER_MM = 3.7795;
 
@@ -100,7 +98,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-grand-total td{padding-top:10px;padding-bottom:10px;border-bottom:none}
 .qt-grand-total td:first-child{font-weight:800}
 .qt-grand-total td:last-child{font-weight:400}
-.qt-footer{height:35mm;color:#111;background:url("/backgrounds/qt-footer.png") center/cover no-repeat;margin-top:auto}
 .qt-stamp-sign{width:100%;height:27mm;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111}
 .qt-footer-notes{height:23mm;width:80mm;font-family:Georgia,"Times New Roman",serif;font-style:italic;line-height:1.2}
 .qt-footer-notes strong{display:block;font-weight:bold;font-size:11pt;text-align:left;padding-bottom:4px}
@@ -109,10 +106,69 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-signature-image img{max-width:100%;max-height:100%;object-fit:contain}
 .qt-stamp{width:30mm;height:24mm;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transform:rotate(-35deg);background-image:url("/digital-stamp.png");background-size:cover;background-position:center;background-repeat:no-repeat;padding-bottom:22px}
 .qt-stamp-date{color:#000;font-size:9px}
-.qt-footer-contact{color:#0095ff;font-family:Arial,Helvetica,sans-serif;font-size:10pt;font-weight:bold}
-.qt-footer-contact span{color:#000;font-weight:normal;margin-left:5px}
-.qt-footer-thankyou{color:#111;font-family:Georgia,"Times New Roman",serif;font-size:7.5pt;font-style:italic;line-height:1.2}
-.qt-created-by{width:54mm;margin-right:60px;color:#fff;font-size:11pt;font-style:italic;font-family:"Times New Roman",Times,serif;text-align:center;margin-bottom:45px}
+
+
+/* Footer */
+  .qt-footer {
+    height: 35mm;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background: url("/backgrounds/qt-footer.png") center / cover no-repeat;
+    color: #111;
+    position: absolute;
+    left: 15mm;
+    right: 15mm;
+    bottom: 0;
+  }
+
+  /* Contact and Thank You Container */
+  .qt-contact-thankyou {
+    height: 28mm;
+    width: 90mm;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 25px;
+    padding-top: 10px;
+  }
+
+  /* Contact Information */
+  .qt-footer-contact {
+    color: #0095ff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+  }
+
+  .qt-footer-contact span {
+    color: #000;
+    font-weight: normal;
+    margin-left: 5px;
+  }
+
+  /* Thank You Message */
+  .qt-footer-thankyou {
+    color: #111;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 7.5pt;
+    font-style: italic;
+    line-height: 1.2;
+  }
+
+  /* Created By */
+  .qt-created-by {
+    width: 54mm;
+    margin-right: 60px;
+    color: #fff;
+    font-size: 11pt;
+    font-style: italic;
+    font-family: "Times New Roman", Times, serif;
+    text-align: center;
+    margin-bottom: 45px;
+  }
 
 @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.qt-page{page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}.qt-page:last-child{page-break-after:auto}}
 `;
@@ -201,9 +257,9 @@ function measureItemRowHeights(
   wrapper.innerHTML = tableHTML;
   container.appendChild(wrapper);
   document.body.appendChild(container);
-  const tbodyRows = wrapper.querySelectorAll<
-    HTMLTableRowElement
-  >("table.qt-items-table tbody tr");
+  const tbodyRows = wrapper.querySelectorAll<HTMLTableRowElement>(
+    "table.qt-items-table tbody tr",
+  );
   const heights = Array.from(tbodyRows).map((tr) => tr.offsetHeight);
   document.body.removeChild(container);
   return heights;
@@ -253,12 +309,13 @@ function paginateItemsByHeight(
 
   const lastIndex = packMiddle.length - 1;
   const lastPageRows = packMiddle[lastIndex];
-  const lastRowHeights = rowHeights.slice(
-    items.length - lastPageRows.length,
-  );
+  const lastRowHeights = rowHeights.slice(items.length - lastPageRows.length);
   const lastPageRowsHeight = lastRowHeights.reduce((sum, h) => sum + h, 0);
   const lastPageAvail =
-    PRINTABLE_HEIGHT - LAST_PAGE_FIXED - closingSectionHeight - PAGE_GEOMETRY.rowGap;
+    PRINTABLE_HEIGHT -
+    LAST_PAGE_FIXED -
+    closingSectionHeight -
+    PAGE_GEOMETRY.rowGap;
 
   if (lastPageRowsHeight <= lastPageAvail) {
     return packMiddle;
@@ -414,10 +471,7 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
     footerHTML,
     printStyles,
   );
-  const pages = paginateItemsByHeight(
-    quotation.items,
-    closingSectionHeight,
-  );
+  const pages = paginateItemsByHeight(quotation.items, closingSectionHeight);
 
   let runningStart = 0;
   return pages
@@ -454,7 +508,8 @@ async function waitForReadyState(doc: Document): Promise<void> {
 }
 
 async function waitForFonts(doc: Document): Promise<void> {
-  const fonts = (doc as unknown as { fonts?: { ready: Promise<unknown> } }).fonts;
+  const fonts = (doc as unknown as { fonts?: { ready: Promise<unknown> } })
+    .fonts;
   if (!fonts || !fonts.ready) return;
   await Promise.race([
     fonts.ready.then(() => undefined),
@@ -473,7 +528,9 @@ async function waitForImages(doc: Document): Promise<void> {
           img.addEventListener("load", () => resolve(), { once: true });
           img.addEventListener("error", () => resolve(), { once: true });
         }),
-        new Promise<void>((resolve) => setTimeout(resolve, READINESS_TIMEOUT_MS)),
+        new Promise<void>((resolve) =>
+          setTimeout(resolve, READINESS_TIMEOUT_MS),
+        ),
       ]);
     }),
   );
