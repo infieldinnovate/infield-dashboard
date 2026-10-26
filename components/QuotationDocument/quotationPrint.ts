@@ -296,6 +296,17 @@ function paginateItemsByHeight(
   for (let i = 0; i < items.length; i++) {
     const h = rowHeights[i];
     const avail = isFirstPage ? firstPageAvail : middlePageAvail;
+    if (h > avail) {
+      // Oversized row: flush current page, give this row its own page.
+      if (currentPage.length > 0) {
+        packMiddle.push(currentPage);
+        currentPage = [];
+        used = 0;
+      }
+      packMiddle.push([items[i]]);
+      isFirstPage = false;
+      continue;
+    }
     if (used + h > avail && currentPage.length > 0) {
       packMiddle.push(currentPage);
       currentPage = [];
@@ -347,6 +358,16 @@ function paginateItemsByHeight(
     let pageUsed = 0;
     for (const item of overflow) {
       const h = rowHeights[items.indexOf(item)];
+      if (h > middlePageAvail) {
+        // Oversized row: flush current page, give this row its own page.
+        if (page.length > 0) {
+          overflowPages.push(page);
+          page = [];
+          pageUsed = 0;
+        }
+        overflowPages.push([item]);
+        continue;
+      }
       if (pageUsed + h > middlePageAvail && page.length > 0) {
         overflowPages.push(page);
         page = [];
@@ -367,6 +388,20 @@ function paginateItemsByHeight(
     } else {
       result.push(...overflowPages.slice(0, -1));
       result.push(finalLast);
+    }
+  }
+
+  // If the last page is over-capacity (e.g. an oversized row that exceeds the
+  // closing-section budget), append an empty page so the closing section gets
+  // its own page instead of being placed on top of the overflow.
+  const finalPage = result[result.length - 1];
+  if (finalPage && finalPage.length > 0) {
+    const finalPageHeight = finalPage.reduce(
+      (sum, item) => sum + rowHeights[items.indexOf(item)],
+      0,
+    );
+    if (finalPageHeight > lastPageAvail) {
+      result.push([]);
     }
   }
   return result;
