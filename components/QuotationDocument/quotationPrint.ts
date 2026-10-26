@@ -315,13 +315,10 @@ function paginateItemsByHeight(
 
   const isSinglePage = packMiddle.length === 1;
   const singlePageFixed = isSinglePage
-    ? FIRST_PAGE_FIXED + closingSectionHeight + PAGE_GEOMETRY.rowGap
+    ? FIRST_PAGE_FIXED + closingSectionHeight
     : 0;
   const lastPageAvail =
-    PRINTABLE_HEIGHT -
-    LAST_PAGE_FIXED -
-    closingSectionHeight -
-    PAGE_GEOMETRY.rowGap;
+    PRINTABLE_HEIGHT - LAST_PAGE_FIXED - closingSectionHeight;
   const effectiveAvail = isSinglePage
     ? PRINTABLE_HEIGHT - singlePageFixed
     : lastPageAvail;
