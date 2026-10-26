@@ -129,6 +129,52 @@ function measureElementHeight(html: string, styles: string): number {
   return height;
 }
 
+function measureItemRowHeights(
+  items: QuotationItem[],
+  startIndex: number,
+  styles: string,
+): number[] {
+  if (items.length === 0) return [];
+  const rowsHTML = items
+    .map((item, i) => {
+      const rowClass = i % 2 === 1 ? ' class="evenRow"' : "";
+      return `<tr${rowClass}>
+        <td class="qt-no-col">${startIndex + i + 1}</td>
+        <td class="qt-product-col">${escapeHtml(item.productName)}</td>
+        <td class="qt-unit-col">${escapeHtml(item.size || "-")}</td>
+        <td class="qt-qty-col">${item.quantity} ${escapeHtml(item.unit || "")}</td>
+        <td class="qt-price-col">${formatAmount(item.unitPrice)}</td>
+        <td class="qt-total-col">${formatAmount(calcItemTotal(item))}</td>
+      </tr>`;
+    })
+    .join("");
+  const tableHTML = `<table class="qt-items-table"><thead><tr>
+    <th class="qt-no-col">No.</th><th>Description</th><th class="qt-unit-col">Size</th>
+    <th class="qt-qty-col">Qty</th><th class="qt-price-col">Price</th><th class="qt-total-col">Total</th>
+  </tr></thead><tbody>${rowsHTML}</tbody></table>`;
+
+  const container = document.createElement("div");
+  container.style.position = "absolute";
+  container.style.left = "-9999px";
+  container.style.top = "0";
+  container.style.width = "180mm";
+  container.style.visibility = "hidden";
+  container.style.pointerEvents = "none";
+  const styleEl = document.createElement("style");
+  styleEl.textContent = styles;
+  container.appendChild(styleEl);
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = tableHTML;
+  container.appendChild(wrapper);
+  document.body.appendChild(container);
+  const tbodyRows = wrapper.querySelectorAll<
+    HTMLTableRowElement
+  >("table.qt-items-table tbody tr");
+  const heights = Array.from(tbodyRows).map((tr) => tr.offsetHeight);
+  document.body.removeChild(container);
+  return heights;
+}
+
 function buildQuotationHTML(quotation: Quotation): string {
   const settings = getSettings();
   const { businessName, address, phone, email, website, logo } =
