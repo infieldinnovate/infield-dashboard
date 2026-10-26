@@ -249,6 +249,14 @@ export const quotations: Quotation[] = [
         unit: "kit",
       },
       {
+        productId: "19031",
+        productName: "Lightning Protection Kit",
+        size: "Complete Kit",
+        quantity: 1,
+        unitPrice: 12000,
+        unit: "kit",
+      },
+      {
         productId: "10032",
         productName: "Electrical Testing and Safety Inspection",
         size: "Service",
