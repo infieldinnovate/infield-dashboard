@@ -434,13 +434,80 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
     .join("");
 }
 
+const READINESS_TIMEOUT_MS = 5000;
+
+async function waitForReadyState(doc: Document): Promise<void> {
+  if (doc.readyState === "complete") return;
+  await Promise.race([
+    new Promise<void>((resolve) => {
+      const check = () => {
+        if (doc.readyState === "complete") {
+          doc.removeEventListener("readystatechange", check);
+          resolve();
+        }
+      };
+      doc.addEventListener("readystatechange", check);
+      check();
+    }),
+    new Promise<void>((resolve) => setTimeout(resolve, READINESS_TIMEOUT_MS)),
+  ]);
+}
+
+async function waitForFonts(doc: Document): Promise<void> {
+  const fonts = (doc as unknown as { fonts?: { ready: Promise<unknown> } }).fonts;
+  if (!fonts || !fonts.ready) return;
+  await Promise.race([
+    fonts.ready.then(() => undefined),
+    new Promise<void>((resolve) => setTimeout(resolve, READINESS_TIMEOUT_MS)),
+  ]);
+}
+
+async function waitForImages(doc: Document): Promise<void> {
+  const imgs = Array.from(doc.querySelectorAll<HTMLImageElement>("img"));
+  if (imgs.length === 0) return;
+  await Promise.all(
+    imgs.map((img) => {
+      if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
+      return Promise.race([
+        new Promise<void>((resolve) => {
+          img.addEventListener("load", () => resolve(), { once: true });
+          img.addEventListener("error", () => resolve(), { once: true });
+        }),
+        new Promise<void>((resolve) => setTimeout(resolve, READINESS_TIMEOUT_MS)),
+      ]);
+    }),
+  );
+}
+
 export async function printQuotation(quotation: Quotation): Promise<void> {
   const printWindow = window.open("", "_blank");
   if (!printWindow) return;
+
+  // Step 1: write a minimal shell with print CSS so fonts can preload while
+  // buildQuotationHTML measures row heights in the main window.
+  printWindow.document.write(
+    `<!DOCTYPE html><html><head><title>Quotation ${quotation.quotationCode || quotation.id}</title><style>${printStyles}</style></head><body></body></html>`,
+  );
+  printWindow.document.close();
+
+  await waitForReadyState(printWindow.document);
+  await waitForFonts(printWindow.document);
+
+  // Step 2: generate paginated HTML via height-aware measurement in the main window.
   const bodyHTML = await buildQuotationHTML(quotation);
+
+  // Step 3: write the final paginated content into the print window.
+  printWindow.document.open();
   printWindow.document.write(
     `<!DOCTYPE html><html><head><title>Quotation ${quotation.quotationCode || quotation.id}</title><style>${printStyles}</style></head><body>${bodyHTML}</body></html>`,
   );
   printWindow.document.close();
-  setTimeout(() => printWindow.print(), 300);
+
+  // Step 4: wait again for the final content (fonts, images) to settle.
+  await waitForReadyState(printWindow.document);
+  await waitForFonts(printWindow.document);
+  await waitForImages(printWindow.document);
+
+  // Step 5: print once layout is stable.
+  printWindow.print();
 }
