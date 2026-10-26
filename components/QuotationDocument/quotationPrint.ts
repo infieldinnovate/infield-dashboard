@@ -15,7 +15,7 @@ const printStyles = `
 *{margin:0;padding:0;box-sizing:border-box}
 @page{size:A4 portrait;margin:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#101820;background:#fff}
-.qt-page{width:210mm;min-height:297mm;padding:12mm 15mm 0 15mm;background:#fff url("/backgrounds/plain.jpg") center/cover no-repeat;position:relative;page-break-after:always;color:#101820}
+.qt-page{width:210mm;min-height:297mm;padding:12mm 15mm 0 15mm;background:#fff url("/backgrounds/plain.jpg") center/cover no-repeat;position:relative;page-break-after:always;color:#101820;display:flex;flex-direction:column;row-gap:20px}
 .qt-page:last-child{page-break-after:auto}
 .qt-header{height:43mm;display:grid;grid-template-columns:1.2fr 0.8fr;gap:23px;align-items:start;background:url("/backgrounds/qt-header.png") center/cover no-repeat;border-bottom:#5e5e5e solid 1px}
 .qt-brand{display:flex;flex-direction:column;align-items:flex-start}
@@ -30,14 +30,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-code-text{color:#164865;font-size:16px;margin-right:45px;font-weight:800}
 .qt-date-text{color:#164865;font-size:14px;margin-right:45px}
 .qt-date-text span{color:#111;margin-left:5px}
-.qt-billto-for{height:35mm;display:grid;grid-template-columns:1fr 1.8fr;gap:20px;align-items:center}
+.qt-billto-for{height:25mm;display:grid;grid-template-columns:1fr 1.8fr;gap:20px;align-items:center;background-color:yellow}
 .qt-billto-label{color:#121212;font-size:16px;font-weight:600}
 .qt-billto-content{width:fit-content;font-family:Georgia,"Times New Roman",serif;font-size:10pt}
 .qt-billto-content p{margin:0 0 2px}
 .qt-for-section{height:19mm;display:grid;grid-template-columns:74px 1fr;background:#d4d4d4}
 .qt-for-label{display:flex;align-items:center;padding:0 14px;background:#bdbdbd;color:#111;font-size:16px;font-weight:600}
 .qt-for-text{display:flex;align-items:center;padding:0 16px;color:#111;font-size:10pt;font-family:Georgia,"Times New Roman",serif}
-.qt-items-table{width:100%;border-collapse:collapse;table-layout:fixed;color:#1d1d1d;font-size:12px}
+.qt-items-table{width:100%;border-collapse:collapse;table-layout:fixed;color:#1d1d1d;font-size:12px;background-color:#0095ff}
 .qt-items-table th,.qt-items-table td{padding:3px 0}
 .qt-items-table thead th{height:30px;background:#104b68;color:#fff;border-right:2px solid #fff;font-size:14px;font-weight:bold;text-align:center!important;padding:0!important}
 .qt-items-table thead th:last-child{border-right:0}
@@ -49,33 +49,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-qty-col{width:10%;text-align:center!important}
 .qt-price-col{width:13%;text-align:right!important;padding-right:10px!important}
 .qt-total-col{width:17%;text-align:right!important;padding-right:10px!important}
-.qt-totals{border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:13px;margin-top:15px;margin-left:60%}
+.qt-totals{width:75mm;height:fit-content;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:13px;margin-left:105mm;background-color:#674dda}
 .qt-totals td{padding:7px 15px;border-bottom:1px solid #bcbcbc;vertical-align:middle}
-.qt-totals td:first-child{width:50%;padding-left:12px;text-align:left}
-.qt-totals td:last-child{width:40%;padding-right:12px;text-align:right;white-space:nowrap;font-weight:400}
+.qt-totals td:first-child{width:35mm;padding-left:12px;text-align:left;background-color:yellow}
+.qt-totals td:last-child{padding-right:12px;text-align:right;white-space:nowrap;font-weight:400}
 .qt-totals em{font-style:normal}
 .qt-totals-row td{height:28px}
 .qt-grand-total{background:#d5ebec;font-size:15px}
 .qt-grand-total td{padding-top:10px;padding-bottom:10px;border-bottom:none}
 .qt-grand-total td:first-child{font-weight:800}
 .qt-grand-total td:last-child{font-weight:400}
-.qt-footer{height:28mm;color:#111;background:url("/backgrounds/qt-footer.png") center/cover no-repeat;position:absolute;left:15mm;right:15mm;bottom:12mm}
-.qt-page-last .qt-footer{position:static;left:auto;right:auto;bottom:auto;margin-top:20px}
-.qt-stamp-sign{width:100%;height:27mm;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111}
-.qt-row1{width:100%;display:flex;flex-direction:row;justify-content:space-between;align-items:flex-end}
+.qt-footer{height:35mm;color:#111;background:url("/backgrounds/qt-footer.png") center/cover no-repeat;position:absolute;left:15mm;right:15mm;bottom:0;background-color:red}
+.qt-page-last .qt-footer{position:static;left:auto;right:auto;bottom:auto}
+.qt-stamp-sign{width:100%;height:27mm;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111;background-color:#4dda4d}
 .qt-footer-notes{height:23mm;width:80mm;font-family:Georgia,"Times New Roman",serif;font-style:italic;line-height:1.2}
-.qt-footer-notes strong{display:block;font-weight:bold;font-size:11pt;text-align:center;padding-bottom:4px}
+.qt-footer-notes strong{display:block;font-weight:bold;font-size:11pt;text-align:left;padding-bottom:4px}
 .qt-footer-notes span{font-size:9pt}
-.qt-signature-image{display:flex;align-items:center;justify-content:center;max-width:50mm;height:23mm;object-fit:contain;margin-right:50px}
+.qt-signature-image{display:flex;align-items:flex-end;justify-content:flex-start;max-width:50mm;height:23mm;object-fit:contain;margin-right:60px}
 .qt-signature-image img{max-width:100%;max-height:100%;object-fit:contain}
 .qt-stamp{width:30mm;height:24mm;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transform:rotate(-35deg);background-image:url("/digital-stamp.png");background-size:cover;background-position:center;background-repeat:no-repeat;padding-bottom:22px}
 .qt-stamp-date{color:#000;font-size:9px}
-.qt-row2{height:28mm;display:flex;flex-direction:row;justify-content:space-between;align-items:center}
-.qt-contact-thankyou{height:28mm;width:90mm;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:25px}
 .qt-footer-contact{color:#0095ff;font-family:Arial,Helvetica,sans-serif;font-size:10pt;font-weight:bold}
 .qt-footer-contact span{color:#000;font-weight:normal;margin-left:5px}
 .qt-footer-thankyou{color:#111;font-family:Georgia,"Times New Roman",serif;font-size:7.5pt;font-style:italic;line-height:1.2}
-.qt-created-by{width:54mm;margin-top:5px;margin-right:60px;padding:2px;color:#fff;font-size:12pt;font-weight:bold;font-family:"Times New Roman",Times,serif;text-align:center;border-bottom:2px solid #fff}
+.qt-created-by{width:54mm;margin-right:60px;color:#fff;font-size:11pt;font-style:italic;font-family:"Times New Roman",Times,serif;text-align:center;margin-bottom:45px}
 
 @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.qt-page{page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}.qt-page:last-child{page-break-after:auto}}
 `;
@@ -159,21 +156,17 @@ function buildQuotationHTML(quotation: Quotation): string {
     : `<div class="qt-signature-image"></div>`;
 
   const stampSignHTML = `<div class="qt-stamp-sign">
-    <div class="qt-row1">
-      <div class="qt-footer-notes"><strong>Notes:</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ""}</div>
-      ${stampHTML}
-      ${sigHTML}
-    </div>
+    <div class="qt-footer-notes"><strong>Notes:</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ""}</div>
+    ${stampHTML}
+    ${sigHTML}
   </div>`;
 
   const buildFooter = () => `<footer class="qt-footer">
-    <div class="qt-row2">
-      <div class="qt-contact-thankyou">
-        <div class="qt-footer-contact"><b>CONTACT US:</b> <span>${escapeHtml(phone)}</span></div>
-        <span class="qt-footer-thankyou">Thank you for choosing Infield Innovations.<br>We deliver exceptional results with unmatched expertise and dedication.</span>
-      </div>
-      <div class="qt-created-by">${escapeHtml(quotation.createdBy || "")}</div>
+    <div class="qt-contact-thankyou">
+      <div class="qt-footer-contact"><b>CONTACT US:</b> <span>${escapeHtml(phone)}</span></div>
+      <span class="qt-footer-thankyou">Thank you for choosing Infield Innovations.<br>We deliver exceptional results with unmatched expertise and dedication.</span>
     </div>
+    <div class="qt-created-by">By ${escapeHtml(quotation.createdBy || "")}</div>
   </footer>`;
 
   const headerFull = `<header class="qt-header">
