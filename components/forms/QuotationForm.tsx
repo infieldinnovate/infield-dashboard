@@ -112,6 +112,24 @@ export default function QuotationForm({
     return calcQuotationTotals(items, taxRate);
   }, [watchedItems, watchedTaxRate]);
 
+  const selectedProductIds = useMemo(() => {
+    const ids = new Set<string>();
+    (watchedItems || []).forEach((item, i) => {
+      const pid = item.productId;
+      if (pid) ids.add(pid);
+    });
+    return ids;
+  }, [watchedItems]);
+
+  const getAvailableProductOptions = (currentIndex: number) =>
+    productOptions.map((opt) => ({
+      ...opt,
+      disabled:
+        !!opt.value &&
+        selectedProductIds.has(opt.value) &&
+        watchedItems?.[currentIndex]?.productId !== opt.value,
+    }));
+
   const addItem = () => {
     append({ productId: '', productName: '', size: '', quantity: 1, unitPrice: 0, unit: '' });
   };
@@ -214,7 +232,7 @@ export default function QuotationForm({
                     name={`items.${index}.productId`}
                     render={({ field, fieldState }) => (
                       <SelectField
-                        options={productOptions}
+                        options={getAvailableProductOptions(index)}
                         placeholder="Select product"
                         value={field.value}
                         onChange={(e) => {

@@ -13,7 +13,7 @@ import clsx from "clsx";
 import { ChevronDown, type LucideIcon } from "lucide-react";
 import styles from "./formElement.module.scss";
 
-type SelectOption = { value: string | number; label: string };
+type SelectOption = { value: string | number; label: string; disabled?: boolean };
 
 type SelectFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   label?: string;
@@ -133,7 +133,7 @@ export default function SelectField<
         </option>
       )}
       {options.map((opt) => (
-        <option key={String(opt.value)} value={opt.value}>
+        <option key={String(opt.value)} value={opt.value} disabled={opt.disabled}>
           {opt.label}
         </option>
       ))}

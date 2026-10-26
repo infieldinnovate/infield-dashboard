@@ -16,7 +16,14 @@ export const quotationFormSchema = z.object({
   quoteFor: z.string().min(1, 'Description of what the quote is for is required'),
   items: z
     .array(quotationItemSchema)
-    .min(1, 'At least one item is required'),
+    .min(1, 'At least one item is required')
+    .refine(
+      (items) => {
+        const productIds = items.map((i) => i.productId).filter(Boolean);
+        return new Set(productIds).size === productIds.length;
+      },
+      { message: 'Each product can only be added once' },
+    ),
   taxRate: z
     .string()
     .refine((v) => !isNaN(Number(v)), 'Tax rate must be a valid number')
