@@ -172,7 +172,7 @@ export async function generateQuotationPDF(
   const colWidths: Record<string, number> = {
     no: CONTENT_WIDTH * 0.06,
     unit: CONTENT_WIDTH * 0.12,
-    qty: CONTENT_WIDTH * 0.10,
+    qty: CONTENT_WIDTH * 0.1,
     price: CONTENT_WIDTH * 0.13,
     total: CONTENT_WIDTH * 0.17,
   };
@@ -257,11 +257,7 @@ export async function generateQuotationPDF(
 
     const detailsY = bizNameY - 12 * 1.3 - 2;
     const detailLineH = 12 * 1.3;
-    const drawDetailLine = (
-      label: string,
-      value: string,
-      dy: number,
-    ) => {
+    const drawDetailLine = (label: string, value: string, dy: number) => {
       const labelW = boldFont.widthOfTextAtSize(label, 12);
       page.drawText(label, {
         x: PAD_SIDE,
@@ -319,7 +315,11 @@ export async function generateQuotationPDF(
     const codeY = barcodeBottomY - 5 - 16;
     const codeText = quotation.quotationCode || "";
     page.drawText(codeText, {
-      x: headerRightX + headerRightW - boldFont.widthOfTextAtSize(codeText, 16) - 45,
+      x:
+        headerRightX +
+        headerRightW -
+        boldFont.widthOfTextAtSize(codeText, 16) -
+        45,
       y: codeY,
       size: 16,
       font: boldFont,
@@ -671,7 +671,7 @@ export async function generateQuotationPDF(
 
     const cbW = mm(54);
     const cbX = PAD_SIDE + CONTENT_WIDTH - 60 - cbW;
-    const cbY = row2CenterY - 12 * PT / 2;
+    const cbY = row2CenterY - (12 * PT) / 2;
     const cbLabel = quotation.createdBy || "";
     if (cbLabel) {
       page.drawText(cbLabel, {
@@ -705,7 +705,8 @@ export async function generateQuotationPDF(
 
     const notesX = PAD_SIDE;
     page.drawText("Notes:", {
-      x: notesX + notesW / 2 - boldFont.widthOfTextAtSize("Notes:", 11 * PT) / 2,
+      x:
+        notesX + notesW / 2 - boldFont.widthOfTextAtSize("Notes:", 11 * PT) / 2,
       y: sectionTop - 4 - 11 * PT,
       size: 11 * PT,
       font: boldFont,
@@ -716,7 +717,8 @@ export async function generateQuotationPDF(
       const maxNotesW = notesW - 8;
       if (serifItalic.widthOfTextAtSize(notesText, 9 * PT) > maxNotesW) {
         while (
-          serifItalic.widthOfTextAtSize(notesText + "...", 9 * PT) > maxNotesW &&
+          serifItalic.widthOfTextAtSize(notesText + "...", 9 * PT) >
+            maxNotesW &&
           notesText.length > 0
         )
           notesText = notesText.slice(0, -1);
@@ -788,7 +790,13 @@ export async function generateQuotationPDF(
     drawStampText("INFIELD", 16, 11, boldFont, STAMP_RED);
     drawStampText("* * * *", 4, 7, font, STAMP_RED);
     drawStampText("+254 702 393 677", -6, 7, font, STAMP_RED);
-    drawStampText(formatStampDate(quotation.createdAt), -15, 6, font, STAMP_RED);
+    drawStampText(
+      formatStampDate(quotation.createdAt),
+      -15,
+      6,
+      font,
+      STAMP_RED,
+    );
     const lineHalfLen = 20;
     const lineDy = -20;
     page.drawLine({
@@ -836,7 +844,11 @@ export async function generateQuotationPDF(
   const totalsPadH = 7;
   const totalsPadV = 7;
 
-  const drawTotalsRow = (label: string, value: string, isGrandTotal: boolean) => {
+  const drawTotalsRow = (
+    label: string,
+    value: string,
+    isGrandTotal: boolean,
+  ) => {
     const fontSize = isGrandTotal ? 15 : 13;
     const pt = isGrandTotal ? 10 : totalsPadV;
     const pb = isGrandTotal ? 10 : totalsPadV;

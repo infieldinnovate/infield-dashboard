@@ -1,3 +1,5 @@
+// components\QuotationDocument\quotationPrint.ts
+
 import JsBarcode from "jsbarcode";
 import type { Quotation, QuotationItem } from "../../types";
 import {
@@ -9,7 +11,12 @@ import {
   generateBarcode,
   getSettings,
 } from "../../lib/documentUtils";
-import { paginateItems, formatAmount, ITEMS_PER_PAGE, ITEMS_PER_MIDDLE_PAGE } from "./documentHelpers";
+import {
+  paginateItems,
+  formatAmount,
+  ITEMS_PER_PAGE,
+  ITEMS_PER_MIDDLE_PAGE,
+} from "./documentHelpers";
 
 const printStyles = `
 *{margin:0;padding:0;box-sizing:border-box}
@@ -120,7 +127,10 @@ function buildQuotationHTML(quotation: Quotation): string {
     ? `<img src="${barcodeDataUrl}" alt="Barcode" class="qt-barcode-img" />`
     : "";
 
-  const buildItemsTable = (items: QuotationItem[], startIndex: number): string => {
+  const buildItemsTable = (
+    items: QuotationItem[],
+    startIndex: number,
+  ): string => {
     return `<table class="qt-items-table"><thead><tr>
       <th class="qt-no-col">No.</th><th>Description</th><th class="qt-unit-col">Size</th>
       <th class="qt-qty-col">Qty</th><th class="qt-price-col">Price</th><th class="qt-total-col">Total</th>
@@ -205,7 +215,9 @@ function buildQuotationHTML(quotation: Quotation): string {
       const pageClass = isLast ? "qt-page qt-page-last" : "qt-page";
       const lastContent = buildTotals() + stampSignHTML + buildFooter();
       const nonLastContent = buildFooter();
-      const startIndex = isFirst ? 0 : ITEMS_PER_PAGE + (i - 1) * ITEMS_PER_MIDDLE_PAGE;
+      const startIndex = isFirst
+        ? 0
+        : ITEMS_PER_PAGE + (i - 1) * ITEMS_PER_MIDDLE_PAGE;
       return `<div class="${pageClass}">${headerFull}${isFirst ? billToFor : ""}${buildItemsTable(pageItems, startIndex)}${isLast ? lastContent : nonLastContent}</div>`;
     })
     .join("");
