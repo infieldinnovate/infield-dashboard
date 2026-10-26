@@ -36,12 +36,16 @@ const FIRST_PAGE_FIXED =
   PAGE_GEOMETRY.rowGap +
   PAGE_GEOMETRY.billToForHeight +
   PAGE_GEOMETRY.rowGap +
-  PAGE_GEOMETRY.tableHeaderHeight;
+  PAGE_GEOMETRY.tableHeaderHeight +
+  PAGE_GEOMETRY.rowGap +
+  PAGE_GEOMETRY.footerHeight;
 
 const MIDDLE_PAGE_FIXED =
   PAGE_GEOMETRY.headerHeight +
   PAGE_GEOMETRY.rowGap +
-  PAGE_GEOMETRY.tableHeaderHeight;
+  PAGE_GEOMETRY.tableHeaderHeight +
+  PAGE_GEOMETRY.rowGap +
+  PAGE_GEOMETRY.footerHeight;
 
 const LAST_PAGE_FIXED =
   PAGE_GEOMETRY.headerHeight +
