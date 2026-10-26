@@ -1,12 +1,11 @@
 "use client";
 
-import type { Quotation } from "../../types";
 import A4Layout from "./A4Layout";
 import ActionBar from "./ActionBar";
 import StatusBadge from "./StatusBadge";
 import { printQuotation } from "./quotationPrint";
 import { downloadQuotationPDF } from "./quotationPDF";
-import type { QuotationDocumentActions, QuotationDocumentProps } from "./types";
+import type { QuotationDocumentProps } from "./types";
 import styles from "./QuotationDocument.module.scss";
 
 export type { QuotationDocumentActions } from "./types";
