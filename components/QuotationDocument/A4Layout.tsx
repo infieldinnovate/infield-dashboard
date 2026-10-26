@@ -7,6 +7,7 @@ import ItemsTable from "./ItemsTable";
 import Totals from "./Totals";
 import { paginateItems } from "./documentHelpers";
 import styles from "./QuotationDocument.module.scss";
+import StampSign from "./StampSign";
 
 export default function A4Layout({ quotation }: { quotation: Quotation }) {
   const pages = paginateItems(quotation.items);
@@ -30,6 +31,7 @@ export default function A4Layout({ quotation }: { quotation: Quotation }) {
               </>
             )}
             {isLast && <Totals quotation={quotation} />}
+            {isLast && <StampSign quotation={quotation} />}
             {isLast && <Footer quotation={quotation} />}
           </div>
         );

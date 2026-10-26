@@ -212,6 +212,7 @@
   font-size: 13px;
   margin-top: 15px;
   margin-left: 60%;
+  margin-bottom: 25px;
 
   td {
     padding: 7px 15px;
@@ -262,22 +263,18 @@
     }
   }
 }
-.footer {
-  margin-top: 20px;
-  height: 52mm;
-  color: #111;
-  background: url("/backgrounds/qt-footer.png") center / cover no-repeat;
-}
 
-.row1 {
+.stampSignSection {
   width: 100%;
+  height: 27mm;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
+  color: #111;
 }
 
-.footerNotes {
+.notes {
   height: 23mm;
   width: 80mm;
   font-family: Georgia, "Times New Roman", serif;
@@ -285,34 +282,36 @@
   line-height: 1.2;
 }
 
-.footerNotes strong {
+.notes strong {
   display: block;
   font-weight: bold;
   font-size: 11pt;
-  text-align: center;
+  text-align: left;
   padding-bottom: 4px;
 }
 
-.footerNotes span {
+.notes span {
   font-size: 9pt;
 }
 
 .signatureImage {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-start;
   max-width: 50mm;
   height: 23mm;
   object-fit: contain;
-  margin-right: 50px;
+  margin-right: 60px;
 }
 
-.row2 {
-  height: 28mm;
+.footer {
+  height: 35mm;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  background: url("/backgrounds/qt-footer.png") center / cover no-repeat;
+  color: #111;
 }
 
 .contactAndThankYou {
@@ -321,24 +320,25 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 25px;
+  padding-top: 10px;
 }
 
-.footerContact {
+.contact {
   color: #0095ff;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 10pt;
   font-weight: bold;
 }
 
-.footerContact span {
+.contact span {
   color: #000;
   font-weight: normal;
   margin-left: 5px;
 }
 
-.footerThankYou {
+.thankYou {
   color: #111;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 7.5pt;
@@ -348,15 +348,13 @@
 
 .createdBy {
   width: 54mm;
-  margin-top: 5px;
   margin-right: 60px;
-  padding: 2px;
   color: #fff;
   font-size: 12pt;
   font-weight: bold;
   font-family: "Times New Roman", Times, serif;
   text-align: center;
-  border-bottom: 2px solid #fff;
+  margin-bottom: 45px;
 }
 
 .compactHeader {
