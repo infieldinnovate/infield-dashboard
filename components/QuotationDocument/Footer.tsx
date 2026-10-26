@@ -25,7 +25,7 @@ export default function QuotationFooterBottomRow({
         </span>
       </div>
 
-      <div className={styles.createdBy}>{quotation.createdBy}</div>
+      <div className={styles.createdBy}>By {quotation.createdBy}</div>
     </div>
   );
 }
