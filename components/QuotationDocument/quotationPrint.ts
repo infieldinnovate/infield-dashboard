@@ -109,6 +109,26 @@ function generateBarcodeDataUrl(value: string): string {
   }
 }
 
+function measureElementHeight(html: string, styles: string): number {
+  const container = document.createElement("div");
+  container.style.position = "absolute";
+  container.style.left = "-9999px";
+  container.style.top = "0";
+  container.style.width = "180mm";
+  container.style.visibility = "hidden";
+  container.style.pointerEvents = "none";
+  const styleEl = document.createElement("style");
+  styleEl.textContent = styles;
+  container.appendChild(styleEl);
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = html;
+  container.appendChild(wrapper);
+  document.body.appendChild(container);
+  const height = wrapper.offsetHeight;
+  document.body.removeChild(container);
+  return height;
+}
+
 function buildQuotationHTML(quotation: Quotation): string {
   const settings = getSettings();
   const { businessName, address, phone, email, website, logo } =
