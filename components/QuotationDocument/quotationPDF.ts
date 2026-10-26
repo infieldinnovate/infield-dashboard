@@ -53,8 +53,6 @@ const WHITE = rgb(1, 1, 1);
 const DARK = rgb(0.063, 0.094, 0.125);
 const DETAILS_DARK = rgb(0.082, 0.082, 0.082);
 const CONTACT_BLUE = rgb(0.0, 0.585, 1.0);
-const COMPACT_BORDER = rgb(0.816, 0.816, 0.816);
-const COMPACT_CODE = rgb(0.333, 0.333, 0.333);
 
 function mm(v: number): number {
   return v * MM;
@@ -216,41 +214,147 @@ export async function generateQuotationPDF(
   };
   drawPageBackground(page);
 
-  const addPage = (): PDFPage => {
-    page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-    drawPageBackground(page);
-    y = PAGE_HEIGHT - PAD_TOP;
+  const drawBrandedHeader = () => {
+    const headerTop = y;
+    const headerBottom = headerTop - HEADER_HEIGHT;
+
+    if (headerBgImg) {
+      page.drawImage(headerBgImg, {
+        x: PAD_SIDE,
+        y: headerBottom,
+        width: CONTENT_WIDTH,
+        height: HEADER_HEIGHT,
+      });
+    }
+    page.drawLine({
+      start: { x: PAD_SIDE, y: headerBottom },
+      end: { x: PAGE_WIDTH - PAD_SIDE, y: headerBottom },
+      thickness: 1,
+      color: HEADER_BORDER,
+    });
+
+    const logoMarginLeft = 90;
+    const logoH = mm(12);
+    if (logoImg) {
+      const imgRatio = logoImg.width / logoImg.height;
+      const logoW = logoH * imgRatio;
+      page.drawImage(logoImg, {
+        x: PAD_SIDE + logoMarginLeft,
+        y: headerTop - logoH,
+        width: logoW,
+        height: logoH,
+      });
+    }
+
+    const bizNameY = headerTop - logoH - 10 - 22 * 1.6;
     page.drawText(businessName, {
       x: PAD_SIDE,
-      y,
+      y: bizNameY,
+      size: 22,
+      font: boldFont,
+      color: BRAND_BLUE,
+    });
+
+    const detailsY = bizNameY - 12 * 1.3 - 2;
+    const detailLineH = 12 * 1.3;
+    const drawDetailLine = (
+      label: string,
+      value: string,
+      dy: number,
+    ) => {
+      const labelW = boldFont.widthOfTextAtSize(label, 12);
+      page.drawText(label, {
+        x: PAD_SIDE,
+        y: dy,
+        size: 12,
+        font: boldFont,
+        color: DETAILS_DARK,
+      });
+      page.drawText(value, {
+        x: PAD_SIDE + labelW + 5,
+        y: dy,
+        size: 12,
+        font: serifFont,
+        color: DETAILS_DARK,
+      });
+    };
+    page.drawText(address, {
+      x: PAD_SIDE,
+      y: detailsY,
+      size: 12,
+      font: serifFont,
+      color: DETAILS_DARK,
+    });
+    drawDetailLine("Tel:", phone, detailsY - detailLineH);
+    drawDetailLine("Email:", email, detailsY - detailLineH * 2);
+    drawDetailLine("Website:", siteUrl, detailsY - detailLineH * 3);
+
+    const titleH = mm(11);
+    const titleW = mm(62);
+    const titleX = headerRightX + headerRightW - titleW;
+    const titleY = headerTop - titleH;
+    const titleText = "QUOTATION";
+    const titleTextW = boldFont.widthOfTextAtSize(titleText, 14 * PT);
+    page.drawText(titleText, {
+      x: titleX + (titleW - titleTextW) / 2,
+      y: titleY + (titleH - 14 * PT) / 2,
+      size: 14 * PT,
+      font: boldFont,
+      color: WHITE,
+    });
+
+    let barcodeBottomY = titleY - 15;
+    if (barcodeImg) {
+      const bw = Math.min(205, headerRightW - 30);
+      const bh = 31;
+      page.drawImage(barcodeImg, {
+        x: headerRightX + headerRightW - bw - 30,
+        y: barcodeBottomY - bh,
+        width: bw,
+        height: bh,
+      });
+      barcodeBottomY = barcodeBottomY - bh;
+    }
+
+    const codeY = barcodeBottomY - 5 - 16;
+    const codeText = quotation.quotationCode || "";
+    page.drawText(codeText, {
+      x: headerRightX + headerRightW - boldFont.widthOfTextAtSize(codeText, 16) - 45,
+      y: codeY,
+      size: 16,
+      font: boldFont,
+      color: BRAND_BLUE,
+    });
+
+    const dateY = codeY - 5 - 14;
+    const dateLabel = "Date:";
+    const dateValue = formatDate(quotation.createdAt);
+    const dateLabelW = boldFont.widthOfTextAtSize(dateLabel, 14);
+    const dateValueW = font.widthOfTextAtSize(dateValue, 14);
+    const dateTotalW = dateLabelW + 5 + dateValueW;
+    page.drawText(dateLabel, {
+      x: headerRightX + headerRightW - dateTotalW - 45,
+      y: dateY,
       size: 14,
       font: boldFont,
       color: BRAND_BLUE,
     });
-    const compactTitle = "QUOTATION";
-    page.drawText(compactTitle, {
-      x: PAGE_WIDTH - PAD_SIDE - boldFont.widthOfTextAtSize(compactTitle, 12),
-      y,
-      size: 12,
-      font: boldFont,
-      color: BRAND_BLUE,
-    });
-    const compactCode = quotation.quotationCode || "";
-    page.drawText(compactCode, {
-      x: PAGE_WIDTH - PAD_SIDE - font.widthOfTextAtSize(compactCode, 10),
-      y: y - 14,
-      size: 10,
+    page.drawText(dateValue, {
+      x: headerRightX + headerRightW - dateTotalW - 45 + dateLabelW + 5,
+      y: dateY,
+      size: 14,
       font,
-      color: COMPACT_CODE,
+      color: DARK,
     });
-    y -= 26;
-    page.drawLine({
-      start: { x: PAD_SIDE, y: y + 8 },
-      end: { x: PAGE_WIDTH - PAD_SIDE, y: y + 8 },
-      thickness: 1,
-      color: COMPACT_BORDER,
-    });
-    y -= 16;
+
+    y = headerBottom;
+  };
+
+  const addPage = (): PDFPage => {
+    page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    drawPageBackground(page);
+    y = PAGE_HEIGHT - PAD_TOP;
+    drawBrandedHeader();
     return page;
   };
 
@@ -259,142 +363,7 @@ export async function generateQuotationPDF(
   };
 
   // ─── Header (43mm, background image, 1.2fr/0.8fr grid) ───
-  const headerTop = y;
-  const headerBottom = headerTop - HEADER_HEIGHT;
-
-  if (headerBgImg) {
-    page.drawImage(headerBgImg, {
-      x: PAD_SIDE,
-      y: headerBottom,
-      width: CONTENT_WIDTH,
-      height: HEADER_HEIGHT,
-    });
-  }
-  page.drawLine({
-    start: { x: PAD_SIDE, y: headerBottom },
-    end: { x: PAGE_WIDTH - PAD_SIDE, y: headerBottom },
-    thickness: 1,
-    color: HEADER_BORDER,
-  });
-
-  // Left column: brand
-  const logoMarginLeft = 90;
-  const logoH = mm(12);
-  if (logoImg) {
-    const imgRatio = logoImg.width / logoImg.height;
-    const logoW = logoH * imgRatio;
-    page.drawImage(logoImg, {
-      x: PAD_SIDE + logoMarginLeft,
-      y: headerTop - logoH,
-      width: logoW,
-      height: logoH,
-    });
-  }
-
-  const bizNameY = headerTop - logoH - 10 - 22 * 1.6;
-  page.drawText(businessName, {
-    x: PAD_SIDE,
-    y: bizNameY,
-    size: 22,
-    font: boldFont,
-    color: BRAND_BLUE,
-  });
-
-  const detailsY = bizNameY - 12 * 1.3 - 2;
-  const detailLineH = 12 * 1.3;
-  const drawDetailLine = (
-    label: string,
-    value: string,
-    dy: number,
-  ) => {
-    const labelW = boldFont.widthOfTextAtSize(label, 12);
-    page.drawText(label, {
-      x: PAD_SIDE,
-      y: dy,
-      size: 12,
-      font: boldFont,
-      color: DETAILS_DARK,
-    });
-    page.drawText(value, {
-      x: PAD_SIDE + labelW + 5,
-      y: dy,
-      size: 12,
-      font: serifFont,
-      color: DETAILS_DARK,
-    });
-  };
-  page.drawText(address, {
-    x: PAD_SIDE,
-    y: detailsY,
-    size: 12,
-    font: serifFont,
-    color: DETAILS_DARK,
-  });
-  drawDetailLine("Tel:", phone, detailsY - detailLineH);
-  drawDetailLine("Email:", email, detailsY - detailLineH * 2);
-  drawDetailLine("Website:", siteUrl, detailsY - detailLineH * 3);
-
-  // Right column: title block (align-items: flex-end)
-  const titleH = mm(11);
-  const titleW = mm(62);
-  const titleX = headerRightX + headerRightW - titleW;
-  const titleY = headerTop - titleH;
-  // h1: white text, 14pt, bold, centered in 62mm x 11mm block
-  const titleText = "QUOTATION";
-  const titleTextW = boldFont.widthOfTextAtSize(titleText, 14 * PT);
-  page.drawText(titleText, {
-    x: titleX + (titleW - titleTextW) / 2,
-    y: titleY + (titleH - 14 * PT) / 2,
-    size: 14 * PT,
-    font: boldFont,
-    color: WHITE,
-  });
-
-  let barcodeBottomY = titleY - 15;
-  if (barcodeImg) {
-    const bw = Math.min(205, headerRightW - 30);
-    const bh = 31;
-    page.drawImage(barcodeImg, {
-      x: headerRightX + headerRightW - bw - 30,
-      y: barcodeBottomY - bh,
-      width: bw,
-      height: bh,
-    });
-    barcodeBottomY = barcodeBottomY - bh;
-  }
-
-  const codeY = barcodeBottomY - 5 - 16;
-  const codeText = quotation.quotationCode || "";
-  page.drawText(codeText, {
-    x: headerRightX + headerRightW - boldFont.widthOfTextAtSize(codeText, 16) - 45,
-    y: codeY,
-    size: 16,
-    font: boldFont,
-    color: BRAND_BLUE,
-  });
-
-  const dateY = codeY - 5 - 14;
-  const dateLabel = "Date:";
-  const dateValue = formatDate(quotation.createdAt);
-  const dateLabelW = boldFont.widthOfTextAtSize(dateLabel, 14);
-  const dateValueW = font.widthOfTextAtSize(dateValue, 14);
-  const dateTotalW = dateLabelW + 5 + dateValueW;
-  page.drawText(dateLabel, {
-    x: headerRightX + headerRightW - dateTotalW - 45,
-    y: dateY,
-    size: 14,
-    font: boldFont,
-    color: BRAND_BLUE,
-  });
-  page.drawText(dateValue, {
-    x: headerRightX + headerRightW - dateTotalW - 45 + dateLabelW + 5,
-    y: dateY,
-    size: 14,
-    font,
-    color: DARK,
-  });
-
-  y = headerBottom;
+  drawBrandedHeader();
 
   // ─── Bill To & For (35mm height, 1fr/1.8fr grid, 20px gap) ───
   const bfTop = y;
@@ -641,15 +610,223 @@ export async function generateQuotationPDF(
     }
   };
 
+  const FOOTER_CONTACT_HEIGHT = mm(28);
+  const FOOTER_BOTTOM_MARGIN = mm(12);
+
+  const drawFooterContact = (pinnedToBottom: boolean) => {
+    let footerTop: number;
+    let footerBottom: number;
+    if (pinnedToBottom) {
+      footerBottom = FOOTER_BOTTOM_MARGIN;
+      footerTop = footerBottom + FOOTER_CONTACT_HEIGHT;
+    } else {
+      y -= 20;
+      footerTop = y;
+      footerBottom = footerTop - FOOTER_CONTACT_HEIGHT;
+    }
+
+    if (footerBgImg) {
+      page.drawImage(footerBgImg, {
+        x: PAD_SIDE,
+        y: footerBottom,
+        width: CONTENT_WIDTH,
+        height: FOOTER_CONTACT_HEIGHT,
+      });
+    }
+
+    const row2Bottom = footerBottom;
+    const row2CenterY = row2Bottom + FOOTER_CONTACT_HEIGHT / 2;
+
+    const ctX = PAD_SIDE;
+    const contactY = row2Bottom + 10;
+    page.drawText("CONTACT US:", {
+      x: ctX,
+      y: contactY,
+      size: 10 * PT,
+      font: boldFont,
+      color: CONTACT_BLUE,
+    });
+    const contactLabelW = boldFont.widthOfTextAtSize("CONTACT US:", 10 * PT);
+    page.drawText(phone, {
+      x: ctX + contactLabelW + 5,
+      y: contactY,
+      size: 10 * PT,
+      font,
+      color: DARK,
+    });
+    const thankY = contactY + 25 + 7.5 * PT;
+    const thankLines = [
+      "Thank you for choosing Infield Innovations.",
+      "We deliver exceptional results with unmatched expertise and dedication.",
+    ];
+    for (let i = 0; i < thankLines.length; i++) {
+      page.drawText(thankLines[i], {
+        x: ctX,
+        y: thankY + (thankLines.length - 1 - i) * (7.5 * PT * 1.2),
+        size: 7.5 * PT,
+        font: serifItalic,
+        color: DARK,
+      });
+    }
+
+    const cbW = mm(54);
+    const cbX = PAD_SIDE + CONTENT_WIDTH - 60 - cbW;
+    const cbY = row2CenterY - 12 * PT / 2;
+    const cbLabel = quotation.createdBy || "";
+    if (cbLabel) {
+      page.drawText(cbLabel, {
+        x: cbX + (cbW - boldFont.widthOfTextAtSize(cbLabel, 12 * PT)) / 2,
+        y: cbY,
+        size: 12 * PT,
+        font: serifBold,
+        color: WHITE,
+      });
+    }
+    page.drawLine({
+      start: { x: cbX, y: cbY - 4 },
+      end: { x: cbX + cbW, y: cbY - 4 },
+      thickness: 2,
+      color: WHITE,
+    });
+
+    if (!pinnedToBottom) {
+      y = footerBottom;
+    }
+  };
+
+  const drawStampSign = () => {
+    const sectionHeight = mm(27);
+    const row1Height = mm(23);
+    const notesW = mm(80);
+    const sigMaxW = mm(50);
+    const sigH = row1Height;
+    const sectionTop = y;
+    const row1Bottom = sectionTop - row1Height;
+
+    const notesX = PAD_SIDE;
+    page.drawText("Notes:", {
+      x: notesX + notesW / 2 - boldFont.widthOfTextAtSize("Notes:", 11 * PT) / 2,
+      y: sectionTop - 4 - 11 * PT,
+      size: 11 * PT,
+      font: boldFont,
+      color: DARK,
+    });
+    if (quotation.notes) {
+      let notesText = quotation.notes;
+      const maxNotesW = notesW - 8;
+      if (serifItalic.widthOfTextAtSize(notesText, 9 * PT) > maxNotesW) {
+        while (
+          serifItalic.widthOfTextAtSize(notesText + "...", 9 * PT) > maxNotesW &&
+          notesText.length > 0
+        )
+          notesText = notesText.slice(0, -1);
+        notesText += "...";
+      }
+      page.drawText(notesText, {
+        x: notesX,
+        y: sectionTop - 4 - 11 * PT - 4 - 9 * PT,
+        size: 9 * PT,
+        font: serifItalic,
+        color: DARK,
+      });
+    }
+
+    const sigX = PAD_SIDE + CONTENT_WIDTH - 50 - sigMaxW;
+    if (sigImg) {
+      const imgRatio = sigImg.width / sigImg.height;
+      let drawW = sigMaxW;
+      let drawH = sigH;
+      if (drawW / drawH > imgRatio) {
+        drawW = sigH * imgRatio;
+      } else {
+        drawH = sigMaxW / imgRatio;
+      }
+      page.drawImage(sigImg, {
+        x: sigX + (sigMaxW - drawW) / 2,
+        y: row1Bottom + (sigH - drawH) / 2,
+        width: drawW,
+        height: drawH,
+      });
+    }
+
+    const stampCx = notesX + notesW + 40 + mm(15);
+    const stampCy = row1Bottom + row1Height / 2;
+    const stampR = 44;
+    page.drawCircle({
+      x: stampCx,
+      y: stampCy,
+      size: stampR,
+      borderWidth: 2.5,
+      borderColor: STAMP_RED,
+      color: WHITE,
+    });
+    const stampRot = -8;
+    const stampRad = (stampRot * Math.PI) / 180;
+    const stampCos = Math.cos(stampRad);
+    const stampSin = Math.sin(stampRad);
+    const drawStampText = (
+      text: string,
+      dy: number,
+      size: number,
+      f: PDFFont,
+      color: ReturnType<typeof rgb>,
+    ) => {
+      const w = f.widthOfTextAtSize(text, size);
+      const halfW = w / 2;
+      const halfH = size / 4;
+      const tx = stampCx - halfW * stampCos + halfH * stampSin;
+      const ty = stampCy + dy - halfW * stampSin - halfH * stampCos;
+      page.drawText(text, {
+        x: tx,
+        y: ty,
+        size,
+        font: f,
+        color,
+        rotate: degrees(stampRot),
+      });
+    };
+    drawStampText("INFIELD", 16, 11, boldFont, STAMP_RED);
+    drawStampText("* * * *", 4, 7, font, STAMP_RED);
+    drawStampText("+254 702 393 677", -6, 7, font, STAMP_RED);
+    drawStampText(formatStampDate(quotation.createdAt), -15, 6, font, STAMP_RED);
+    const lineHalfLen = 20;
+    const lineDy = -20;
+    page.drawLine({
+      start: {
+        x: stampCx - lineHalfLen * stampCos + lineDy * stampSin,
+        y: stampCy + lineDy - lineHalfLen * stampSin - lineDy * stampCos,
+      },
+      end: {
+        x: stampCx + lineHalfLen * stampCos + lineDy * stampSin,
+        y: stampCy + lineDy + lineHalfLen * stampSin - lineDy * stampCos,
+      },
+      thickness: 0.5,
+      color: STAMP_RED,
+    });
+    drawStampText("DIGITAL STAMP", -27, 6, boldFont, STAMP_RED);
+
+    y = sectionTop - sectionHeight;
+  };
+
   const firstPageItems = quotation.items.slice(0, ITEMS_PER_PAGE);
   drawItems(firstPageItems, 0);
   const remainingItems = quotation.items.slice(ITEMS_PER_PAGE);
+  const hasMultiplePages = remainingItems.length > 0;
+
+  if (hasMultiplePages) {
+    drawFooterContact(true);
+  }
+
   for (let i = 0; i < remainingItems.length; i += ITEMS_PER_MIDDLE_PAGE) {
     addPage();
+    const isLastMiddlePage = i + ITEMS_PER_MIDDLE_PAGE >= remainingItems.length;
     drawItems(
       remainingItems.slice(i, i + ITEMS_PER_MIDDLE_PAGE),
       i + ITEMS_PER_PAGE,
     );
+    if (!isLastMiddlePage) {
+      drawFooterContact(true);
+    }
   }
 
   // ─── Totals (margin-top 15px, margin-left 60%) ───
@@ -714,197 +891,11 @@ export async function generateQuotationPDF(
   drawTotalsRow(`Tax (${quotation.taxRate}%)`, formatCurrency(tax), false);
   drawTotalsRow("Grand Total", formatCurrency(total), true);
 
-  // ─── Footer (margin-top 20px, height 52mm, background image) ───
-  const footerMarginTop = 20;
-  const footerHeight = mm(52);
-  ensureSpace(footerHeight + footerMarginTop);
-  y -= footerMarginTop;
-  const footerTop = y;
-  const footerBottom = footerTop - footerHeight;
+  // ─── Stamp & Sign (27mm, normal flow) ───
+  drawStampSign();
 
-  if (footerBgImg) {
-    page.drawImage(footerBgImg, {
-      x: PAD_SIDE,
-      y: footerBottom,
-      width: CONTENT_WIDTH,
-      height: footerHeight,
-    });
-  }
-
-  // row1: flex row, space-between, align flex-end
-  // Notes (80mm wide, 23mm tall) | Stamp | Signature (50mm wide, 23mm tall)
-  const row1Height = mm(23);
-  const notesW = mm(80);
-  const sigMaxW = mm(50);
-  const sigH = row1Height;
-  const row1Bottom = footerTop - row1Height;
-
-  // Notes
-  const notesX = PAD_SIDE;
-  page.drawText("Notes:", {
-    x: notesX + notesW / 2 - boldFont.widthOfTextAtSize("Notes:", 11 * PT) / 2,
-    y: footerTop - 4 - 11 * PT,
-    size: 11 * PT,
-    font: boldFont,
-    color: DARK,
-  });
-  if (quotation.notes) {
-    let notesText = quotation.notes;
-    const maxNotesW = notesW - 8;
-    if (serifItalic.widthOfTextAtSize(notesText, 9 * PT) > maxNotesW) {
-      while (
-        serifItalic.widthOfTextAtSize(notesText + "...", 9 * PT) > maxNotesW &&
-        notesText.length > 0
-      )
-        notesText = notesText.slice(0, -1);
-      notesText += "...";
-    }
-    page.drawText(notesText, {
-      x: notesX,
-      y: footerTop - 4 - 11 * PT - 4 - 9 * PT,
-      size: 9 * PT,
-      font: serifItalic,
-      color: DARK,
-    });
-  }
-
-  // Signature (right side of row1, margin-right 50px)
-  const sigX = PAD_SIDE + CONTENT_WIDTH - 50 - sigMaxW;
-  if (sigImg) {
-    const imgRatio = sigImg.width / sigImg.height;
-    let drawW = sigMaxW;
-    let drawH = sigH;
-    if (drawW / drawH > imgRatio) {
-      drawW = sigH * imgRatio;
-    } else {
-      drawH = sigMaxW / imgRatio;
-    }
-    page.drawImage(sigImg, {
-      x: sigX + (sigMaxW - drawW) / 2,
-      y: row1Bottom + (sigH - drawH) / 2,
-      width: drawW,
-      height: drawH,
-    });
-  }
-
-  // Stamp (centered between notes and signature)
-  const stampCx = notesX + notesW + 40 + mm(15);
-  const stampCy = row1Bottom + row1Height / 2;
-  const stampR = 44;
-  page.drawCircle({
-    x: stampCx,
-    y: stampCy,
-    size: stampR,
-    borderWidth: 2.5,
-    borderColor: STAMP_RED,
-    color: WHITE,
-  });
-  const stampRot = -8;
-  const stampRad = (stampRot * Math.PI) / 180;
-  const stampCos = Math.cos(stampRad);
-  const stampSin = Math.sin(stampRad);
-  const drawStampText = (
-    text: string,
-    dy: number,
-    size: number,
-    f: PDFFont,
-    color: ReturnType<typeof rgb>,
-  ) => {
-    const w = f.widthOfTextAtSize(text, size);
-    const halfW = w / 2;
-    const halfH = size / 4;
-    const tx = stampCx - halfW * stampCos + halfH * stampSin;
-    const ty = stampCy + dy - halfW * stampSin - halfH * stampCos;
-    page.drawText(text, {
-      x: tx,
-      y: ty,
-      size,
-      font: f,
-      color,
-      rotate: degrees(stampRot),
-    });
-  };
-  drawStampText("INFIELD", 16, 11, boldFont, STAMP_RED);
-  drawStampText("* * * *", 4, 7, font, STAMP_RED);
-  drawStampText("+254 702 393 677", -6, 7, font, STAMP_RED);
-  drawStampText(formatStampDate(quotation.createdAt), -15, 6, font, STAMP_RED);
-  const lineHalfLen = 20;
-  const lineDy = -20;
-  page.drawLine({
-    start: {
-      x: stampCx - lineHalfLen * stampCos + lineDy * stampSin,
-      y: stampCy + lineDy - lineHalfLen * stampSin - lineDy * stampCos,
-    },
-    end: {
-      x: stampCx + lineHalfLen * stampCos + lineDy * stampSin,
-      y: stampCy + lineDy + lineHalfLen * stampSin - lineDy * stampCos,
-    },
-    thickness: 0.5,
-    color: STAMP_RED,
-  });
-  drawStampText("DIGITAL STAMP", -27, 6, boldFont, STAMP_RED);
-
-  // row2: flex row, space-between, align center, height 28mm
-  const row2Height = mm(28);
-  const row2Bottom = footerBottom;
-  const row2CenterY = row2Bottom + row2Height / 2;
-
-  // Left: contact + thank you (90mm wide, flex column, align flex-start, justify flex-end, gap 25px)
-  const ctW = mm(90);
-  const ctX = PAD_SIDE;
-  // Contact at bottom area
-  const contactY = row2Bottom + 10;
-  page.drawText("CONTACT US:", {
-    x: ctX,
-    y: contactY,
-    size: 10 * PT,
-    font: boldFont,
-    color: CONTACT_BLUE,
-  });
-  const contactLabelW = boldFont.widthOfTextAtSize("CONTACT US:", 10 * PT);
-  page.drawText(phone, {
-    x: ctX + contactLabelW + 5,
-    y: contactY,
-    size: 10 * PT,
-    font: font,
-    color: DARK,
-  });
-  // Thank you (above contact, gap 25px)
-  const thankY = contactY + 25 + 7.5 * PT;
-  const thankLines = [
-    "Thank you for choosing Infield Innovations.",
-    "We deliver exceptional results with unmatched expertise and dedication.",
-  ];
-  for (let i = 0; i < thankLines.length; i++) {
-    page.drawText(thankLines[i], {
-      x: ctX,
-      y: thankY + (thankLines.length - 1 - i) * (7.5 * PT * 1.2),
-      size: 7.5 * PT,
-      font: serifItalic,
-      color: DARK,
-    });
-  }
-
-  // Right: created by (54mm wide, white text, centered, border-bottom white)
-  const cbW = mm(54);
-  const cbX = PAD_SIDE + CONTENT_WIDTH - 60 - cbW;
-  const cbY = row2CenterY - 12 * PT / 2;
-  const cbLabel = quotation.createdBy || "";
-  if (cbLabel) {
-    page.drawText(cbLabel, {
-      x: cbX + (cbW - boldFont.widthOfTextAtSize(cbLabel, 12 * PT)) / 2,
-      y: cbY,
-      size: 12 * PT,
-      font: serifBold,
-      color: WHITE,
-    });
-  }
-  page.drawLine({
-    start: { x: cbX, y: cbY - 4 },
-    end: { x: cbX + cbW, y: cbY - 4 },
-    thickness: 2,
-    color: WHITE,
-  });
+  // ─── Footer contact (normal flow, after stamp/sign) ───
+  drawFooterContact(false);
 
   return doc.save();
 }

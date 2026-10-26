@@ -59,7 +59,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-grand-total td{padding-top:10px;padding-bottom:10px;border-bottom:none}
 .qt-grand-total td:first-child{font-weight:800}
 .qt-grand-total td:last-child{font-weight:400}
-.qt-footer{margin-top:20px;height:52mm;color:#111;background:url("/backgrounds/qt-footer.png") center/cover no-repeat}
+.qt-footer{height:28mm;color:#111;background:url("/backgrounds/qt-footer.png") center/cover no-repeat;position:absolute;left:15mm;right:15mm;bottom:12mm}
+.qt-page-last .qt-footer{position:static;left:auto;right:auto;bottom:auto;margin-top:20px}
+.qt-stamp-sign{width:100%;height:27mm;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111}
 .qt-row1{width:100%;display:flex;flex-direction:row;justify-content:space-between;align-items:flex-end}
 .qt-footer-notes{height:23mm;width:80mm;font-family:Georgia,"Times New Roman",serif;font-style:italic;line-height:1.2}
 .qt-footer-notes strong{display:block;font-weight:bold;font-size:11pt;text-align:center;padding-bottom:4px}
@@ -74,11 +76,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-footer-contact span{color:#000;font-weight:normal;margin-left:5px}
 .qt-footer-thankyou{color:#111;font-family:Georgia,"Times New Roman",serif;font-size:7.5pt;font-style:italic;line-height:1.2}
 .qt-created-by{width:54mm;margin-top:5px;margin-right:60px;padding:2px;color:#fff;font-size:12pt;font-weight:bold;font-family:"Times New Roman",Times,serif;text-align:center;border-bottom:2px solid #fff}
-.qt-compact-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #d0d0d0}
-.qt-compact-company{color:#164865;font-size:14px;font-weight:800}
-.qt-compact-info{text-align:right}
-.qt-compact-title{color:#164865;font-size:12px;font-weight:800}
-.qt-compact-number{display:block;color:#555;font-size:10px}
+
 @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.qt-page{page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}.qt-page:last-child{page-break-after:auto}}
 `;
 
@@ -160,12 +158,15 @@ function buildQuotationHTML(quotation: Quotation): string {
     ? `<div class="qt-signature-image"><img src="${escapeHtml(signatureSrc)}" alt="Signature" /></div>`
     : `<div class="qt-signature-image"></div>`;
 
-  const buildFooter = () => `<footer class="qt-footer">
+  const stampSignHTML = `<div class="qt-stamp-sign">
     <div class="qt-row1">
       <div class="qt-footer-notes"><strong>Notes:</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ""}</div>
       ${stampHTML}
       ${sigHTML}
     </div>
+  </div>`;
+
+  const buildFooter = () => `<footer class="qt-footer">
     <div class="qt-row2">
       <div class="qt-contact-thankyou">
         <div class="qt-footer-contact"><b>CONTACT US:</b> <span>${escapeHtml(phone)}</span></div>
@@ -204,15 +205,14 @@ function buildQuotationHTML(quotation: Quotation): string {
     </div>
   </div>`;
 
-  const headerCompact = `<div class="qt-compact-header"><div class="qt-compact-company">${escapeHtml(businessName)}</div><div class="qt-compact-info"><span class="qt-compact-title">QUOTATION</span><span class="qt-compact-number">${escapeHtml(quotation.quotationCode || "")}</span></div></div>`;
-
   return pages
     .map((pageItems, i) => {
       const isFirst = i === 0;
       const isLast = i === pages.length - 1;
-      if (isFirst)
-        return `<div class="qt-page">${headerFull}${billToFor}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildFooter() : ""}</div>`;
-      return `<div class="qt-page">${headerCompact}${buildItemsTable(pageItems)}${isLast ? buildTotals() + buildFooter() : ""}</div>`;
+      const pageClass = isLast ? "qt-page qt-page-last" : "qt-page";
+      const lastContent = buildTotals() + stampSignHTML + buildFooter();
+      const nonLastContent = buildFooter();
+      return `<div class="${pageClass}">${headerFull}${isFirst ? billToFor : ""}${buildItemsTable(pageItems)}${isLast ? lastContent : nonLastContent}</div>`;
     })
     .join("");
 }
