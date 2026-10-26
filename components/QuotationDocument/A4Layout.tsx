@@ -32,7 +32,7 @@ export default function A4Layout({ quotation }: { quotation: Quotation }) {
             )}
             {isLast && <Totals quotation={quotation} />}
             {isLast && <StampSign quotation={quotation} />}
-            {isLast && <Footer quotation={quotation} />}
+            <Footer quotation={quotation} />
           </div>
         );
       })}
