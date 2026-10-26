@@ -18,6 +18,43 @@ import {
   ITEMS_PER_MIDDLE_PAGE,
 } from "./documentHelpers";
 
+const PX_PER_MM = 3.7795;
+
+const PAGE_GEOMETRY = {
+  pageHeight: 297 * PX_PER_MM,
+  pagePaddingTop: 12 * PX_PER_MM,
+  pagePaddingBottom: 0,
+  rowGap: 20,
+  headerHeight: 43 * PX_PER_MM,
+  billToForHeight: 25 * PX_PER_MM,
+  tableHeaderHeight: 30,
+  footerHeight: 35 * PX_PER_MM,
+} as const;
+
+const PRINTABLE_HEIGHT =
+  PAGE_GEOMETRY.pageHeight -
+  PAGE_GEOMETRY.pagePaddingTop -
+  PAGE_GEOMETRY.pagePaddingBottom;
+
+const FIRST_PAGE_FIXED =
+  PAGE_GEOMETRY.headerHeight +
+  PAGE_GEOMETRY.rowGap +
+  PAGE_GEOMETRY.billToForHeight +
+  PAGE_GEOMETRY.rowGap +
+  PAGE_GEOMETRY.tableHeaderHeight;
+
+const MIDDLE_PAGE_FIXED =
+  PAGE_GEOMETRY.headerHeight +
+  PAGE_GEOMETRY.rowGap +
+  PAGE_GEOMETRY.tableHeaderHeight;
+
+const LAST_PAGE_FIXED =
+  PAGE_GEOMETRY.headerHeight +
+  PAGE_GEOMETRY.rowGap +
+  PAGE_GEOMETRY.tableHeaderHeight +
+  PAGE_GEOMETRY.rowGap +
+  PAGE_GEOMETRY.footerHeight;
+
 const printStyles = `
 *{margin:0;padding:0;box-sizing:border-box}
 @page{size:A4 portrait;margin:0}
