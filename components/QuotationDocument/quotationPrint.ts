@@ -66,8 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-grand-total td{padding-top:10px;padding-bottom:10px;border-bottom:none}
 .qt-grand-total td:first-child{font-weight:800}
 .qt-grand-total td:last-child{font-weight:400}
-.qt-footer{height:35mm;color:#111;background:url("/backgrounds/qt-footer.png") center/cover no-repeat;position:absolute;left:15mm;right:15mm;bottom:0}
-.qt-page-last .qt-footer{position:static;left:auto;right:auto;bottom:auto}
+.qt-footer{height:35mm;color:#111;background:url("/backgrounds/qt-footer.png") center/cover no-repeat;margin-top:auto}
 .qt-stamp-sign{width:100%;height:27mm;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111}
 .qt-footer-notes{height:23mm;width:80mm;font-family:Georgia,"Times New Roman",serif;font-style:italic;line-height:1.2}
 .qt-footer-notes strong{display:block;font-weight:bold;font-size:11pt;text-align:left;padding-bottom:4px}
@@ -212,7 +211,7 @@ function buildQuotationHTML(quotation: Quotation): string {
     .map((pageItems, i) => {
       const isFirst = i === 0;
       const isLast = i === pages.length - 1;
-      const pageClass = isLast ? "qt-page qt-page-last" : "qt-page";
+      const pageClass = "qt-page";
       const lastContent = buildTotals() + stampSignHTML + buildFooter();
       const nonLastContent = buildFooter();
       const startIndex = isFirst
