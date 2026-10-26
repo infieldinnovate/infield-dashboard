@@ -82,7 +82,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-for-text{display:flex;align-items:center;padding:0 4mm;color:#111;font-size:10pt;font-family:Georgia,"Times New Roman",serif}
 .qt-items-table{width:100%;border-collapse:collapse;table-layout:fixed;color:#1d1d1d;font-size:3mm;margin-bottom:5mm}
 .qt-items-table th,.qt-items-table td{padding:1mm 0}
-.qt-items-table thead th{height:8mm;background:#104b68;color:#fff;border-right:1mm solid #fff;font-size:4mm;font-weight:bold;text-align:center!important;padding:0!important}
+.qt-items-table thead th{height:8mm;flex-shrink:0;background:#104b68;color:#fff;border-right:1mm solid #fff;font-size:4mm;font-weight:bold;text-align:center!important;padding:0!important}
 .qt-items-table thead th:last-child{border-right:0}
 .qt-items-table tbody td{border-bottom:1mm solid #d7e5eb;font-family:Georgia,"Times New Roman",serif;font-size:11pt}
 .qt-items-table tbody tr.evenRow td{background:#f0f6f3}
@@ -92,7 +92,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-qty-col{width:10%;text-align:center!important}
 .qt-price-col{width:13%;text-align:right!important;padding-right:3mm!important}
 .qt-total-col{width:17%;text-align:right!important;padding-right:3mm!important}
-.qt-totals{width:75mm;height:fit-content;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:3mm;margin-left:105mm;margin-bottom:5mm}
+.qt-totals{width:75mm;height:fit-content;flex-shrink:0;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:3mm;margin-left:105mm;margin-bottom:5mm}
 .qt-totals td{padding:2mm 4mm;border-bottom:1mm solid #bcbcbc;vertical-align:middle}
 .qt-totals td:first-child{width:35mm;padding-left:3mm;text-align:left}
 .qt-totals td:last-child{padding-right:3mm;text-align:right;white-space:nowrap;font-weight:400}
@@ -102,7 +102,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-grand-total td{padding-top:3mm;padding-bottom:3mm;border-bottom:none}
 .qt-grand-total td:first-child{font-weight:800}
 .qt-grand-total td:last-child{font-weight:400}
-.qt-stamp-sign{width:100%;height:27mm;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111}
+.qt-stamp-sign{width:100%;height:27mm;flex-shrink:0;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111}
 .qt-footer-notes{height:23mm;width:80mm;font-family:Georgia,"Times New Roman",serif;font-style:italic;line-height:1.2}
 .qt-footer-notes strong{display:block;font-weight:bold;font-size:11pt;text-align:left;padding-bottom:1mm}
 .qt-footer-notes span{font-size:9pt}
@@ -292,9 +292,10 @@ function paginateItemsByHeight(
   const lastPageAvail =
     PRINTABLE_HEIGHT - LAST_PAGE_FIXED - closingSectionHeight;
 
-  // Greedy pack all items. Pages at or past lastPageIndex use lastPageAvail;
-  // earlier non-first pages use middlePageAvail. Pass Infinity to disable the
-  // closing-section reserve (used for the initial page-count estimate).
+  // pack packs items greedily. Pages at or past lastPageIndex reserve room
+  // for the closing section; earlier non-first pages use the full middle-page
+  // capacity. Pass Infinity to disable the reserve (initial estimate), or 0
+  // to reserve on every page (single-page test / conservative fallback).
   const pack = (lastPageIndex: number): QuotationItem[][] => {
     const pages: QuotationItem[][] = [];
     let current: QuotationItem[] = [];
@@ -303,15 +304,21 @@ function paginateItemsByHeight(
 
     for (let i = 0; i < items.length; i++) {
       const h = rowHeights[i];
-      const pageIndex = pages.length + (current.length > 0 ? 1 : 0);
+      // pages.length is the zero-based index of the page currently being filled.
+      const pageIndex = pages.length;
+      const isLastPageSlot = pageIndex >= lastPageIndex;
       const avail = isFirstPage
-        ? firstPageAvail
-        : pageIndex >= lastPageIndex
+        ? isLastPageSlot
+          ? firstPageAvail - closingSectionHeight
+          : firstPageAvail
+        : isLastPageSlot
           ? lastPageAvail
           : middlePageAvail;
 
       if (h > avail) {
         // Oversized row: flush current page, give this row its own page.
+        // A row taller than the available space still overflows, but it is
+        // isolated so the rest of the document paginates correctly.
         if (current.length > 0) {
           pages.push(current);
           current = [];
@@ -345,15 +352,22 @@ function paginateItemsByHeight(
       .reduce((sum, h) => sum + h, 0);
   };
 
+  // Capacity available for items on the last page, accounting for the closing
+  // section. A single page is both first and last, so it uses the reduced
+  // first-page capacity; multi-page last pages use lastPageAvail.
+  const lastPageCapacity = (pages: QuotationItem[][]): number =>
+    pages.length === 1 ? firstPageAvail - closingSectionHeight : lastPageAvail;
+
   // Phase 1: estimate page count without the closing-section reserve.
   const estimated = pack(Infinity);
 
-  // Single page: check if items + closing section fit together.
-  if (
-    estimated.length === 1 &&
-    lastPageItemHeight(estimated) <= firstPageAvail - closingSectionHeight
-  ) {
-    return estimated;
+  // Single page: repack with the closing-section reserve applied to page 0.
+  // If everything still fits on one page, that is the result.
+  if (estimated.length === 1) {
+    const withReserve = pack(0);
+    if (withReserve.length === 1) return withReserve;
+    // Items + closing section overflow a single page; fall through to the
+    // multi-page repack, which moves overflow rows onto extra pages.
   }
 
   // Multi-page estimate that already accommodates the closing section.
@@ -364,25 +378,33 @@ function paginateItemsByHeight(
     return estimated;
   }
 
-  // Phase 2: repack all items from the start with the closing-section reserve
-  // applied. Pages at or past the estimated last page use lastPageAvail,
-  // guaranteeing the closing section fits on the final page regardless of
-  // how many overflow pages are created.
-  const conservative = pack(Math.max(1, estimated.length - 1));
+  // Phase 2: iteratively repack with the closing-section reserve applied to
+  // the last page. Start from the estimated page count and decrease
+  // lastPageIndex until the final page actually has room for the closing
+  // section. This handles the first-and-last-page overflow case: when
+  // pack(N-1) still returns a single page (because page 0 had full capacity),
+  // the capacity check fails and we reduce lastPageIndex to force items onto
+  // subsequent pages.
+  let lastIdx = Math.max(1, estimated.length - 1);
+  let result = pack(lastIdx);
 
-  // Optimization: the conservative pack may have created extra pages because
-  // every page from the estimated last page onward used the reduced capacity.
-  // Repack with the actual page count so middle pages regain full capacity,
-  // potentially eliminating unnecessary pages. Only accept the optimized
-  // result if its last page still fits with the closing section.
-  if (conservative.length > estimated.length) {
-    const optimized = pack(Math.max(1, conservative.length - 1));
-    if (lastPageItemHeight(optimized) <= lastPageAvail) {
+  while (lastPageItemHeight(result) > lastPageCapacity(result)) {
+    if (lastIdx === 0) break; // oversized row; accept best effort
+    lastIdx -= 1;
+    result = pack(lastIdx);
+  }
+
+  // Optimization: repack with the actual page count so middle pages regain
+  // full capacity, potentially eliminating unnecessary pages. Only accept the
+  // optimized result if its last page still fits with the closing section.
+  if (result.length > estimated.length) {
+    const optimized = pack(Math.max(1, result.length - 1));
+    if (lastPageItemHeight(optimized) <= lastPageCapacity(optimized)) {
       return optimized;
     }
   }
 
-  return conservative;
+  return result;
 }
 
 async function buildQuotationHTML(quotation: Quotation): Promise<string> {
