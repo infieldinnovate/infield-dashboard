@@ -134,8 +134,6 @@ export const quotations: Quotation[] = [
         unitPrice: 45000,
         unit: "service",
       },
-
-      // Additional 15 items (16–30)
       {
         productId: "10018",
         productName: "Solar Panel Cleaning Kit",
