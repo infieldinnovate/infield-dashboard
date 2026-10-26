@@ -56,9 +56,9 @@ const printStyles = `
 *{margin:0;padding:0;box-sizing:border-box}
 @page{size:A4 portrait;margin:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#101820;background:#fff}
-.qt-page{width:210mm;min-height:297mm;padding:12mm 15mm 0 15mm;background:#fff url("/backgrounds/plain.jpg") center/cover no-repeat;position:relative;page-break-after:always;color:#101820;display:flex;flex-direction:column;row-gap:20px}
+.qt-page{width:210mm;height:297mm;overflow:hidden;padding:12mm 15mm 0 15mm;background:#fff url("/backgrounds/plain.jpg") center/cover no-repeat;position:relative;page-break-after:always;color:#101820;display:flex;flex-direction:column}
 .qt-page:last-child{page-break-after:auto}
-.qt-header{height:43mm;display:grid;grid-template-columns:1.2fr 0.8fr;gap:23px;align-items:start;background:url("/backgrounds/qt-header.png") center/cover no-repeat;border-bottom:#5e5e5e solid 1px}
+.qt-header{height:43mm;display:grid;grid-template-columns:1.2fr 0.8fr;gap:23px;align-items:start;background:url("/backgrounds/qt-header.png") center/cover no-repeat;border-bottom:#5e5e5e solid 1px;margin-bottom:20px}
 .qt-brand{display:flex;flex-direction:column;align-items:flex-start}
 .qt-logo-img{margin-left:90px;height:12mm;width:auto}
 .qt-business-name{margin-top:10px;color:#164865;font-size:22px;font-weight:800;line-height:1.6;font-family:Arial,Helvetica,sans-serif}
@@ -71,14 +71,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-code-text{color:#164865;font-size:16px;margin-right:45px;font-weight:800}
 .qt-date-text{color:#164865;font-size:14px;margin-right:45px}
 .qt-date-text span{color:#111;margin-left:5px}
-.qt-billto-for{height:25mm;display:grid;grid-template-columns:1fr 1.8fr;gap:20px;align-items:center}
+.qt-billto-for{height:25mm;display:grid;grid-template-columns:1fr 1.8fr;gap:20px;align-items:center;margin-bottom:20px}
 .qt-billto-label{color:#121212;font-size:16px;font-weight:600}
 .qt-billto-content{width:fit-content;font-family:Georgia,"Times New Roman",serif;font-size:10pt}
 .qt-billto-content p{margin:0 0 2px}
 .qt-for-section{height:19mm;display:grid;grid-template-columns:74px 1fr;background:#d4d4d4}
 .qt-for-label{display:flex;align-items:center;padding:0 14px;background:#bdbdbd;color:#111;font-size:16px;font-weight:600}
 .qt-for-text{display:flex;align-items:center;padding:0 16px;color:#111;font-size:10pt;font-family:Georgia,"Times New Roman",serif}
-.qt-items-table{width:100%;border-collapse:collapse;table-layout:fixed;color:#1d1d1d;font-size:12px}
+.qt-items-table{width:100%;border-collapse:collapse;table-layout:fixed;color:#1d1d1d;font-size:12px;margin-bottom:20px}
 .qt-items-table th,.qt-items-table td{padding:3px 0}
 .qt-items-table thead th{height:30px;background:#104b68;color:#fff;border-right:2px solid #fff;font-size:14px;font-weight:bold;text-align:center!important;padding:0!important}
 .qt-items-table thead th:last-child{border-right:0}
@@ -90,7 +90,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-qty-col{width:10%;text-align:center!important}
 .qt-price-col{width:13%;text-align:right!important;padding-right:10px!important}
 .qt-total-col{width:17%;text-align:right!important;padding-right:10px!important}
-.qt-totals{width:75mm;height:fit-content;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:13px;margin-left:105mm}
+.qt-totals{width:75mm;height:fit-content;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:13px;margin-left:105mm;margin-bottom:20px}
 .qt-totals td{padding:7px 15px;border-bottom:1px solid #bcbcbc;vertical-align:middle}
 .qt-totals td:first-child{width:35mm;padding-left:12px;text-align:left}
 .qt-totals td:last-child{padding-right:12px;text-align:right;white-space:nowrap;font-weight:400}
