@@ -175,6 +175,16 @@ function measureItemRowHeights(
   return heights;
 }
 
+function measureClosingSection(
+  totalsHTML: string,
+  stampSignHTML: string,
+  footerHTML: string,
+  styles: string,
+): number {
+  const sectionHTML = `<div style="display:flex;flex-direction:column;width:180mm">${totalsHTML}${stampSignHTML}${footerHTML}</div>`;
+  return measureElementHeight(sectionHTML, styles);
+}
+
 function buildQuotationHTML(quotation: Quotation): string {
   const settings = getSettings();
   const { businessName, address, phone, email, website, logo } =
