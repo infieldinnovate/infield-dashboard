@@ -265,7 +265,7 @@ export default function QuotationsPage() {
               label: "Print",
               onClick: (e) => {
                 e.stopPropagation();
-                printQuotation(row);
+                void printQuotation(row);
               },
             },
             {

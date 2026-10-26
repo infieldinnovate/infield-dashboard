@@ -12,10 +12,7 @@ import {
   getSettings,
 } from "../../lib/documentUtils";
 import {
-  paginateItems,
   formatAmount,
-  ITEMS_PER_PAGE,
-  ITEMS_PER_MIDDLE_PAGE,
 } from "./documentHelpers";
 
 const PX_PER_MM = 3.7795;
@@ -222,12 +219,101 @@ function measureClosingSection(
   return measureElementHeight(sectionHTML, styles);
 }
 
-function buildQuotationHTML(quotation: Quotation): string {
+function paginateItemsByHeight(
+  items: QuotationItem[],
+  closingSectionHeight: number,
+): QuotationItem[][] {
+  if (items.length === 0) return [[]];
+
+  const rowHeights = measureItemRowHeights(items, 0, printStyles);
+
+  const firstPageAvail = PRINTABLE_HEIGHT - FIRST_PAGE_FIXED;
+  const middlePageAvail = PRINTABLE_HEIGHT - MIDDLE_PAGE_FIXED;
+
+  const packMiddle: QuotationItem[][] = [];
+  let currentPage: QuotationItem[] = [];
+  let used = 0;
+  let isFirstPage = true;
+
+  for (let i = 0; i < items.length; i++) {
+    const h = rowHeights[i];
+    const avail = isFirstPage ? firstPageAvail : middlePageAvail;
+    if (used + h > avail && currentPage.length > 0) {
+      packMiddle.push(currentPage);
+      currentPage = [];
+      used = 0;
+      isFirstPage = false;
+    }
+    currentPage.push(items[i]);
+    used += h;
+  }
+  if (currentPage.length > 0) packMiddle.push(currentPage);
+
+  if (packMiddle.length <= 1) return packMiddle;
+
+  const lastIndex = packMiddle.length - 1;
+  const lastPageRows = packMiddle[lastIndex];
+  const lastRowHeights = rowHeights.slice(
+    items.length - lastPageRows.length,
+  );
+  const lastPageRowsHeight = lastRowHeights.reduce((sum, h) => sum + h, 0);
+  const lastPageAvail =
+    PRINTABLE_HEIGHT - LAST_PAGE_FIXED - closingSectionHeight - PAGE_GEOMETRY.rowGap;
+
+  if (lastPageRowsHeight <= lastPageAvail) {
+    return packMiddle;
+  }
+
+  const newLast: QuotationItem[] = [];
+  const overflow: QuotationItem[] = [];
+  let acc = 0;
+  for (let j = 0; j < lastPageRows.length; j++) {
+    if (acc + lastRowHeights[j] > lastPageAvail && newLast.length > 0) {
+      overflow.push(...lastPageRows.slice(j));
+      break;
+    }
+    newLast.push(lastPageRows[j]);
+    acc += lastRowHeights[j];
+  }
+
+  const result = packMiddle.slice(0, lastIndex);
+  if (newLast.length > 0) result.push(newLast);
+  if (overflow.length > 0) {
+    const overflowPages: QuotationItem[][] = [];
+    let page: QuotationItem[] = [];
+    let pageUsed = 0;
+    for (const item of overflow) {
+      const h = rowHeights[items.indexOf(item)];
+      if (pageUsed + h > middlePageAvail && page.length > 0) {
+        overflowPages.push(page);
+        page = [];
+        pageUsed = 0;
+      }
+      page.push(item);
+      pageUsed += h;
+    }
+    if (page.length > 0) overflowPages.push(page);
+
+    const finalLast = overflowPages[overflowPages.length - 1];
+    const finalLastHeight = finalLast.reduce(
+      (sum, item) => sum + rowHeights[items.indexOf(item)],
+      0,
+    );
+    if (finalLastHeight <= lastPageAvail) {
+      result.push(...overflowPages);
+    } else {
+      result.push(...overflowPages.slice(0, -1));
+      result.push(finalLast);
+    }
+  }
+  return result;
+}
+
+async function buildQuotationHTML(quotation: Quotation): Promise<string> {
   const settings = getSettings();
   const { businessName, address, phone, email, website, logo } =
     settings.business;
   const siteUrl = website || "www.infield.co.ke";
-  const pages = paginateItems(quotation.items);
   const signatureSrc =
     quotation.createdBySignature || settings.business.signature;
   const barcodeValue = generateBarcode(
@@ -320,26 +406,40 @@ function buildQuotationHTML(quotation: Quotation): string {
     </div>
   </div>`;
 
+  const totalsHTML = buildTotals();
+  const footerHTML = buildFooter();
+  const closingSectionHeight = measureClosingSection(
+    totalsHTML,
+    stampSignHTML,
+    footerHTML,
+    printStyles,
+  );
+  const pages = paginateItemsByHeight(
+    quotation.items,
+    closingSectionHeight,
+  );
+
+  let runningStart = 0;
   return pages
     .map((pageItems, i) => {
       const isFirst = i === 0;
       const isLast = i === pages.length - 1;
       const pageClass = "qt-page";
-      const lastContent = buildTotals() + stampSignHTML + buildFooter();
-      const nonLastContent = buildFooter();
-      const startIndex = isFirst
-        ? 0
-        : ITEMS_PER_PAGE + (i - 1) * ITEMS_PER_MIDDLE_PAGE;
+      const lastContent = totalsHTML + stampSignHTML + footerHTML;
+      const nonLastContent = footerHTML;
+      const startIndex = runningStart;
+      runningStart += pageItems.length;
       return `<div class="${pageClass}">${headerFull}${isFirst ? billToFor : ""}${buildItemsTable(pageItems, startIndex)}${isLast ? lastContent : nonLastContent}</div>`;
     })
     .join("");
 }
 
-export function printQuotation(quotation: Quotation): void {
+export async function printQuotation(quotation: Quotation): Promise<void> {
   const printWindow = window.open("", "_blank");
   if (!printWindow) return;
+  const bodyHTML = await buildQuotationHTML(quotation);
   printWindow.document.write(
-    `<!DOCTYPE html><html><head><title>Quotation ${quotation.quotationCode || quotation.id}</title><style>${printStyles}</style></head><body>${buildQuotationHTML(quotation)}</body></html>`,
+    `<!DOCTYPE html><html><head><title>Quotation ${quotation.quotationCode || quotation.id}</title><style>${printStyles}</style></head><body>${bodyHTML}</body></html>`,
   );
   printWindow.document.close();
   setTimeout(() => printWindow.print(), 300);

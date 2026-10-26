@@ -24,7 +24,7 @@ export default function QuotationDocument({
         </div>
         <ActionBar
           actions={actions}
-          onPrint={() => printQuotation(quotation)}
+          onPrint={() => { void printQuotation(quotation); }}
           onDownload={() => downloadQuotationPDF(quotation)}
         />
       </div>
