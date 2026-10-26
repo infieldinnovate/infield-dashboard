@@ -60,7 +60,7 @@ const printStyles = `
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#101820;background:#fff}
 .qt-page{width:210mm;height:297mm;overflow:hidden;padding:12mm 15mm 0 15mm;background:#fff url("/backgrounds/plain.jpg") center/cover no-repeat;position:relative;page-break-after:always;color:#101820;display:flex;flex-direction:column}
 .qt-page:last-child{page-break-after:auto}
-.qt-header{height:43mm;display:grid;grid-template-columns:1.2fr 0.8fr;gap:23px;align-items:start;background:url("/backgrounds/qt-header.png") center/cover no-repeat;border-bottom:#5e5e5e solid 1px;margin-bottom:20px}
+.qt-header{height:43mm;display:grid;grid-template-columns:1.2fr 0.8fr;gap:23px;align-items:start;background:url("/backgrounds/qt-header.png") center/cover no-repeat;border-bottom:#5e5e5e solid 1px;margin-bottom:20px;flex-shrink:0}
 .qt-brand{display:flex;flex-direction:column;align-items:flex-start}
 .qt-logo-img{margin-left:90px;height:12mm;width:auto}
 .qt-business-name{margin-top:10px;color:#164865;font-size:22px;font-weight:800;line-height:1.6;font-family:Arial,Helvetica,sans-serif}
@@ -73,7 +73,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-code-text{color:#164865;font-size:16px;margin-right:45px;font-weight:800}
 .qt-date-text{color:#164865;font-size:14px;margin-right:45px}
 .qt-date-text span{color:#111;margin-left:5px}
-.qt-billto-for{height:25mm;display:grid;grid-template-columns:1fr 1.8fr;gap:20px;align-items:center;margin-bottom:20px}
+.qt-billto-for{height:25mm;display:grid;grid-template-columns:1fr 1.8fr;gap:20px;align-items:center;margin-bottom:20px;flex-shrink:0}
 .qt-billto-label{color:#121212;font-size:16px;font-weight:600}
 .qt-billto-content{width:fit-content;font-family:Georgia,"Times New Roman",serif;font-size:10pt}
 .qt-billto-content p{margin:0 0 2px}
