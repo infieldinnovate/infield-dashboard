@@ -283,9 +283,7 @@ function paginateItemsByHeight(
   items: QuotationItem[],
   closingSectionHeight: number,
 ): QuotationItem[][] {
-  if (items.length === 0) return [[]];
-
-  const rowHeights = measureItemRowHeights(items, 0, printStyles);
+  const rowHeights = items.length > 0 ? measureItemRowHeights(items, 0, printStyles) : [];
 
   const firstPageAvail = PRINTABLE_HEIGHT - FIRST_PAGE_FIXED;
   const middlePageAvail = PRINTABLE_HEIGHT - MIDDLE_PAGE_FIXED;
@@ -308,20 +306,27 @@ function paginateItemsByHeight(
     used += h;
   }
   if (currentPage.length > 0) packMiddle.push(currentPage);
-
-  if (packMiddle.length <= 1) return packMiddle;
+  if (packMiddle.length === 0) packMiddle.push([]);
 
   const lastIndex = packMiddle.length - 1;
   const lastPageRows = packMiddle[lastIndex];
   const lastRowHeights = rowHeights.slice(items.length - lastPageRows.length);
   const lastPageRowsHeight = lastRowHeights.reduce((sum, h) => sum + h, 0);
+
+  const isSinglePage = packMiddle.length === 1;
+  const singlePageFixed = isSinglePage
+    ? FIRST_PAGE_FIXED + closingSectionHeight + PAGE_GEOMETRY.rowGap
+    : 0;
   const lastPageAvail =
     PRINTABLE_HEIGHT -
     LAST_PAGE_FIXED -
     closingSectionHeight -
     PAGE_GEOMETRY.rowGap;
+  const effectiveAvail = isSinglePage
+    ? PRINTABLE_HEIGHT - singlePageFixed
+    : lastPageAvail;
 
-  if (lastPageRowsHeight <= lastPageAvail) {
+  if (lastPageRowsHeight <= effectiveAvail) {
     return packMiddle;
   }
 
@@ -329,7 +334,7 @@ function paginateItemsByHeight(
   const overflow: QuotationItem[] = [];
   let acc = 0;
   for (let j = 0; j < lastPageRows.length; j++) {
-    if (acc + lastRowHeights[j] > lastPageAvail && newLast.length > 0) {
+    if (acc + lastRowHeights[j] > effectiveAvail && newLast.length > 0) {
       overflow.push(...lastPageRows.slice(j));
       break;
     }
