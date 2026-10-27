@@ -18,12 +18,11 @@ const PX_PER_MM = 3.7795;
 const PAGE_GEOMETRY = {
   pageHeight: 297 * PX_PER_MM,
   pagePaddingTop: 12 * PX_PER_MM,
-  pagePaddingBottom: 0,
+  pagePaddingBottom: 35 * PX_PER_MM,
   rowGap: 5 * PX_PER_MM,
   headerHeight: 43 * PX_PER_MM,
   billToForHeight: 25 * PX_PER_MM,
   tableHeaderHeight: 8 * PX_PER_MM,
-  footerHeight: 35 * PX_PER_MM,
 } as const;
 
 const PRINTABLE_HEIGHT =
@@ -37,22 +36,19 @@ const FIRST_PAGE_FIXED =
   PAGE_GEOMETRY.billToForHeight +
   PAGE_GEOMETRY.rowGap +
   PAGE_GEOMETRY.tableHeaderHeight +
-  PAGE_GEOMETRY.rowGap +
-  PAGE_GEOMETRY.footerHeight;
+  PAGE_GEOMETRY.rowGap;
 
 const MIDDLE_PAGE_FIXED =
   PAGE_GEOMETRY.headerHeight +
   PAGE_GEOMETRY.rowGap +
   PAGE_GEOMETRY.tableHeaderHeight +
-  PAGE_GEOMETRY.rowGap +
-  PAGE_GEOMETRY.footerHeight;
+  PAGE_GEOMETRY.rowGap;
 
 const LAST_PAGE_FIXED =
   PAGE_GEOMETRY.headerHeight +
   PAGE_GEOMETRY.rowGap +
   PAGE_GEOMETRY.tableHeaderHeight +
-  PAGE_GEOMETRY.rowGap +
-  PAGE_GEOMETRY.footerHeight;
+  PAGE_GEOMETRY.rowGap;
 
 const printStyles = `
 *{margin:0;padding:0;box-sizing:border-box}
