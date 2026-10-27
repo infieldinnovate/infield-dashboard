@@ -76,6 +76,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-for-section{height:19mm;display:grid;grid-template-columns:20mm 1fr;background:#d4d4d4}
 .qt-for-label{display:flex;align-items:center;padding:0 4mm;background:#bdbdbd;color:#111;font-size:4mm;font-weight:600}
 .qt-for-text{display:flex;align-items:center;padding:0 4mm;color:#111;font-size:10pt;font-family:Georgia,"Times New Roman",serif}
+.qt-items-wrapper{flex:1 1 auto;min-height:0;overflow:hidden;width:100%}
 .qt-items-table{width:100%;border-collapse:collapse;table-layout:fixed;color:#1d1d1d;font-size:3mm;margin-bottom:5mm}
 .qt-items-table th,.qt-items-table td{padding:1mm 0}
 .qt-items-table thead th{height:8mm;flex-shrink:0;background:#104b68;color:#fff;border-right:1mm solid #fff;font-size:4mm;font-weight:bold;text-align:center!important;padding:0!important}
@@ -542,7 +543,7 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
       const nonLastContent = footerHTML;
       const startIndex = runningStart;
       runningStart += pageItems.length;
-      return `<div class="${pageClass}">${headerFull}${isFirst ? billToFor : ""}${buildItemsTable(pageItems, startIndex)}${isLast ? lastContent : nonLastContent}</div>`;
+      return `<div class="${pageClass}">${headerFull}${isFirst ? billToFor : ""}<div class="qt-items-wrapper">${buildItemsTable(pageItems, startIndex)}</div>${isLast ? lastContent : nonLastContent}</div>`;
     })
     .join("");
 }
