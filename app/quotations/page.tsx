@@ -135,16 +135,18 @@ export default function QuotationsPage() {
   };
 
   const duplicateQuotation = (qt: Quotation) => {
-    const existingCodes = new Set(quotationList.map((q) => q.quotationCode));
-    const newCode = generateQuotationCode(existingCodes);
-    const newQt: Quotation = {
-      ...qt,
-      id: generateNumericId(),
-      status: "draft",
-      createdAt: new Date().toISOString().split("T")[0],
-      quotationCode: newCode,
-    };
-    setQuotationList((prev) => [newQt, ...prev]);
+    setEditQuotation(null);
+    setPrefillData({
+      customerId: qt.customerId,
+      customerAddress: qt.customerAddress || "",
+      customerContact: qt.customerContact || "",
+      quoteFor: qt.quoteFor || "",
+      items: qt.items.map((i) => ({ ...i })),
+      taxRate: String(qt.taxRate),
+      notes: qt.notes || "",
+    });
+    setIsFormOpen(true);
+    toast.info("Quotation details loaded — review and save to create a new quote");
   };
 
   const onSubmit = (data: QuotationFormData) => {
