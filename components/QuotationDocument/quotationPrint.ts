@@ -89,7 +89,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-qty-col{width:10%;text-align:center!important}
 .qt-price-col{width:13%;text-align:right!important;padding-right:3mm!important}
 .qt-total-col{width:17%;text-align:right!important;padding-right:3mm!important}
-.qt-totals{width:75mm;height:fit-content;flex-shrink:0;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:3mm;margin-left:105mm;margin-bottom:5mm;}
+.qt-totals{width:75mm;height:fit-content;flex-shrink:0;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:3mm;margin-left:105mm;margin-top:5mm;margin-bottom:5mm;}
 .qt-totals td{padding:2mm 4mm;border-bottom:1mm solid #bcbcbc;vertical-align:middle}
 .qt-totals td:first-child{width:35mm;padding-left:3mm;text-align:left}
 .qt-totals td:last-child{padding-right:3mm;text-align:right;white-space:nowrap;font-weight:400}
