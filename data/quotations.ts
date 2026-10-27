@@ -352,7 +352,7 @@ export const quotations: Quotation[] = [
       },
       {
         productId: "10045",
-        productName: "Battery Voltage Monitoring Meter",
+        productName: "Battery Voltage Monitoring Meter.",
         size: "48V",
         quantity: 1,
         unitPrice: 6500,
@@ -368,7 +368,7 @@ export const quotations: Quotation[] = [
       },
       {
         productId: "10047",
-        productName: "AC Surge Protection Device",
+        productName: "AC Surge Protection Device.",
         size: "275V",
         quantity: 2,
         unitPrice: 2800,

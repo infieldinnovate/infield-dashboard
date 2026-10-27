@@ -92,7 +92,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-qty-col{width:10%;text-align:center!important}
 .qt-price-col{width:13%;text-align:right!important;padding-right:3mm!important}
 .qt-total-col{width:17%;text-align:right!important;padding-right:3mm!important}
-.qt-totals{width:75mm;height:fit-content;flex-shrink:0;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:3mm;margin-left:105mm;margin-bottom:5mm}
+.qt-totals{width:75mm;height:fit-content;flex-shrink:0;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:3mm;margin-left:105mm;margin-bottom:5mm;}
 .qt-totals td{padding:2mm 4mm;border-bottom:1mm solid #bcbcbc;vertical-align:middle}
 .qt-totals td:first-child{width:35mm;padding-left:3mm;text-align:left}
 .qt-totals td:last-child{padding-right:3mm;text-align:right;white-space:nowrap;font-weight:400}
@@ -102,7 +102,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 .qt-grand-total td{padding-top:3mm;padding-bottom:3mm;border-bottom:none}
 .qt-grand-total td:first-child{font-weight:800}
 .qt-grand-total td:last-child{font-weight:400}
-.qt-stamp-sign{width:100%;height:27mm;flex-shrink:0;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111}
+.qt-stamp-sign{width:100%;height:27mm;flex-shrink:0;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111;}
 .qt-footer-notes{height:23mm;width:80mm;font-family:Georgia,"Times New Roman",serif;font-style:italic;line-height:1.2}
 .qt-footer-notes strong{display:block;font-weight:bold;font-size:11pt;text-align:left;padding-bottom:1mm}
 .qt-footer-notes span{font-size:9pt}
@@ -398,10 +398,7 @@ function paginateItemsByHeight(
   }
 
   // Multi-page estimate that already accommodates the closing section.
-  if (
-    estimated.length > 1 &&
-    lastPageItemHeight(estimated) <= lastPageAvail
-  ) {
+  if (estimated.length > 1 && lastPageItemHeight(estimated) <= lastPageAvail) {
     return estimated;
   }
 
