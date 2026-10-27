@@ -58,7 +58,7 @@ const printStyles = `
 *{margin:0;padding:0;box-sizing:border-box}
 @page{size:A4 portrait;margin:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#101820;background:#fff}
-.qt-page{width:210mm;height:297mm;overflow:hidden;padding:12mm 15mm 0 15mm;background:#fff url("/backgrounds/plain.jpg") center/cover no-repeat;position:relative;page-break-after:always;color:#101820;display:flex;flex-direction:column}
+.qt-page{width:210mm;height:297mm;overflow:hidden;padding:12mm 15mm 35mm 15mm;background:#fff url("/backgrounds/plain.jpg") center/cover no-repeat;position:relative;page-break-after:always;color:#101820;display:flex;flex-direction:column}
 .qt-page:last-child{page-break-after:auto}
 .qt-header{height:43mm;display:grid;grid-template-columns:1.2fr 0.8fr;gap:6mm;align-items:start;background:url("/backgrounds/qt-header.png") center/cover no-repeat;border-bottom:#5e5e5e solid 1mm;margin-bottom:5mm;flex-shrink:0}
 .qt-brand{display:flex;flex-direction:column;align-items:flex-start}
