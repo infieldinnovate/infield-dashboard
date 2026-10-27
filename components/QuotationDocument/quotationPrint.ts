@@ -268,10 +268,9 @@ function measureItemRowHeights(
 function measureClosingSection(
   totalsHTML: string,
   stampSignHTML: string,
-  footerHTML: string,
   styles: string,
 ): number {
-  const sectionHTML = `<div style="display:flex;flex-direction:column;width:180mm">${totalsHTML}${stampSignHTML}${footerHTML}</div>`;
+  const sectionHTML = `<div style="display:flex;flex-direction:column;width:180mm">${totalsHTML}${stampSignHTML}</div>`;
   return measureElementHeight(sectionHTML, styles);
 }
 
@@ -529,7 +528,6 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
   const closingSectionHeight = measureClosingSection(
     totalsHTML,
     stampSignHTML,
-    footerHTML,
     printStyles,
   );
   const pages = paginateItemsByHeight(quotation.items, closingSectionHeight);
