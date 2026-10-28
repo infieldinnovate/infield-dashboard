@@ -51,127 +51,447 @@ const LAST_PAGE_FIXED =
   PAGE_GEOMETRY.rowGap;
 
 const printStyles = `
-*{margin:0;padding:0;box-sizing:border-box}
-@page{size:A4 portrait;margin:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#101820;background:#fff}
-.qt-page{width:210mm;height:297mm;overflow:hidden;padding:12mm 15mm 35mm 15mm;background:#fff url("/backgrounds/plain.jpg") center/cover no-repeat;position:relative;page-break-after:always;color:#101820;display:flex;flex-direction:column}
-.qt-page:last-child{page-break-after:auto}
-.qt-header{height:43mm;display:grid;grid-template-columns:1.2fr 0.8fr;gap:6mm;align-items:start;background:url("/backgrounds/qt-header.png") center/cover no-repeat;border-bottom:#5e5e5e solid 1mm;margin-bottom:5mm;flex-shrink:0}
-.qt-brand{display:flex;flex-direction:column;align-items:flex-start}
-.qt-logo-img{margin-left:24mm;height:12mm;width:auto}
-.qt-business-name{margin-top:3mm;color:#164865;font-size:6mm;font-weight:800;line-height:1.6;font-family:Arial,Helvetica,sans-serif}
-.qt-business-details{color:#151515;font-family:Georgia,"Times New Roman",serif;font-size:3mm;line-height:1.3}
-.qt-business-details strong{font-weight:800;margin-right:1mm}
-.qt-business-details p{margin:0}
-.qt-title-block{display:flex;flex-direction:column;align-items:flex-end;gap:1mm}
-.qt-title-block h1{height:11mm;width:62mm;color:#ffffff;font-size:14pt;font-weight:800;letter-spacing:0.03em;display:flex;align-items:center;justify-content:center}
-.qt-barcode-img{width:54mm;height:8mm;margin-top:4mm;display:block;margin-right:8mm}
-.qt-code-text{color:#164865;font-size:4mm;margin-right:12mm;font-weight:800}
-.qt-date-text{color:#164865;font-size:4mm;margin-right:12mm}
-.qt-date-text span{color:#111;margin-left:1mm}
-.qt-billto-for{height:25mm;display:grid;grid-template-columns:1fr 1.8fr;gap:5mm;align-items:center;margin-bottom:5mm;flex-shrink:0}
-.qt-billto-label{color:#121212;font-size:4mm;font-weight:600}
-.qt-billto-content{width:fit-content;font-family:Georgia,"Times New Roman",serif;font-size:10pt}
-.qt-billto-content p{margin:0 0 1mm}
-.qt-for-section{height:19mm;display:grid;grid-template-columns:20mm 1fr;background:#d4d4d4}
-.qt-for-label{display:flex;align-items:center;padding:0 4mm;background:#bdbdbd;color:#111;font-size:4mm;font-weight:600}
-.qt-for-text{display:flex;align-items:center;padding:0 4mm;color:#111;font-size:10pt;font-family:Georgia,"Times New Roman",serif}
-.qt-items-wrapper{flex:1 1 auto;min-height:0;overflow:hidden;width:100%}
-.qt-items-table{width:100%;border-collapse:collapse;table-layout:fixed;color:#1d1d1d;font-size:3mm;margin-bottom:5mm}
-.qt-items-table th,.qt-items-table td{padding:1mm 0}
-.qt-items-table thead th{height:8mm;flex-shrink:0;background:#104b68;color:#fff;border-right:1mm solid #fff;font-size:4mm;font-weight:bold;text-align:center!important;padding:0!important}
-.qt-items-table thead th:last-child{border-right:0}
-.qt-items-table tbody td{border-bottom:1mm solid #d7e5eb;font-family:Georgia,"Times New Roman",serif;font-size:11pt}
-.qt-items-table tbody tr.evenRow td{background:#f0f6f3}
-.qt-no-col{width:6%;text-align:center!important}
-.qt-product-col{padding-left:3mm!important}
-.qt-unit-col{width:12%;text-align:center!important}
-.qt-qty-col{width:10%;text-align:center!important}
-.qt-price-col{width:13%;text-align:right!important;padding-right:3mm!important}
-.qt-total-col{width:17%;text-align:right!important;padding-right:3mm!important}
-.qt-totals{width:75mm;height:fit-content;flex-shrink:0;border-collapse:collapse;border-spacing:0;table-layout:fixed;color:#111;font-family:Georgia,"Times New Roman",serif;font-size:3mm;margin-left:105mm;margin-top:5mm;margin-bottom:5mm;}
-.qt-totals td{padding:2mm 4mm;border-bottom:1mm solid #bcbcbc;vertical-align:middle}
-.qt-totals td:first-child{width:35mm;padding-left:3mm;text-align:left}
-.qt-totals td:last-child{padding-right:3mm;text-align:right;white-space:nowrap;font-weight:400}
-.qt-totals em{font-style:normal}
-.qt-totals-row td{height:7mm}
-.qt-grand-total{background:#d5ebec;font-size:4mm}
-.qt-grand-total td{padding-top:3mm;padding-bottom:3mm;border-bottom:none}
-.qt-grand-total td:first-child{font-weight:800}
-.qt-grand-total td:last-child{font-weight:400}
-.qt-stamp-sign{width:100%;height:27mm;flex-shrink:0;display:flex;flex-direction:row;justify-content:space-between;align-items:center;color:#111;}
-.qt-footer-notes{height:23mm;width:80mm;font-family:Georgia,"Times New Roman",serif;font-style:italic;line-height:1.2}
-.qt-footer-notes strong{display:block;font-weight:bold;font-size:11pt;text-align:left;padding-bottom:1mm}
-.qt-footer-notes span{font-size:9pt}
-.qt-signature-image{display:flex;align-items:flex-end;justify-content:flex-start;max-width:50mm;height:23mm;object-fit:contain;margin-right:16mm}
-.qt-signature-image img{max-width:100%;max-height:100%;object-fit:contain}
-.qt-stamp{width:30mm;height:24mm;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transform:rotate(-35deg);background-image:url("/digital-stamp.png");background-size:cover;background-position:center;background-repeat:no-repeat;padding-bottom:6mm}
-.qt-stamp-date{color:#000;font-size:2mm}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #101820;
+  background: #fff;
+}
+.qt-page {
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+  padding: 12mm 15mm 35mm 15mm;
+  background: #fff url("/backgrounds/plain.jpg") center/cover no-repeat;
+  position: relative;
+  page-break-after: always;
+  color: #101820;
+  display: flex;
+  flex-direction: column;
+}
+.qt-page:last-child {
+  page-break-after: auto;
+}
+.qt-header {
+  height: 43mm;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 6mm;
+  align-items: start;
+  background: url("/backgrounds/qt-header.png") center/cover no-repeat;
+  border-bottom: #5e5e5e solid 1mm;
+  margin-bottom: 5mm;
+  flex-shrink: 0;
+}
+.qt-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.qt-logo-img {
+  margin-left: 24mm;
+  height: 12mm;
+  width: auto;
+}
+.qt-business-name {
+  margin-top: 3mm;
+  color: #164865;
+  font-size: 6mm;
+  font-weight: 800;
+  line-height: 1.6;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.qt-business-details {
+  color: #151515;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 3mm;
+  line-height: 1.3;
+}
+.qt-business-details strong {
+  font-weight: 800;
+  margin-right: 1mm;
+}
+.qt-business-details p {
+  margin: 0;
+}
+.qt-title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1mm;
+}
+.qt-title-block h1 {
+  height: 11mm;
+  width: 62mm;
+  color: #ffffff;
+  font-size: 14pt;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qt-barcode-img {
+  width: 54mm;
+  height: 8mm;
+  margin-top: 4mm;
+  display: block;
+  margin-right: 8mm;
+}
+.qt-code-text {
+  color: #164865;
+  font-size: 4mm;
+  margin-right: 12mm;
+  font-weight: 800;
+}
+.qt-date-text {
+  color: #164865;
+  font-size: 4mm;
+  margin-right: 12mm;
+}
+.qt-date-text span {
+  color: #111;
+  margin-left: 1mm;
+}
+.qt-billto-for {
+  height: 25mm;
+  display: grid;
+  grid-template-columns: 1fr 1.8fr;
+  gap: 5mm;
+  align-items: center;
+  margin-bottom: 5mm;
+  flex-shrink: 0;
+}
+.qt-billto-label {
+  color: #121212;
+  font-size: 4mm;
+  font-weight: 600;
+}
+.qt-billto-content {
+  width: fit-content;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10pt;
+}
+.qt-billto-content p {
+  margin: 0 0 1mm;
+}
+.qt-for-section {
+  height: 19mm;
+  display: grid;
+  grid-template-columns: 20mm 1fr;
+  background: #d4d4d4;
+}
+.qt-for-label {
+  display: flex;
+  align-items: center;
+  padding: 0 4mm;
+  background: #bdbdbd;
+  color: #111;
+  font-size: 4mm;
+  font-weight: 600;
+}
+.qt-for-text {
+  display: flex;
+  align-items: center;
+  padding: 0 4mm;
+  color: #111;
+  font-size: 10pt;
+  font-family: Georgia, "Times New Roman", serif;
+}
+.qt-items-wrapper {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  width: 100%;
+}
+.qt-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: #1d1d1d;
+  font-size: 3mm;
+}
+.qt-items-table th,
+.qt-items-table td {
+  padding: 1mm 0;
+}
+.qt-items-table thead th {
+  height: 8mm;
+  flex-shrink: 0;
+  background: #104b68;
+  color: #fff;
+  border-right: 1mm solid #fff;
+  font-size: 4mm;
+  font-weight: bold;
+  text-align: center !important;
+  padding: 0 !important;
+}
+.qt-items-table thead th:last-child {
+  border-right: 0;
+}
+.qt-items-table tbody td {
+  border-bottom: 1mm solid #d7e5eb;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 11pt;
+}
+.qt-items-table tbody tr.evenRow td {
+  background: #f0f6f3;
+}
+.qt-no-col {
+  width: 6%;
+  text-align: center !important;
+}
+.qt-product-col {
+  padding-left: 3mm !important;
+}
+.qt-unit-col {
+  width: 12%;
+  text-align: center !important;
+}
+.qt-qty-col {
+  width: 10%;
+  text-align: center !important;
+}
+.qt-price-col {
+  width: 13%;
+  text-align: right !important;
+  padding-right: 3mm !important;
+}
+.qt-total-col {
+  width: 17%;
+  text-align: right !important;
+  padding-right: 3mm !important;
+}
+.qt-totals-notes-section {
+  width: 100%;
+  height: 40mm;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
 
+.qt-notes {
+  height: fit-content;
+  max-height: 30mm;
+  width: 80mm;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  line-height: 1.2;
+  overflow: hidden;
+}
+.qt-notes strong {
+  display: block;
+  font-weight: bold;
+  font-size: 11pt;
+  text-align: left;
+  padding-bottom: 1mm;
+}
+.qt-notes span {
+  font-size: 9pt;
+}
+
+.qt-totals {
+  width: 75mm;
+  height: fit-content;
+  flex-shrink: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+  color: #111;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 3mm;
+}
+.qt-totals td {
+  padding: 2mm 4mm;
+  border-bottom: 1mm solid #bcbcbc;
+  vertical-align: middle;
+}
+.qt-totals td:first-child {
+  width: 35mm;
+  padding-left: 3mm;
+  text-align: left;
+}
+.qt-totals td:last-child {
+  padding-right: 3mm;
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 400;
+}
+.qt-totals em {
+  font-style: normal;
+}
+.qt-totals-row td {
+  height: 7mm;
+}
+.qt-grand-total {
+  background: #d5ebec;
+  font-size: 4mm;
+}
+.qt-grand-total td {
+  padding-top: 3mm;
+  padding-bottom: 3mm;
+  border-bottom: none;
+}
+.qt-grand-total td:first-child {
+  font-weight: 800;
+}
+.qt-grand-total td:last-child {
+  font-weight: 400;
+}
+.qt-stamp-sign {
+  width: 100%;
+  height: 35mm;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  color: #111;
+  padding: 0 17mm;
+}
+.qt-stamp-sign-label {
+  width: 40mm;
+  height: 27mm;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-weight: bold;
+  position: relative;
+  box-sizing: border-box;
+  border-right: 1px solid #000; /* Thin outer line */
+}
+
+.qt-stamp-sign-label::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 3px;
+  border-right: 3px solid #000; /* Thick inner line */
+  pointer-events: none;
+}
+.qt-signature-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50mm;
+  max-width: 50mm;
+  height: 20mm;
+  object-fit: contain;
+}
+.qt-signature-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.qt-stamp {
+  width: 30mm;
+  height: 24mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  transform: rotate(-35deg);
+  background-image: url("/digital-stamp.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding-bottom:6mm;
+}
+.qt-stamp-date {
+  color: #000;
+  font-size: 2mm;
+}
 
 /* Footer */
-  .qt-footer {
-    height: 35mm;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    background: url("/backgrounds/qt-footer.png") center / cover no-repeat;
-    color: #111;
-    position: absolute;
-    left: 15mm;
-    right: 15mm;
-    bottom: 0;
-  }
+.qt-footer {
+  height: 35mm;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background: url("/backgrounds/qt-footer.png") center / cover no-repeat;
+  color: #111;
+  position: absolute;
+  left: 15mm;
+  right: 15mm;
+  bottom: 0;
+}
 
-  /* Contact and Thank You Container */
-  .qt-contact-thankyou {
-    height: 28mm;
-    width: 90mm;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 7mm;
-    padding-top: 3mm;
-  }
+/* Contact and Thank You Container */
+.qt-contact-thankyou {
+  height: 28mm;
+  width: 90mm;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 7mm;
+  padding-top: 3mm;
+}
 
-  /* Contact Information */
-  .qt-footer-contact {
-    color: #0095ff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10pt;
-    font-weight: bold;
-  }
+/* Contact Information */
+.qt-footer-contact {
+  color: #0095ff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+}
 
-  .qt-footer-contact span {
-    color: #000;
-    font-weight: normal;
-    margin-left: 1mm;
-  }
+.qt-footer-contact span {
+  color: #000;
+  font-weight: normal;
+  margin-left: 1mm;
+}
 
-  /* Thank You Message */
-  .qt-footer-thankyou {
-    color: #111;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 7.5pt;
-    font-style: italic;
-    line-height: 1.2;
-  }
+/* Thank You Message */
+.qt-footer-thankyou {
+  color: #111;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 7.5pt;
+  font-style: italic;
+  line-height: 1.2;
+}
 
-  /* Created By */
-  .qt-created-by {
-    width: 54mm;
-    margin-right: 16mm;
-    color: #fff;
-    font-size: 11pt;
-    font-style: italic;
-    font-family: "Times New Roman", Times, serif;
-    text-align: center;
-    margin-bottom: 12mm;
-  }
+/* Created By */
+.qt-created-by {
+  width: 54mm;
+  margin-right: 16mm;
+  color: #fff;
+  font-size: 11pt;
+  font-style: italic;
+  font-family: "Times New Roman", Times, serif;
+  text-align: center;
+  margin-bottom: 12mm;
+}
 
-@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.qt-page{page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}.qt-page:last-child{page-break-after:auto}}
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .qt-page {
+    page-break-after: always;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .qt-page:last-child {
+    page-break-after: auto;
+  }
+}
 `;
 
 function escapeHtml(str: string): string {
@@ -469,11 +789,13 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
     quotation.items,
     quotation.taxRate,
   );
-  const buildTotals = () => `<table class="qt-totals"><tbody>
+  const buildTotals = () => `<div class="qt-totals-notes-section">
+    <div class="qt-notes"><strong>Notes:</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ""}</div>
+    <table class="qt-totals"><tbody>
     <tr class="qt-totals-row"><td>Sub-Total</td><td>${formatCurrency(subtotal)}</td></tr>
     <tr class="qt-totals-row"><td>Tax <em>(${quotation.taxRate}%)</em></td><td>${formatCurrency(tax)}</td></tr>
     <tr class="qt-grand-total"><td>Grand Total</td><td>${formatCurrency(total)}</td></tr>
-  </tbody></table>`;
+  </tbody></table></div>`;
 
   const stampHTML = `<div class="qt-stamp"><span class="qt-stamp-date">${escapeHtml(formatStampDate(quotation.createdAt))}</span></div>`;
 
@@ -482,7 +804,7 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
     : `<div class="qt-signature-image"></div>`;
 
   const stampSignHTML = `<div class="qt-stamp-sign">
-    <div class="qt-footer-notes"><strong>Notes:</strong>${quotation.notes ? `<span>${escapeHtml(quotation.notes)}</span>` : ""}</div>
+    <div class="qt-stamp-sign-label"> Digitally Signed: </div>
     ${stampHTML}
     ${sigHTML}
   </div>`;
