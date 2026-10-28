@@ -51,21 +51,32 @@ const LAST_PAGE_FIXED =
   PAGE_GEOMETRY.rowGap;
 
 const printStyles = `
+/* =========================================================
+   1. GLOBAL RESET & PRINT PAGE SETUP
+   ========================================================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
 @page {
   size: A4 portrait;
   margin: 0;
 }
+
 body {
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #101820;
   background: #fff;
 }
+
+/* =========================================================
+   2. PAGE CONTAINER & PAGINATION
+   ========================================================= */
+
 .qt-page {
   width: 210mm;
   height: 297mm;
@@ -78,9 +89,17 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* Prevent an unnecessary blank page after the final quotation page. */
 .qt-page:last-child {
   page-break-after: auto;
 }
+
+/* =========================================================
+   3. DOCUMENT HEADER
+   ========================================================= */
+
+/* Header layout and decorative background. */
 .qt-header {
   height: 43mm;
   display: grid;
@@ -92,16 +111,24 @@ body {
   margin-bottom: 5mm;
   flex-shrink: 0;
 }
+
+/* ---------------------------------------------------------
+   3A. Business Branding & Contact Details
+   Logo, business name, address, telephone, email, and website.
+   --------------------------------------------------------- */
+
 .qt-brand {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
+
 .qt-logo-img {
   margin-left: 24mm;
   height: 12mm;
   width: auto;
 }
+
 .qt-business-name {
   margin-top: 3mm;
   color: #164865;
@@ -110,25 +137,35 @@ body {
   line-height: 1.6;
   font-family: Arial, Helvetica, sans-serif;
 }
+
 .qt-business-details {
   color: #151515;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 9pt;
   line-height: 1.3;
 }
+
 .qt-business-details strong {
   font-weight: 800;
   margin-right: 1mm;
 }
+
 .qt-business-details p {
   margin: 0;
 }
+
+/* ---------------------------------------------------------
+   3B. Quotation Identification & Metadata
+   Quotation heading, barcode, quotation code, and issue date.
+   --------------------------------------------------------- */
+
 .qt-title-block {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 1mm;
 }
+
 .qt-title-block h1 {
   height: 11mm;
   width: 62mm;
@@ -140,6 +177,7 @@ body {
   align-items: center;
   justify-content: center;
 }
+
 .qt-barcode-img {
   width: 54mm;
   height: 8mm;
@@ -147,21 +185,30 @@ body {
   display: block;
   margin-right: 8mm;
 }
+
 .qt-code-text {
   color: #164865;
   font-size: 12pt;
   margin-right: 12mm;
   font-weight: 800;
 }
+
 .qt-date-text {
   color: #164865;
   font-size: 11pt;
   margin-right: 12mm;
 }
+
 .qt-date-text span {
   color: #111;
   margin-left: 1mm;
 }
+
+/* =========================================================
+   4. CUSTOMER DETAILS & QUOTATION PURPOSE
+   ========================================================= */
+
+/* Customer and quotation-purpose columns. */
 .qt-billto-for {
   height: 25mm;
   display: grid;
@@ -171,25 +218,33 @@ body {
   margin-bottom: 5mm;
   flex-shrink: 0;
 }
+
+/* BILL TO: customer heading. */
 .qt-billto-label {
   color: #121212;
   font-size: 12pt;
   font-weight: 600;
 }
+
+/* Customer name, address, and contact information. */
 .qt-billto-content {
   width: fit-content;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 11pt;
 }
+
 .qt-billto-content p {
   margin: 0 0 1mm;
 }
+
+/* FOR: quotation-purpose container and label. */
 .qt-for-section {
   height: 19mm;
   display: grid;
   grid-template-columns: 20mm 1fr;
   background: #d4d4d4;
 }
+
 .qt-for-label {
   display: flex;
   align-items: center;
@@ -199,6 +254,7 @@ body {
   font-size: 11pt;
   font-weight: 600;
 }
+
 .qt-for-text {
   display: flex;
   align-items: center;
@@ -207,12 +263,20 @@ body {
   font-size: 10pt;
   font-family: Georgia, "Times New Roman", serif;
 }
+
+/* =========================================================
+   5. QUOTATION ITEMS TABLE
+   ========================================================= */
+
+/* Table container: prevents item rows from overflowing its area. */
 .qt-items-wrapper {
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
   width: 100%;
 }
+
+/* Base table structure and typography. */
 .qt-items-table {
   width: 100%;
   border-collapse: collapse;
@@ -220,10 +284,16 @@ body {
   color: #1d1d1d;
   font-size: 10pt;
 }
+
 .qt-items-table th,
 .qt-items-table td {
   padding: 1mm 0;
 }
+
+/* ---------------------------------------------------------
+   5A. Table Header Row
+   --------------------------------------------------------- */
+
 .qt-items-table thead th {
   height: 8mm;
   flex-shrink: 0;
@@ -235,42 +305,72 @@ body {
   text-align: center !important;
   padding: 0 !important;
 }
+
 .qt-items-table thead th:last-child {
   border-right: 0;
 }
+
+/* ---------------------------------------------------------
+   5B. Table Body & Item Rows
+   --------------------------------------------------------- */
+
 .qt-items-table tbody td {
   border-bottom: 1mm solid #d7e5eb;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 11pt;
 }
+
+/* Alternating background for even-numbered item rows. */
 .qt-items-table tbody tr.evenRow td {
   background: #f0f6f3;
 }
+
+/* ---------------------------------------------------------
+   5C. Item Table Column Layout
+   --------------------------------------------------------- */
+
+/* Item number. */
 .qt-no-col {
   width: 6%;
   text-align: center !important;
 }
+
+/* Product or service description. */
 .qt-product-col {
   padding-left: 3mm !important;
 }
+
+/* Product size or unit specification. */
 .qt-unit-col {
   width: 12%;
   text-align: center !important;
 }
+
+/* Item quantity and unit. */
 .qt-qty-col {
   width: 10%;
   text-align: center !important;
 }
+
+/* Individual item price. */
 .qt-price-col {
   width: 13%;
   text-align: right !important;
   padding-right: 3mm !important;
 }
+
+/* Calculated item total. */
 .qt-total-col {
   width: 17%;
   text-align: right !important;
   padding-right: 3mm !important;
 }
+
+/* =========================================================
+   6. CLOSING SECTION: NOTES & FINANCIAL TOTALS
+   ========================================================= */
+
+/* Side-by-side layout for notes and the totals table. */
 .qt-totals-notes-section {
   width: 100%;
   height: 40mm;
@@ -279,6 +379,10 @@ body {
   justify-content: space-between;
   align-items: center;
 }
+
+/* ---------------------------------------------------------
+   6A. Quotation Notes
+   --------------------------------------------------------- */
 
 .qt-notes {
   height: fit-content;
@@ -289,6 +393,7 @@ body {
   line-height: 1.2;
   overflow: hidden;
 }
+
 .qt-notes strong {
   display: block;
   font-weight: bold;
@@ -296,9 +401,14 @@ body {
   text-align: left;
   padding-bottom: 1mm;
 }
+
 .qt-notes span {
   font-size: 9pt;
 }
+
+/* ---------------------------------------------------------
+   6B. Financial Totals
+   --------------------------------------------------------- */
 
 .qt-totals {
   width: 75mm;
@@ -311,43 +421,64 @@ body {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 11pt;
 }
+
+/* Common financial table cell styling. */
 .qt-totals td {
   padding: 2mm 4mm;
   border-bottom: 1mm solid #bcbcbc;
   vertical-align: middle;
 }
+
+/* Left column: total labels and tax rate. */
 .qt-totals td:first-child {
   width: 35mm;
   padding-left: 3mm;
   text-align: left;
 }
+
+/* Right column: monetary amounts. */
 .qt-totals td:last-child {
   padding-right: 3mm;
   text-align: right;
   white-space: nowrap;
   font-weight: 400;
 }
+
+/* Prevent the tax rate from being displayed in italics. */
 .qt-totals em {
   font-style: normal;
 }
+
+/* Standard subtotal and tax rows. */
 .qt-totals-row td {
   height: 7mm;
 }
+
+/* Emphasized grand-total row. */
 .qt-grand-total {
   background: #d5ebec;
   font-size: 12pt;
 }
+
 .qt-grand-total td {
   padding-top: 3mm;
   padding-bottom: 3mm;
   border-bottom: none;
 }
+
 .qt-grand-total td:first-child {
   font-weight: 800;
 }
+
 .qt-grand-total td:last-child {
   font-weight: 400;
 }
+
+/* =========================================================
+   7. DIGITAL SIGNATURE & STAMP
+   ========================================================= */
+
+/* Overall authorization section. */
 .qt-stamp-sign {
   width: 100%;
   height: 35mm;
@@ -359,6 +490,11 @@ body {
   color: #111;
   padding: 0 17mm;
 }
+
+/* ---------------------------------------------------------
+   7A. Digital Signature Label
+   --------------------------------------------------------- */
+
 .qt-stamp-sign-label {
   width: 40mm;
   height: 27mm;
@@ -374,6 +510,7 @@ body {
   border-right: 1px solid #000; /* Thin outer line */
 }
 
+/* Decorative inner divider line. */
 .qt-stamp-sign-label::after {
   content: "";
   position: absolute;
@@ -383,6 +520,11 @@ body {
   border-right: 3px solid #000; /* Thick inner line */
   pointer-events: none;
 }
+
+/* ---------------------------------------------------------
+   7B. Signature Image
+   --------------------------------------------------------- */
+
 .qt-signature-image {
   display: flex;
   align-items: center;
@@ -392,11 +534,17 @@ body {
   height: 20mm;
   object-fit: contain;
 }
+
 .qt-signature-image img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
+
+/* ---------------------------------------------------------
+   7C. Digital Stamp & Stamp Date
+   --------------------------------------------------------- */
+
 .qt-stamp {
   width: 30mm;
   height: 24mm;
@@ -409,14 +557,18 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  padding-bottom:6mm;
+  padding-bottom: 6mm;
 }
+
 .qt-stamp-date {
   color: #000;
   font-size: 5.2pt;
 }
 
-/* Footer */
+/* =========================================================
+   8. PAGE FOOTER
+   ========================================================= */
+
 .qt-footer {
   height: 35mm;
   display: flex;
@@ -431,7 +583,10 @@ body {
   bottom: 0;
 }
 
-/* Contact and Thank You Container */
+/* ---------------------------------------------------------
+   8A. Contact & Thank-You Container
+   --------------------------------------------------------- */
+
 .qt-contact-thankyou {
   height: 28mm;
   width: 90mm;
@@ -443,7 +598,10 @@ body {
   padding-top: 3mm;
 }
 
-/* Contact Information */
+/* ---------------------------------------------------------
+   8B. Contact Information
+   --------------------------------------------------------- */
+
 .qt-footer-contact {
   color: #0095ff;
   font-family: Arial, Helvetica, sans-serif;
@@ -458,7 +616,10 @@ body {
   margin-left: 5mm;
 }
 
-/* Thank You Message */
+/* ---------------------------------------------------------
+   8C. Thank-You Message
+   --------------------------------------------------------- */
+
 .qt-footer-thankyou {
   color: #111;
   font-family: Georgia, "Times New Roman", serif;
@@ -467,7 +628,10 @@ body {
   line-height: 1.2;
 }
 
-/* Created By */
+/* ---------------------------------------------------------
+   8D. Quotation Creator
+   --------------------------------------------------------- */
+
 .qt-created-by {
   width: 54mm;
   margin-right: 16mm;
@@ -479,16 +643,22 @@ body {
   margin-bottom: 12mm;
 }
 
+/* =========================================================
+   9. PRINT-ONLY OVERRIDES
+   ========================================================= */
+
 @media print {
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
   .qt-page {
     page-break-after: always;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
   .qt-page:last-child {
     page-break-after: auto;
   }
