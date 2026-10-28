@@ -17,7 +17,7 @@ const PX_PER_MM = 3.7795;
 
 const PAGE_GEOMETRY = {
   pageHeight: 297 * PX_PER_MM,
-  pagePaddingTop: 12 * PX_PER_MM,
+  pagePaddingTop: 10 * PX_PER_MM,
   pagePaddingBottom: 35 * PX_PER_MM,
   rowGap: 5 * PX_PER_MM,
   headerHeight: 43 * PX_PER_MM,
@@ -81,7 +81,7 @@ body {
   width: 210mm;
   height: 297mm;
   overflow: hidden;
-  padding: 12mm 15mm 35mm 15mm;
+  padding: 10mm 15mm 35mm 15mm;
   background: #fff url("/backgrounds/plain.jpg") center/cover no-repeat;
   position: relative;
   page-break-after: always;
@@ -101,27 +101,28 @@ body {
 
 /* Header layout and decorative background. */
 .qt-header {
-  height: 43mm;
+  height: 45mm;
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
   gap: 6mm;
   align-items: start;
   background: url("/backgrounds/qt-header.png") center/cover no-repeat;
   border-bottom: #5e5e5e solid 1mm;
-  margin-bottom: 5mm;
   flex-shrink: 0;
 }
 
 /* ---------------------------------------------------------
    3A. Business Branding & Contact Details
-   Logo, business name, address, telephone, email, and website.
    --------------------------------------------------------- */
 
 .qt-brand {
+  height: 45mm;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-}
+  justify-content: space-between;
+  padding-bottom: 3mm;
+  }
 
 .qt-logo-img {
   margin-left: 24mm;
@@ -130,7 +131,6 @@ body {
 }
 
 .qt-business-name {
-  margin-top: 3mm;
   color: #164865;
   font-size: 16pt;
   font-weight: 800;
@@ -142,7 +142,7 @@ body {
   color: #151515;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 9pt;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 .qt-business-details strong {
@@ -156,14 +156,15 @@ body {
 
 /* ---------------------------------------------------------
    3B. Quotation Identification & Metadata
-   Quotation heading, barcode, quotation code, and issue date.
    --------------------------------------------------------- */
 
 .qt-title-block {
+  height: 45mm;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 1mm;
+  justify-content: space-between;
+  padding-bottom: 5mm;
 }
 
 .qt-title-block h1 {
@@ -181,7 +182,7 @@ body {
 .qt-barcode-img {
   width: 54mm;
   height: 8mm;
-  margin-top: 4mm;
+  margin-top: 3mm;
   display: block;
   margin-right: 8mm;
 }
@@ -210,13 +211,14 @@ body {
 
 /* Customer and quotation-purpose columns. */
 .qt-billto-for {
-  height: 25mm;
+  height: 35mm;
   display: grid;
   grid-template-columns: 1fr 1.8fr;
   gap: 5mm;
   align-items: center;
-  margin-bottom: 5mm;
   flex-shrink: 0;
+  background-color: green;
+  padding: 5mm 0;
 }
 
 /* BILL TO: customer heading. */
@@ -273,7 +275,8 @@ body {
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
-  width: 100%;
+  width: 100%;  
+  background-color: red;
 }
 
 /* Base table structure and typography. */
@@ -377,7 +380,8 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
+  align-items: center;  
+  background-color: green;
 }
 
 /* ---------------------------------------------------------
@@ -489,6 +493,7 @@ body {
   align-items: center;
   color: #111;
   padding: 0 17mm;
+  background-color: red;
 }
 
 /* ---------------------------------------------------------
@@ -581,6 +586,7 @@ body {
   left: 15mm;
   right: 15mm;
   bottom: 0;
+  background-color: green;
 }
 
 /* ---------------------------------------------------------
