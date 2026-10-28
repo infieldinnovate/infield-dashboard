@@ -105,7 +105,7 @@ body {
 .qt-business-name {
   margin-top: 3mm;
   color: #164865;
-  font-size: 6mm;
+  font-size: 17pt;
   font-weight: 800;
   line-height: 1.6;
   font-family: Arial, Helvetica, sans-serif;
@@ -113,7 +113,7 @@ body {
 .qt-business-details {
   color: #151515;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 3mm;
+  font-size: 8.5pt;
   line-height: 1.3;
 }
 .qt-business-details strong {
@@ -149,13 +149,13 @@ body {
 }
 .qt-code-text {
   color: #164865;
-  font-size: 4mm;
+  font-size: 11pt;
   margin-right: 12mm;
   font-weight: 800;
 }
 .qt-date-text {
   color: #164865;
-  font-size: 4mm;
+  font-size: 11pt;
   margin-right: 12mm;
 }
 .qt-date-text span {
@@ -173,7 +173,7 @@ body {
 }
 .qt-billto-label {
   color: #121212;
-  font-size: 4mm;
+  font-size: 11pt;
   font-weight: 600;
 }
 .qt-billto-content {
@@ -196,7 +196,7 @@ body {
   padding: 0 4mm;
   background: #bdbdbd;
   color: #111;
-  font-size: 4mm;
+  font-size: 11pt;
   font-weight: 600;
 }
 .qt-for-text {
@@ -218,7 +218,7 @@ body {
   border-collapse: collapse;
   table-layout: fixed;
   color: #1d1d1d;
-  font-size: 3mm;
+  font-size: 8.5pt;
 }
 .qt-items-table th,
 .qt-items-table td {
@@ -230,7 +230,7 @@ body {
   background: #104b68;
   color: #fff;
   border-right: 1mm solid #fff;
-  font-size: 4mm;
+  font-size: 11pt;
   font-weight: bold;
   text-align: center !important;
   padding: 0 !important;
@@ -309,7 +309,7 @@ body {
   table-layout: fixed;
   color: #111;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 3mm;
+  font-size: 8.5pt;
 }
 .qt-totals td {
   padding: 2mm 4mm;
@@ -335,7 +335,7 @@ body {
 }
 .qt-grand-total {
   background: #d5ebec;
-  font-size: 4mm;
+  font-size: 11pt;
 }
 .qt-grand-total td {
   padding-top: 3mm;
@@ -413,7 +413,7 @@ body {
 }
 .qt-stamp-date {
   color: #000;
-  font-size: 2mm;
+  font-size: 5.5pt;
 }
 
 /* Footer */
