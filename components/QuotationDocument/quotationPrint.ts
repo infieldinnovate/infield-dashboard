@@ -550,7 +550,7 @@ body {
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 7mm;
+  gap: 6mm;
   padding-top: 3mm;
 }
 
@@ -579,9 +579,9 @@ body {
 .qt-footer-thankyou {
   color: #111;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 8pt;
+  font-size: 7pt;
   font-style: italic;
-  line-height: 1.2;
+  line-height: 12px;
 }
 
 /* ---------------------------------------------------------
