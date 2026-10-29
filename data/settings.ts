@@ -9,6 +9,7 @@ export const defaultSettings: AppSettings = {
     website: "wwww.infield.co.ke",
     logo: "/logo.png",
     signature: "/signature-wadeya.png",
+    stamp: "/digital-stamp.png",
   },
   numbering: {
     quotationPrefix: "QUO",

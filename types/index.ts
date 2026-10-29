@@ -205,6 +205,7 @@ export interface BusinessInfo {
   website: string;
   logo: string;
   signature: string;
+  stamp: string;
 }
 
 export interface DocumentNumbering {

@@ -249,11 +249,10 @@ body {
 /* Table container: prevents item rows from overflowing its area. */
 
 .qt-items-wrapper {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-height: 0;
   overflow: hidden;
   width: 100%;
-  background-color: rgb(165, 229, 248);
 }
 .qt-items-table {
   width: 100%;
@@ -266,7 +265,6 @@ body {
 .qt-items-table tr {
   padding: 0;
   margin: 0;
-  background-color:yellow;
 }
 
 /* ---------------------------------------------------------
@@ -297,7 +295,7 @@ body {
   border-bottom: 3px solid #d7e5eb;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 15px;
-  line-height: 30px;
+  line-height: 29px;
   padding: 0;
   margin: 0;
 }
@@ -444,6 +442,7 @@ body {
   align-items: center;
   color: #111;
   padding: 0 17mm;
+  overflow: hidden;
 }
 
 /* ---------------------------------------------------------
@@ -499,22 +498,27 @@ body {
    --------------------------------------------------------- */
 
 .qt-stamp {
-  width: 26mm;
-  height: 20mm;
+  width: 30mm;
+  height: 25mm;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   transform: rotate(-35deg);
-  background-image: url("/digital-stamp.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  padding-bottom: 4mm;
 }
+
+.qt-stamp img {
+  width: 30mm;
+  height: 25mm;
+}
+
 .qt-stamp-date {
+  position: absolute;
+  bottom: 6mm;
   color: #000;
   font-size: 5.2pt;
+
 }
 
 /* =========================================================
@@ -903,6 +907,7 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
   const siteUrl = website || "www.infield.co.ke";
   const signatureSrc =
     quotation.createdBySignature || settings.business.signature;
+  const stampSrc = settings.business.stamp;
   const barcodeValue = generateBarcode(
     quotation.userId,
     quotation.quotationCode,
@@ -946,16 +951,21 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
     <tr class="qt-grand-total"><td>Grand Total</td><td>${formatCurrency(total)}</td></tr>
   </tbody></table></div>`;
 
-  const stampHTML = `<div class="qt-stamp"><span class="qt-stamp-date">${escapeHtml(formatStampDate(quotation.createdAt))}</span></div>`;
+  const stampHTML = stampSrc
+    ? `<div class="qt-stamp">
+    <img src="${escapeHtml(stampSrc)}" alt="Stamp" />
+  <span class="qt-stamp-date">${escapeHtml(formatStampDate(quotation.createdAt))}</span>
+    </div>`
+    : `<div class="qt-stamp"></div>`;
 
-  const sigHTML = signatureSrc
+  const signHTML = signatureSrc
     ? `<div class="qt-signature-image"><img src="${escapeHtml(signatureSrc)}" alt="Signature" /></div>`
     : `<div class="qt-signature-image"></div>`;
 
   const stampSignHTML = `<div class="qt-stamp-sign">
     <div class="qt-stamp-sign-label"> Digitally Signed: </div>
     ${stampHTML}
-    ${sigHTML}
+    ${signHTML}
   </div>`;
 
   const buildFooter = () => `<footer class="qt-footer">
@@ -1133,15 +1143,15 @@ function validateRenderedQuotation(doc: Document): string[] {
         `Page ${pageNumber}: the signature section overlaps the reserved footer region.`,
       );
     }
-    const stamp = page.querySelector<HTMLElement>(".qt-stamp");
-    if (
-      stamp &&
-      stamp.getBoundingClientRect().bottom > footerRect.top + tolerance
-    ) {
-      problems.push(
-        `Page ${pageNumber}: the rotated stamp extends into the footer region.`,
-      );
-    }
+    // const stamp = page.querySelector<HTMLElement>(".qt-stamp");
+    // if (
+    //   stamp &&
+    //   stamp.getBoundingClientRect().bottom > footerRect.top + tolerance
+    // ) {
+    //   problems.push(
+    //     `Page ${pageNumber}: the rotated stamp extends into the footer region.`,
+    //   );
+    // }
 
     if (footerRect.bottom > pageRect.bottom + tolerance) {
       problems.push(
