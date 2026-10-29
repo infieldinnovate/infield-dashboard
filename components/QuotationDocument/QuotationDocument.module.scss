@@ -11,10 +11,15 @@
 }
 
 .a4Page {
+  box-sizing: border-box;
   width: 210mm;
   min-height: 297mm;
   padding: 10mm 15mm 35mm 15mm;
-  background: #fff url("/backgrounds/plain.jpg") center / cover no-repeat;
+  background-color: #fff;
+  background-image: url("/backgrounds/plain.jpg");
+  background-position: center top;
+  background-size: 100% auto;
+  background-repeat: repeat;
   position: relative;
   color: #101820;
   display: flex;
@@ -512,6 +517,7 @@
     width: 100%;
   }
 }
+
 @media print {
   .a4Page {
     -webkit-print-color-adjust: exact;
