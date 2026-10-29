@@ -13,9 +13,7 @@ export default function A4Layout({ quotation }: { quotation: Quotation }) {
       <div className={styles.a4Page}>
         <BrandedHeader quotation={quotation} />
         <BillToAndFor quotation={quotation} />
-        <div className={styles.itemsWrapper}>
-          <ItemsTable items={quotation.items} startIndex={0} />
-        </div>
+        <ItemsTable items={quotation.items} startIndex={0} />
         <div className={styles.totalsNotesSection}>
           <div className={styles.notes}>
             <strong>Notes:</strong>
