@@ -12,8 +12,9 @@
 
 .a4Page {
   width: 210mm;
-  min-height: 297mm;
-  padding: 12mm 15mm 0 15mm;
+  height: 297mm;
+  overflow: hidden;
+  padding: 10mm 15mm 35mm 15mm;
   background: #fff url("/backgrounds/plain.jpg") center / cover no-repeat;
   position: relative;
   page-break-after: always;
@@ -23,43 +24,36 @@
   }
   display: flex;
   flex-direction: column;
-  row-gap: 20px;
 }
 
-.a4PageLast .footer {
-  position: static;
-  left: auto;
-  right: auto;
-  bottom: auto;
-  flex-shrink: 0;
-}
-
+/* === Header === */
 .header {
-  height: 43mm;
-  flex-shrink: 0;
+  height: 45mm;
+  flex: 0 0 45mm;
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
-  gap: 23px;
+  gap: 6mm;
   align-items: start;
   background: url("/backgrounds/qt-header.png") center / cover no-repeat;
-  border-bottom: #5e5e5e solid 1px;
-  background-color: rgb(107, 236, 245);
+  border-bottom: #5e5e5e solid 1mm;
 }
 
 .brand {
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 3mm;
 }
 .logo {
-  margin-left: 90px;
+  margin-left: 24mm;
   height: 12mm;
   width: auto;
 }
 .businessName {
-  margin-top: 10px;
   color: #164865;
-  font-size: 22px;
+  font-size: 16pt;
   font-weight: 800;
   line-height: 1.6;
   font-family: Arial, Helvetica, sans-serif;
@@ -67,18 +61,24 @@
 .businessDetails {
   color: #151515;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 12px;
-  line-height: 1.3;
+  font-size: 9pt;
+  line-height: 1.4;
 }
 .businessDetails strong {
   font-weight: 800;
-  margin-right: 5px;
+  margin-right: 1mm;
 }
+.businessDetails p {
+  margin: 0;
+}
+
 .titleBlock {
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 5px;
+  justify-content: space-between;
+  padding-bottom: 5mm;
 }
 .titleBlock h1 {
   height: 11mm;
@@ -92,101 +92,109 @@
   justify-content: center;
 }
 .barcode {
-  width: 205px;
-  height: 31px;
-  margin-top: 15px;
+  width: 54mm;
+  height: 8mm;
+  margin-top: 3mm;
   display: block;
-  margin-right: 30px;
+  margin-right: 8mm;
 }
 .codeText {
   color: #164865;
-  font-size: 16px;
-  margin-right: 45px;
+  font-size: 12pt;
+  margin-right: 12mm;
   font-weight: 800;
 }
 .dateText {
   color: #164865;
-  font-size: 14px;
-  margin-right: 45px;
+  font-size: 11pt;
+  margin-right: 12mm;
 }
 .dateText span {
   color: #111;
-  margin-left: 5px;
+  margin-left: 1mm;
 }
 
+/* === Bill To & For === */
 .billToFor {
-  height: 25mm;
-  flex-shrink: 0;
+  height: 35mm;
+  flex: 0 0 35mm;
   display: grid;
   grid-template-columns: 1fr 1.8fr;
-  gap: 20px;
+  gap: 5mm;
   align-items: center;
-  background-color: yellow;
+  padding: 5mm 0;
 }
 .sectionLabel {
   color: #121212;
-  font-size: 16px;
+  font-size: 12pt;
   font-weight: 600;
 }
 .billToContent {
   width: fit-content;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 10pt;
+  font-size: 11pt;
+}
+.billToContent p {
+  margin: 0 0 1mm;
 }
 .forSection {
   height: 19mm;
   display: grid;
-  grid-template-columns: 74px 1fr;
+  grid-template-columns: 20mm 1fr;
   background: #d4d4d4;
 }
 .forLabel {
   display: flex;
   align-items: center;
-  padding: 0 14px;
+  padding: 0 4mm;
   background: #bdbdbd;
   color: #111;
-  font-size: 16px;
+  font-size: 11pt;
   font-weight: 600;
 }
 .forText {
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 4mm;
   color: #111;
   font-size: 10pt;
   font-family: Georgia, "Times New Roman", serif;
 }
 
+/* === Items Table === */
+.itemsWrapper {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  width: 100%;
+}
 .itemsTable {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
   color: #1d1d1d;
-  font-size: 12px;
-  background-color: #0095ff;
-}
-.itemsTable th,
-.itemsTable td {
-  padding: 3px 0;
+  font-size: 10pt;
 }
 .itemsTable thead th {
-  height: 30px;
+  height: 8mm;
   flex-shrink: 0;
   background: #104b68;
   color: #fff;
-  border-right: 2px solid #fff;
-  font-size: 14px;
+  border-right: 1mm solid #fff;
+  font-size: 12pt;
   font-weight: bold;
   text-align: center !important;
-  padding: 0 !important;
+  padding: 0;
 }
 .itemsTable thead th:last-child {
   border-right: 0;
 }
 .itemsTable tbody td {
-  border-bottom: 1px solid #d7e5eb;
+  border-bottom: 3px solid #d7e5eb;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 11pt;
+  font-size: 15px;
+  line-height: 29px;
+  padding: 0;
 }
 .itemsTable tbody tr.evenRow td {
   background: #f0f6f3;
@@ -196,7 +204,7 @@
   text-align: center !important;
 }
 .productNameColumn {
-  padding-left: 10px !important;
+  padding-left: 3mm !important;
 }
 .unitColumn {
   width: 12%;
@@ -209,12 +217,43 @@
 .priceColumn {
   width: 13%;
   text-align: right !important;
-  padding-right: 10px !important;
+  padding-right: 3mm !important;
 }
 .totalColumn {
   width: 17%;
   text-align: right !important;
-  padding-right: 10px !important;
+  padding-right: 3mm !important;
+}
+
+/* === Totals & Notes Section === */
+.totalsNotesSection {
+  width: 100%;
+  height: 40mm;
+  flex: 0 0 40mm;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notes {
+  height: fit-content;
+  max-height: 30mm;
+  width: 80mm;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  line-height: 1.2;
+  overflow: hidden;
+}
+.notes strong {
+  display: block;
+  font-weight: bold;
+  font-size: 11pt;
+  text-align: left;
+  padding-bottom: 1mm;
+}
+.notes span {
+  font-size: 9pt;
 }
 
 .totals {
@@ -226,24 +265,23 @@
   table-layout: fixed;
   color: #111;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 13px;
-  margin-left: 105mm;
-  background-color: #674dda;
+  font-size: 11pt;
+  margin-top: 5mm;
+  margin-bottom: 5mm;
 
   td {
-    padding: 7px 15px;
-    border-bottom: 1px solid #bcbcbc;
+    padding: 2mm 4mm;
+    border-bottom: 1mm solid #bcbcbc;
     vertical-align: middle;
 
     &:first-child {
       width: 35mm;
-      padding-left: 12px;
+      padding-left: 3mm;
       text-align: left;
-      background-color: yellow;
     }
 
     &:last-child {
-      padding-right: 12px;
+      padding-right: 3mm;
       text-align: right;
       white-space: nowrap;
       font-weight: 400;
@@ -256,17 +294,17 @@
 
   .totalsRow {
     td {
-      height: 28px;
+      height: 7mm;
     }
   }
 
   .grandTotal {
     background: #d5ebec;
-    font-size: 15px;
+    font-size: 12pt;
 
     td {
-      padding-top: 10px;
-      padding-bottom: 10px;
+      padding-top: 3mm;
+      padding-bottom: 3mm;
       border-bottom: none;
 
       &:first-child {
@@ -280,48 +318,61 @@
   }
 }
 
+/* === Stamp & Signature === */
 .stampSignSection {
   width: 100%;
-  height: 27mm;
-  flex-shrink: 0;
+  height: 35mm;
+  flex: 0 0 35mm;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   color: #111;
-  background-color: #4dda4d;
+  padding: 0 17mm;
+  overflow: hidden;
 }
 
-.notes {
-  height: 23mm;
-  width: 80mm;
-  font-family: Georgia, "Times New Roman", serif;
+.stampSignLabel {
+  width: 40mm;
+  height: 27mm;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: "Times New Roman", Times, serif;
   font-style: italic;
-  line-height: 1.2;
-}
-
-.notes strong {
-  display: block;
   font-weight: bold;
-  font-size: 11pt;
-  text-align: left;
-  padding-bottom: 4px;
+  position: relative;
+  box-sizing: border-box;
+  border-right: 1px solid #000;
 }
 
-.notes span {
-  font-size: 9pt;
+.stampSignLabel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 3px;
+  border-right: 3px solid #000;
+  pointer-events: none;
 }
 
 .signatureImage {
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
+  width: 50mm;
   max-width: 50mm;
-  height: 23mm;
+  height: 20mm;
   object-fit: contain;
-  margin-right: 60px;
+}
+.signatureImage img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
+/* === Footer === */
 .footer {
   height: 35mm;
   display: flex;
@@ -334,7 +385,6 @@
   left: 15mm;
   right: 15mm;
   bottom: 0;
-  background-color: red;
 }
 
 .contactAndThankYou {
@@ -344,8 +394,8 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 25px;
-  padding-top: 10px;
+  gap: 6mm;
+  padding-top: 3mm;
 }
 
 .contact {
@@ -358,28 +408,30 @@
 .contact span {
   color: #000;
   font-weight: normal;
-  margin-left: 5px;
+  font-size: 9pt;
+  margin-left: 5mm;
 }
 
 .thankYou {
   color: #111;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 7.5pt;
+  font-size: 7pt;
   font-style: italic;
-  line-height: 1.2;
+  line-height: 12px;
 }
 
 .createdBy {
   width: 54mm;
-  margin-right: 60px;
+  margin-right: 16mm;
   color: #fff;
   font-size: 11pt;
   font-style: italic;
   font-family: "Times New Roman", Times, serif;
   text-align: center;
-  margin-bottom: 45px;
+  margin-bottom: 12mm;
 }
 
+/* === Action Bar & Preview (non-document) === */
 .actionBar {
   display: flex;
   flex-wrap: wrap;
@@ -452,7 +504,7 @@
     min-height: auto;
     padding: 24px 18px;
   }
-  .headerTop {
+  .header {
     grid-template-columns: 1fr;
     gap: 18px;
   }
@@ -469,17 +521,6 @@
   }
   .footer {
     width: 100%;
-  }
-  .footerNotes {
-    padding-left: 0;
-  }
-  .footerBottom {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  .footerStamp {
-    grid-column: 1;
-    grid-row: auto;
   }
 }
 @media print {

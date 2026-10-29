@@ -10,13 +10,8 @@ export default function StampSign({ quotation }: { quotation: Quotation }) {
 
   return (
     <div className={styles.stampSignSection}>
-      <div className={styles.notes}>
-        <strong>Notes:</strong>
-        {quotation.notes && <span>{quotation.notes}</span>}
-      </div>
-
+      <div className={styles.stampSignLabel}>Digitally Signed:</div>
       <Stamp date={formatStampDate(quotation.createdAt)} />
-
       <ImageWithFallback
         src={signatureSrc}
         alt="Signature"
