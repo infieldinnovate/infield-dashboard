@@ -263,7 +263,10 @@ export async function generateQuotationPDF(
       });
     }
 
-    const contactY = FOOTER_HEIGHT - mm(3) - 10 * PT;
+    // Contact & thank-you: height 28mm, padding-top 3mm, gap 6mm
+    const ctPadTop = mm(3);
+    const ctGap = mm(6);
+    const contactY = FOOTER_HEIGHT - ctPadTop - 10 * PT;
     p.drawText("CONTACT US:", {
       x: PAD_SIDE,
       y: contactY,
@@ -280,7 +283,9 @@ export async function generateQuotationPDF(
       color: DETAILS_DARK,
     });
 
-    const thankY = contactY - mm(6) - 7 * PT;
+    // Thank-you: font-size 7pt, line-height 12px (= 9pt), gap 6mm from contact
+    const thankLineH = 12 * PX; // 12px CSS line-height
+    const thankY = contactY - ctGap - 7 * PT;
     const thankLines = [
       "Thank you for choosing Infield Innovations.",
       "We deliver exceptional results with unmatched expertise and dedication.",
@@ -288,16 +293,17 @@ export async function generateQuotationPDF(
     for (let i = 0; i < thankLines.length; i++) {
       p.drawText(thankLines[i], {
         x: PAD_SIDE,
-        y: thankY - i * (7 * PT * 1.2),
+        y: thankY - i * thankLineH,
         size: 7 * PT,
         font: serifItalic,
         color: DETAILS_DARK,
       });
     }
 
+    // Created-by: width 54mm, margin-right 16mm, margin-bottom 12mm, font-size 11pt
     const cbW = mm(54);
     const cbX = PAGE_WIDTH - PAD_SIDE - mm(16) - cbW;
-    const cbY = FOOTER_HEIGHT / 2 + mm(6) - (11 * PT) / 2;
+    const cbY = FOOTER_HEIGHT - mm(12) - 11 * PT;
     const cbLabel = `By ${quotation.createdBy || ""}`;
     p.drawText(cbLabel, {
       x: cbX + (cbW - serifBoldItalic.widthOfTextAtSize(cbLabel, 11 * PT)) / 2,
@@ -340,8 +346,12 @@ export async function generateQuotationPDF(
       });
     }
 
+    // Brand column: flex column, justify-content: space-between, padding-bottom: 3mm
+    const brandPadBottom = mm(3);
     const bizNameSize = 16 * PT;
-    const bizNameY = headerTop - logoH - 10 - bizNameSize * 1.6;
+    const bizNameLineH = bizNameSize * 1.6;
+    // Business name sits below logo; details sit at the bottom (space-between + padding-bottom 3mm)
+    const bizNameY = headerTop - logoH - 10 - bizNameLineH;
     page.drawText(businessName, {
       x: PAD_SIDE,
       y: bizNameY,
@@ -352,7 +362,10 @@ export async function generateQuotationPDF(
 
     const detailSize = 9 * PT;
     const detailLineH = detailSize * 1.4;
-    const detailsY = bizNameY - detailSize * 1.3 - 2;
+    // Details block bottom is at headerBottom + padding-bottom(3mm)
+    const detailsBottom = headerBottom + brandPadBottom;
+    // 4 lines from bottom: address, Tel, Email, Website
+    const detailsY = detailsBottom + detailLineH * 3;
     const drawDetailLine = (label: string, value: string, dy: number) => {
       const labelW = boldFont.widthOfTextAtSize(label, detailSize);
       page.drawText(label, {
@@ -466,40 +479,51 @@ export async function generateQuotationPDF(
   // ─── Header (45mm) ───
   drawBrandedHeader();
 
-  // ─── Bill To & For (35mm, 1fr/1.8fr, 5mm gap) ───
+  // ─── Bill To & For (35mm, 1fr/1.8fr, 5mm gap, align-items: center) ───
   const bfTop = y;
   const bfBottom = bfTop - BF_HEIGHT;
   const bfCenterY = bfTop - BF_HEIGHT / 2;
+  const bfLabelSize = 12 * PT;
+  const bfContentSize = 11 * PT;
+  const bfContentLineH = bfContentSize * 1.2 + mm(1); // line-height 1.2 + 1mm margin between <p>
 
+  // Count lines in bill-to content
+  const bfLines = quotation.customerAddress ? 3 : 2; // name + address? + contact
+  // Label is on its own line, content block below it. Total block height:
+  const bfBlockH = bfLabelSize + 4 + bfLines * bfContentLineH;
+  const bfBlockTop = bfCenterY + bfBlockH / 2;
+
+  let bfCursorY = bfBlockTop - bfLabelSize;
   page.drawText("BILL TO:", {
     x: PAD_SIDE,
-    y: bfCenterY + 6,
-    size: 12 * PT,
+    y: bfCursorY,
+    size: bfLabelSize,
     font: boldFont,
     color: BILLTO_LABEL,
   });
+  bfCursorY -= 4 + bfContentSize; // gap then first content line
   page.drawText(quotation.customerName, {
     x: PAD_SIDE,
-    y: bfCenterY - 8,
-    size: 11 * PT,
+    y: bfCursorY,
+    size: bfContentSize,
     font: boldFont,
     color: DARK,
   });
-  let clientY = bfCenterY - 20;
   if (quotation.customerAddress) {
+    bfCursorY -= bfContentLineH;
     page.drawText(quotation.customerAddress, {
       x: PAD_SIDE,
-      y: clientY,
-      size: 11 * PT,
+      y: bfCursorY,
+      size: bfContentSize,
       font: serifFont,
       color: DARK,
     });
-    clientY -= 13;
   }
+  bfCursorY -= bfContentLineH;
   page.drawText(quotation.customerContact, {
     x: PAD_SIDE,
-    y: clientY,
-    size: 11 * PT,
+    y: bfCursorY,
+    size: bfContentSize,
     font: serifFont,
     color: DARK,
   });
@@ -690,27 +714,34 @@ export async function generateQuotationPDF(
     }
   };
 
-  // ─── Totals & Notes (40mm, side-by-side) ───
+  // ─── Totals & Notes (40mm, side-by-side, align-items: center) ───
   const drawTotalsNotes = () => {
     const sectionTop = y;
     const sectionBottom = sectionTop - TOTALS_NOTES_HEIGHT;
     const sectionCenterY = sectionTop - TOTALS_NOTES_HEIGHT / 2;
 
-    // Notes (left, 80mm)
+    // Notes (left, 80mm) — vertically centered (align-items: center)
     const notesX = PAD_SIDE;
+    const notesLabelSize = 11 * PT;
+    const notesSpanSize = 9 * PT;
+    const notesLabelPadBottom = mm(1);
+    const hasNotes = Boolean(quotation.notes);
+    const notesBlockH = notesLabelSize + notesLabelPadBottom + (hasNotes ? notesSpanSize : 0);
+    const notesBlockTop = sectionCenterY + notesBlockH / 2;
+
     page.drawText("Notes:", {
       x: notesX,
-      y: sectionTop - mm(4) - 11 * PT,
-      size: 11 * PT,
+      y: notesBlockTop - notesLabelSize,
+      size: notesLabelSize,
       font: boldFont,
       color: DARK,
     });
-    if (quotation.notes) {
+    if (hasNotes) {
       let notesText = quotation.notes;
       const maxNotesW = NOTES_W - 8;
-      if (serifItalic.widthOfTextAtSize(notesText, 9 * PT) > maxNotesW) {
+      if (serifItalic.widthOfTextAtSize(notesText, notesSpanSize) > maxNotesW) {
         while (
-          serifItalic.widthOfTextAtSize(notesText + "...", 9 * PT) >
+          serifItalic.widthOfTextAtSize(notesText + "...", notesSpanSize) >
             maxNotesW &&
           notesText.length > 0
         )
@@ -719,19 +750,18 @@ export async function generateQuotationPDF(
       }
       page.drawText(notesText, {
         x: notesX,
-        y: sectionTop - mm(4) - 11 * PT - mm(1) - 9 * PT,
-        size: 9 * PT,
+        y: notesBlockTop - notesLabelSize - notesLabelPadBottom - notesSpanSize,
+        size: notesSpanSize,
         font: serifItalic,
         color: DARK,
       });
     }
 
-    // Totals table (right, 75mm)
+    // Totals table (right, 75mm) — vertically centered
     const totalsX = PAD_SIDE + CONTENT_WIDTH - TOTALS_W;
     const totalsFont = 11 * PT;
     const grandTotalFont = 12 * PT;
     const rowH = mm(7);
-    const padH = mm(4);
     const padV = mm(2);
     const borderThick = mm(1);
 
@@ -791,8 +821,8 @@ export async function generateQuotationPDF(
     };
 
     // Center the totals block vertically in the section
-    const totalsBlockHeight =
-      rowH * 2 + mm(3) + grandTotalFont + mm(3);
+    // 2 normal rows (7mm each) + 1 grand total row (3mm + 12pt + 3mm)
+    const totalsBlockHeight = rowH * 2 + mm(3) + grandTotalFont + mm(3);
     y = sectionCenterY + totalsBlockHeight / 2;
 
     drawTotalsRow("Sub-Total", formatCurrency(subtotal), false);
@@ -813,7 +843,7 @@ export async function generateQuotationPDF(
     const innerW = innerRight - innerLeft;
 
     // Label: "Digitally Signed:" (40mm, left)
-    const labelText = "Digitally Signed:";
+    const labelText = " Digitally Signed: ";
     const labelFont = 11 * PT;
     const labelX = innerLeft;
     const labelTop = sectionCenterY + SIGN_LABEL_H / 2;
@@ -881,6 +911,26 @@ export async function generateQuotationPDF(
         y: imgY,
         width: stampW,
         height: stampH,
+        rotate: degrees(stampRot),
+      });
+      // Stamp date overlay: bottom 6mm, font-size 5.2pt, centered, rotated with stamp
+      const stampDateSize = 5.2 * PT;
+      const stampDateText = formatStampDate(quotation.createdAt);
+      const stampDateW = font.widthOfTextAtSize(stampDateText, stampDateSize);
+      const stampDateHalfW = stampDateW / 2;
+      const stampDateHalfH = stampDateSize / 4;
+      // bottom: 6mm means 6mm from the bottom of the stamp box
+      const stampDateDy = -stampH / 2 + mm(6);
+      const stampDateTx =
+        stampCx - stampDateHalfW * cosR + stampDateDy * sinR;
+      const stampDateTy =
+        stampCy + stampDateDy - stampDateHalfW * sinR - stampDateDy * cosR;
+      page.drawText(stampDateText, {
+        x: stampDateTx,
+        y: stampDateTy,
+        size: stampDateSize,
+        font: font,
+        color: BLACK,
         rotate: degrees(stampRot),
       });
     } else {
