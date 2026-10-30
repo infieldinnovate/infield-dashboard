@@ -8,24 +8,23 @@ function randomChar(charset: string): string {
   return charset[Math.floor(Math.random() * charset.length)];
 }
 
+function getCharset(type: CodeType): string {
+  switch (type) {
+    case "numeric":
+      return NUMERIC;
+    case "alphabet":
+      return ALPHABET;
+    case "alphanumeric":
+    default:
+      return ALPHANUMERIC;
+  }
+}
+
 export function generateCode(
   digits: number,
   type: CodeType = "alphanumeric",
 ): string {
-  let charset: string;
-  switch (type) {
-    case "numeric":
-      charset = NUMERIC;
-      break;
-    case "alphabet":
-      charset = ALPHABET;
-      break;
-    case "alphanumeric":
-    default:
-      charset = ALPHANUMERIC;
-      break;
-  }
-
+  const charset = getCharset(type);
   let code = "";
   for (let i = 0; i < digits; i++) {
     code += randomChar(charset);
@@ -43,4 +42,24 @@ export function generateUniqueCode(
     code = generateCode(digits, type);
   } while (existing.has(code));
   return code;
+}
+
+export function generateNumericId(): string {
+  return generateCode(6, "numeric");
+}
+
+export function generateProductId(): string {
+  return generateCode(5, "numeric");
+}
+
+export function generatePrefixedId(
+  prefix: string,
+  digits = 6,
+  type: CodeType = "numeric",
+): string {
+  return `${prefix}-${generateCode(digits, type)}`;
+}
+
+export function generateReceiptNumber(): string {
+  return `POS-${generateCode(6, "numeric")}`;
 }

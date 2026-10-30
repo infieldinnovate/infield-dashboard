@@ -12,6 +12,7 @@ import { products } from '../../data/products';
 import { categories } from '../../data/categories';
 import { Product } from '../../types';
 import { formatCurrency } from '../../lib/documentUtils';
+import { generateReceiptNumber } from '../../lib/generateCode';
 import { toast } from 'sonner';
 
 interface CartItem {
@@ -119,7 +120,7 @@ export default function POSPage() {
     }
 
     const sale: CompletedSale = {
-      receiptNumber: `POS-${Date.now().toString().slice(-6)}`,
+      receiptNumber: generateReceiptNumber(),
       date: new Date().toLocaleString('en-KE'),
       items: cart.map((i) => ({ name: i.product.productName, quantity: i.quantity, price: i.product.price, total: i.total })),
       subtotal: totals.subtotal,

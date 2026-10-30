@@ -15,6 +15,7 @@ import SupplierForm from '../../components/forms/SupplierForm';
 import { suppliers as initialSuppliers } from '../../data/suppliers';
 import { Supplier } from '../../types';
 import { SupplierFormData } from '../../schema/formSchema';
+import { generatePrefixedId } from '../../lib/generateCode';
 import { toast } from 'sonner';
 
 export default function SuppliersPage() {
@@ -66,7 +67,7 @@ export default function SuppliersPage() {
 
   const onAddSubmit = (data: SupplierFormData) => {
     const newSupplier: Supplier = {
-      id: `sup-${Date.now()}`,
+      id: generatePrefixedId('sup'),
       name: data.name,
       email: data.email,
       phone: data.phone,

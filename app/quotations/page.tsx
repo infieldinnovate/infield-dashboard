@@ -23,8 +23,8 @@ import QuotationDocument, {
   printQuotation,
 } from "../../components/QuotationDocument";
 import PdfPreviewModal from "../../components/PdfPreviewModal";
-import { formatCurrency, generateNumericId, calcQuotationTotals } from "../../lib/documentUtils";
-import { generateUniqueCode } from "../../lib/generateCode";
+import { formatCurrency, calcQuotationTotals } from "../../lib/documentUtils";
+import { generateUniqueCode, generateNumericId, generatePrefixedId } from "../../lib/generateCode";
 import { QuotationFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
@@ -421,7 +421,7 @@ export default function QuotationsPage() {
           onSubmit={(data: CustomerFormData) => {
             const parsedCreditLimit = parseFloat(data.creditLimit);
             const newCustomer: Customer = {
-              id: `cust-${Date.now()}`,
+              id: generatePrefixedId("cust"),
               name: data.name,
               email: data.email,
               phone: data.phone,

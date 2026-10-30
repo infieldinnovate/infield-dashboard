@@ -18,7 +18,8 @@ import { products } from '../../data/products';
 import { categories } from '../../data/categories';
 import { Product } from '../../types';
 import { ProductFormData } from '../../schema/formSchema';
-import { formatCurrency, generateProductId } from '../../lib/documentUtils';
+import { formatCurrency } from '../../lib/documentUtils';
+import { generateProductId } from '../../lib/generateCode';
 import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 5;
