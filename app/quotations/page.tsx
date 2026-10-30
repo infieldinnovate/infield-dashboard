@@ -76,14 +76,14 @@ export default function QuotationsPage() {
           customerId: "",
           customerAddress: "",
           customerContact: "",
-          quoteFor: data.quoteFor || data.templateName || "",
-          items: data.items || [],
-          taxRate: data.taxRate || "16",
-          notes: data.notes || "",
+          quoteFor: data.quoteFor ?? data.templateName ?? "",
+          items: data.items ?? [],
+          taxRate: data.taxRate ?? "16",
+          notes: data.notes ?? "",
         });
         setIsFormOpen(true);
         toast.info(
-          `Creating quotation from template: ${data.templateName || ""}`,
+          `Creating quotation from template: ${data.templateName ?? ""}`,
         );
       } catch {
         toast.error("Failed to load template data");
@@ -125,12 +125,12 @@ export default function QuotationsPage() {
     setEditQuotation(null);
     setPrefillData({
       customerId: qt.customerId,
-      customerAddress: qt.customerAddress || "",
-      customerContact: qt.customerContact || "",
-      quoteFor: qt.quoteFor || "",
+      customerAddress: qt.customerAddress ?? "",
+      customerContact: qt.customerContact ?? "",
+      quoteFor: qt.quoteFor ?? "",
       items: qt.items.map((i) => ({ ...i })),
       taxRate: String(qt.taxRate),
-      notes: qt.notes || "",
+      notes: qt.notes ?? "",
     });
     setIsFormOpen(true);
     toast.info("Quotation details loaded — review and save to create a new quote");
@@ -141,28 +141,29 @@ export default function QuotationsPage() {
     if (!customer) return;
 
     const items = data.items;
-    const taxRate = parseFloat(data.taxRate) || 0;
+    const parsedTaxRate = parseFloat(data.taxRate);
+    const taxRate = Number.isNaN(parsedTaxRate) ? 0 : parsedTaxRate;
     const { subtotal, tax, total } = calcQuotationTotals(items, taxRate);
 
     const existingCodes = new Set(quotationList.map((q) => q.quotationCode));
-    const qCode = editQuotation?.quotationCode || generateUniqueCode(5, existingCodes);
+    const qCode = editQuotation?.quotationCode ?? generateUniqueCode(5, existingCodes);
 
     const qtData: Quotation = {
-      id: editQuotation?.id || generateNumericId(),
+      id: editQuotation?.id ?? generateNumericId(),
       customerId: data.customerId,
       customerName: customer.name,
-      customerAddress: data.customerAddress || undefined,
+      customerAddress: data.customerAddress ?? undefined,
       customerContact: data.customerContact,
       quoteFor: data.quoteFor,
       quotationCode: qCode,
-      createdBy: editQuotation?.createdBy || "",
+      createdBy: editQuotation?.createdBy ?? "",
       createdBySignature: editQuotation?.createdBySignature,
-      userId: editQuotation?.userId || "",
+      userId: editQuotation?.userId ?? "",
       items,
       taxRate,
-      status: editQuotation?.status || "draft",
+      status: editQuotation?.status ?? "draft",
       createdAt:
-        editQuotation?.createdAt || new Date().toISOString().split("T")[0],
+        editQuotation?.createdAt ?? new Date().toISOString().split("T")[0],
       notes: data.notes,
     };
 
@@ -418,6 +419,7 @@ export default function QuotationsPage() {
         <CustomerForm
           mode="add"
           onSubmit={(data: CustomerFormData) => {
+            const parsedCreditLimit = parseFloat(data.creditLimit);
             const newCustomer: Customer = {
               id: `cust-${Date.now()}`,
               name: data.name,
@@ -427,7 +429,7 @@ export default function QuotationsPage() {
               city: data.city,
               country: data.country,
               taxId: data.taxId,
-              creditLimit: parseFloat(data.creditLimit) || 0,
+              creditLimit: Number.isNaN(parsedCreditLimit) ? 0 : parsedCreditLimit,
               balance: 0,
               status: data.status,
               createdAt: new Date().toISOString().split("T")[0],
