@@ -57,6 +57,26 @@
   color: var(--neutral-500);
 }
 
+.sortHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sortHeader:hover {
+  color: var(--primary-600);
+}
+
+.sortIcon {
+  color: var(--primary-600);
+}
+
 .amount {
   font-weight: 700;
   color: var(--neutral-900);

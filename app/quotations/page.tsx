@@ -44,6 +44,7 @@ const productOptions = products.map((p) => ({ value: p.id, label: `${p.productNa
 export default function QuotationsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [dateSort, setDateSort] = useState<"desc" | "asc">("desc");
   const [quotationList, setQuotationList] =
     useState<Quotation[]>(initialQuotations);
   const [previewQuotation, setPreviewQuotation] = useState<Quotation | null>(
@@ -104,8 +105,12 @@ export default function QuotationsPage() {
     if (statusFilter) {
       data = data.filter((qt) => qt.status === statusFilter);
     }
+    data.sort((a, b) => {
+      const difference = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return dateSort === "asc" ? difference : -difference;
+    });
     return data;
-  }, [quotationList, search, statusFilter]);
+  }, [quotationList, search, statusFilter, dateSort]);
 
   const handleSearch = useCallback((value: string) => setSearch(value), []);
 
@@ -211,7 +216,21 @@ export default function QuotationsPage() {
     },
     {
       key: "createdAt",
-      header: "Date",
+      header: (
+        <button
+          className={styles.sortHeader}
+          onClick={() =>
+            setDateSort((prev) => (prev === "desc" ? "asc" : "desc"))
+          }
+        >
+          Date
+          <Icon
+            name={dateSort === "asc" ? "ArrowUp" : "ArrowDown"}
+            size={14}
+            className={styles.sortIcon}
+          />
+        </button>
+      ),
       render: (row: Quotation) => (
         <span className={styles.date}>{row.createdAt}</span>
       ),

@@ -5,7 +5,7 @@ import styles from './Table.module.scss';
 
 interface Column<T> {
   key: string;
-  header: string;
+  header: React.ReactNode;
   width?: string;
   align?: 'left' | 'center' | 'right';
   render?: (row: T) => React.ReactNode;
