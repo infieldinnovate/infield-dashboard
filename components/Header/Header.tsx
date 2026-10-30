@@ -9,6 +9,7 @@ import Modal from "../ui/Modal";
 import Button from "../ui/Button";
 import { notifications as initialNotifications } from "../../data/notifications";
 import { Notification } from "../../types";
+import { useAuth } from "@/app/providers";
 
 interface HeaderProps {
   title?: string;
@@ -22,6 +23,7 @@ export default function Header({
   onSearchOpen,
 }: HeaderProps) {
   const router = useRouter();
+  const user = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [isMac, setIsMac] = useState(false);
@@ -177,20 +179,20 @@ export default function Header({
             onClick={() => setUserOpen((v) => !v)}
           >
             <div className={styles.userInfo}>
-              <span className={styles.userName}>Wicklife Oluoch</span>
-              <span className={styles.userRole}>Technician</span>
+              <span className={styles.userName}>{user?.name ?? "Guest"}</span>
+              <span className={styles.userRole}>{user?.role ?? "Visitor"}</span>
             </div>
-            <Avatar name="Wicklife Oluoch" src="/users/passport-wadeya.jpg" size="md" />
+            <Avatar name={user?.name ?? "Guest"} src={user?.avatar} size="md" />
             <Icon name="ChevronDown" size={16} className={styles.userChevron} />
           </button>
           {userOpen && (
             <div className={styles.userDropdown}>
               <div className={styles.userDropdownHeader}>
-                <Avatar name="Wicklife Oluoch" src="/users/passport-wadeya.jpg" size="lg" />
+                <Avatar name={user?.name ?? "Guest"} src={user?.avatar} size="lg" />
                 <div className={styles.userDropdownInfo}>
-                  <span className={styles.userDropdownName}>Wicklife Oluoch</span>
+                  <span className={styles.userDropdownName}>{user?.name ?? "Guest"}</span>
                   <span className={styles.userDropdownEmail}>
-                    admin@infieldinnovations.com
+                    {user?.email ?? "Not authenticated"}
                   </span>
                 </div>
               </div>
