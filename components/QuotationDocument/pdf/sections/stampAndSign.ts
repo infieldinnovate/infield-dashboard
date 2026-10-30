@@ -1,4 +1,6 @@
-import { degrees } from "pdf-lib";
+// components\QuotationDocument\pdf\sections\stampAndSign.ts
+
+import { degrees, rgb } from "pdf-lib";
 import type { PdfContext, PageState } from "../types";
 import {
   mm,
@@ -18,58 +20,137 @@ import {
 } from "../layout";
 import { formatStampDate } from "../../../../lib/documentUtils";
 
+const SECTION_TEXT = rgb(17 / 255, 17 / 255, 17 / 255);
+
+/**
+ * Convert a point in the stamp's unrotated, center-based coordinate system
+ * into PDF page coordinates.
+ *
+ * PDF page coordinates increase upwards.
+ */
+function rotateLocalPoint(
+  cx: number,
+  cy: number,
+  localX: number,
+  localY: number,
+  radians: number,
+): { x: number; y: number } {
+  const cosR = Math.cos(radians);
+  const sinR = Math.sin(radians);
+
+  return {
+    x: cx + localX * cosR - localY * sinR,
+    y: cy + localX * sinR + localY * cosR,
+  };
+}
+
 export function drawStampAndSign(state: PageState, ctx: PdfContext): void {
-  const { page, y } = state;
+  const { page } = state;
   const { fonts, images, quotation } = ctx;
-  const sectionTop = y;
+
+  const sectionTop = state.y;
   const sectionBottom = sectionTop - STAMP_SIGN_HEIGHT;
   const sectionCenterY = sectionTop - STAMP_SIGN_HEIGHT / 2;
+
+  // =========================================================
+  // 1. SECTION GEOMETRY
+  // CSS: height: 35mm; padding: 0 17mm;
+  //      display: flex; justify-content: space-between;
+  //      align-items: center; overflow: hidden.
+  // =========================================================
 
   const innerLeft = PAD_SIDE + STAMP_SIGN_PAD;
   const innerRight = PAGE_WIDTH - PAD_SIDE - STAMP_SIGN_PAD;
   const innerW = innerRight - innerLeft;
 
-  // Label
-  const labelText = " Digitally Signed: ";
-  const labelFont = 11 * PT;
-  const labelX = innerLeft;
-  const labelTop = sectionCenterY + SIGN_LABEL_H / 2;
-  const labelBottom = sectionCenterY - SIGN_LABEL_H / 2;
+  // =========================================================
+  // 2. DIGITAL SIGNATURE LABEL
+  // CSS: width: 40mm; height: 27mm;
+  //      Times New Roman; bold italic;
+  //      vertically centered; double right border.
+  // =========================================================
 
+  const labelX = innerLeft;
+  const labelCenterY = sectionCenterY;
+  const labelFont = 11 * PT;
+
+  const labelBottom = labelCenterY - SIGN_LABEL_H / 2;
+  const labelTop = labelCenterY + SIGN_LABEL_H / 2;
+  const labelRightX = labelX + SIGN_LABEL_W;
+
+  // HTML collapses leading/trailing whitespace in normal white-space mode.
+  const labelText = "Digitally Signed:";
+
+  // PDF drawText uses a baseline. This offset approximates visual centering
+  // of the Times-style glyphs inside the CSS flex-aligned label.
   page.drawText(labelText, {
     x: labelX,
-    y: sectionCenterY - labelFont / 2,
+    y: labelCenterY - labelFont * 0.25,
     size: labelFont,
     font: fonts.serifBoldItalic,
+    color: SECTION_TEXT,
+  });
+
+  // Outer border: 1 CSS pixel.
+  // Center the PDF stroke within the CSS border's occupied area.
+  const thinBorderW = 1 * PX;
+  const thinBorderX = labelRightX - thinBorderW / 2;
+
+  page.drawLine({
+    start: {
+      x: thinBorderX,
+      y: labelBottom + thinBorderW / 2,
+    },
+    end: {
+      x: thinBorderX,
+      y: labelTop - thinBorderW / 2,
+    },
+    thickness: thinBorderW,
     color: BLACK,
   });
 
-  const labelRightX = labelX + SIGN_LABEL_W;
+  // Inner border: CSS ::after { right: 3px; border-right: 3px solid }.
+  // Its center lies 3px + half the stroke width from the right edge.
+  const thickBorderW = 3 * PX;
+  const thickBorderX = labelRightX - 3 * PX - thickBorderW / 2;
+
   page.drawLine({
-    start: { x: labelRightX, y: labelBottom },
-    end: { x: labelRightX, y: labelTop },
-    thickness: 1 * PX,
-    color: BLACK,
-  });
-  page.drawLine({
-    start: { x: labelRightX - 3 * PX, y: labelBottom },
-    end: { x: labelRightX - 3 * PX, y: labelTop },
-    thickness: 3 * PX,
+    start: {
+      x: thickBorderX,
+      y: labelBottom + thickBorderW / 2,
+    },
+    end: {
+      x: thickBorderX,
+      y: labelTop - thickBorderW / 2,
+    },
+    thickness: thickBorderW,
     color: BLACK,
   });
 
-  // Signature image (right)
+  // =========================================================
+  // 3. SIGNATURE IMAGE
+  // CSS: width: 50mm; height: 20mm;
+  //      object-fit: contain.
+  // =========================================================
+
   const sigX = innerRight - SIGN_IMG_W;
   const sigY = sectionCenterY - SIGN_IMG_H / 2;
+
   if (images.signature) {
-    const imgRatio = images.signature.width / images.signature.height;
-    let drawW = SIGN_IMG_W;
-    let drawH = SIGN_IMG_H;
-    if (drawW / drawH > imgRatio) {
-      drawW = SIGN_IMG_H * imgRatio;
+    const imageRatio = images.signature.width / images.signature.height;
+    const containerRatio = SIGN_IMG_W / SIGN_IMG_H;
+
+    let drawW: number;
+    let drawH: number;
+
+    if (imageRatio > containerRatio) {
+      drawW = SIGN_IMG_W;
+      drawH = SIGN_IMG_W / imageRatio;
     } else {
-      drawH = SIGN_IMG_W / imgRatio;
+      drawH = SIGN_IMG_H;
+      drawW = SIGN_IMG_H * imageRatio;
     }
+
     page.drawImage(images.signature, {
       x: sigX + (SIGN_IMG_W - drawW) / 2,
       y: sigY + (SIGN_IMG_H - drawH) / 2,
@@ -78,91 +159,123 @@ export function drawStampAndSign(state: PageState, ctx: PdfContext): void {
     });
   }
 
-  // Stamp (center)
+  // =========================================================
+  // 4. DIGITAL STAMP
+  // CSS: width: 30mm; height: 25mm;
+  //      transform: rotate(-35deg).
+  //
+  // Flexbox distributes the three items evenly, so the stamp
+  // center is calculated from the remaining space.
+  // =========================================================
+
   const stampW = mm(30);
   const stampH = mm(25);
+
   const stampAreaW = innerW - SIGN_LABEL_W - SIGN_IMG_W;
   const stampCx = innerLeft + SIGN_LABEL_W + stampAreaW / 2;
   const stampCy = sectionCenterY;
 
+  const stampRotation = 35;
+  const stampRadians = (stampRotation * Math.PI) / 180;
+
   if (images.stamp) {
-    const stampRot = -35;
-    const stampRad = (stampRot * Math.PI) / 180;
-    const cosR = Math.cos(stampRad);
-    const sinR = Math.sin(stampRad);
-    const imgX = stampCx - (stampW / 2) * cosR + (stampH / 2) * sinR;
-    const imgY = stampCy - (stampW / 2) * sinR - (stampH / 2) * cosR;
+    // pdf-lib rotates the image around its drawing origin.
+    // Transform the unrotated bottom-left corner so the image
+    // remains centered on the intended stamp center.
+    const imageOrigin = rotateLocalPoint(
+      stampCx,
+      stampCy,
+      -stampW / 2,
+      -stampH / 2,
+      stampRadians,
+    );
+
     page.drawImage(images.stamp, {
-      x: imgX,
-      y: imgY,
+      x: imageOrigin.x,
+      y: imageOrigin.y,
       width: stampW,
       height: stampH,
-      rotate: degrees(stampRot),
+      rotate: degrees(stampRotation),
     });
-    const stampDateSize = 5.2 * PT;
-    const stampDateText = formatStampDate(quotation.createdAt);
-    const stampDateW = fonts.font.widthOfTextAtSize(stampDateText, stampDateSize);
-    const stampDateHalfW = stampDateW / 2;
-    const stampDateDy = -stampH / 2 + mm(6);
-    const stampDateTx =
-      stampCx - stampDateHalfW * cosR + stampDateDy * sinR;
-    const stampDateTy =
-      stampCy + stampDateDy - stampDateHalfW * sinR - stampDateDy * cosR;
-    page.drawText(stampDateText, {
-      x: stampDateTx,
-      y: stampDateTy,
-      size: stampDateSize,
+
+    // CSS: .qt-stamp-date { bottom: 6mm; font-size: 5.2pt; }
+    const dateSize = 5.2 * PT;
+    const dateText = formatStampDate(quotation.createdAt);
+    const dateWidth = fonts.font.widthOfTextAtSize(dateText, dateSize);
+
+    // Place the text baseline above the 6mm bottom inset.
+    // The small font adjustment approximates the CSS line-box baseline.
+    const dateLocalY = -stampH / 2 + mm(6) + dateSize * 0.2;
+
+    const dateOrigin = rotateLocalPoint(
+      stampCx,
+      stampCy,
+      -dateWidth / 2,
+      dateLocalY,
+      stampRadians,
+    );
+
+    page.drawText(dateText, {
+      x: dateOrigin.x,
+      y: dateOrigin.y,
+      size: dateSize,
       font: fonts.font,
       color: BLACK,
-      rotate: degrees(stampRot),
+      rotate: degrees(stampRotation),
     });
   } else {
-    const stampR = 44;
+    // =======================================================
+    // 5. FALLBACK STAMP
+    // Kept for cases where no stamp image is available.
+    // The CSS excerpt does not define this fallback artwork.
+    // =======================================================
+
+    const stampRadius = 44;
+
     page.drawCircle({
       x: stampCx,
       y: stampCy,
-      size: stampR,
+      size: stampRadius,
       borderWidth: 2.5,
       borderColor: STAMP_RED,
       color: WHITE,
     });
-    const stampRot = -8;
-    const stampRad = (stampRot * Math.PI) / 180;
-    const stampCos = Math.cos(stampRad);
-    const stampSin = Math.sin(stampRad);
+
+    // Treat every text baseline as a local point within the stamp,
+    // then rotate it using the same angle as the CSS stamp container.
     const drawStampText = (
       text: string,
-      dy: number,
+      localY: number,
       size: number,
-      f: typeof fonts.font,
-      color: typeof STAMP_RED,
-    ) => {
-      const w = f.widthOfTextAtSize(text, size);
-      const halfW = w / 2;
-      const halfH = size / 4;
-      const tx = stampCx - halfW * stampCos + halfH * stampSin;
-      const ty = stampCy + dy - halfW * stampSin - halfH * stampCos;
+      font: typeof fonts.font,
+    ): void => {
+      const textWidth = font.widthOfTextAtSize(text, size);
+
+      const origin = rotateLocalPoint(
+        stampCx,
+        stampCy,
+        -textWidth / 2,
+        localY,
+        stampRadians,
+      );
+
       page.drawText(text, {
-        x: tx,
-        y: ty,
+        x: origin.x,
+        y: origin.y,
         size,
-        font: f,
-        color,
-        rotate: degrees(stampRot),
+        font,
+        color: STAMP_RED,
+        rotate: degrees(stampRotation),
       });
     };
-    drawStampText("INFIELD", 16, 11, fonts.boldFont, STAMP_RED);
-    drawStampText("* * * *", 4, 7, fonts.font, STAMP_RED);
-    drawStampText("+254 702 393 677", -6, 7, fonts.font, STAMP_RED);
-    drawStampText(
-      formatStampDate(quotation.createdAt),
-      -15,
-      6,
-      fonts.font,
-      STAMP_RED,
-    );
-    drawStampText("DIGITAL STAMP", -27, 6, fonts.boldFont, STAMP_RED);
+
+    drawStampText("INFIELD", 16, 11, fonts.boldFont);
+    drawStampText("* * * *", 4, 7, fonts.font);
+    drawStampText("+254 702 393 677", -6, 7, fonts.font);
+    drawStampText(formatStampDate(quotation.createdAt), -15, 6, fonts.font);
+    drawStampText("DIGITAL STAMP", -27, 6, fonts.boldFont);
   }
 
+  // Preserve the section's expected ending position.
   state.y = sectionBottom;
 }

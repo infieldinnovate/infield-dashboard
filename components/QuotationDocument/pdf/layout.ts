@@ -1,3 +1,5 @@
+// components\QuotationDocument\pdf\layout.ts
+
 import { rgb } from "pdf-lib";
 
 export const MM = 2.834646;
@@ -67,7 +69,11 @@ export const COL_XS: Record<string, number> = {
   unit: PAD_SIDE + COL_WIDTHS.no + COL_WIDTHS.desc,
   qty: PAD_SIDE + COL_WIDTHS.no + COL_WIDTHS.desc + COL_WIDTHS.unit,
   price:
-    PAD_SIDE + COL_WIDTHS.no + COL_WIDTHS.desc + COL_WIDTHS.unit + COL_WIDTHS.qty,
+    PAD_SIDE +
+    COL_WIDTHS.no +
+    COL_WIDTHS.desc +
+    COL_WIDTHS.unit +
+    COL_WIDTHS.qty,
   total:
     PAD_SIDE +
     COL_WIDTHS.no +
