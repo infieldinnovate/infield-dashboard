@@ -5,6 +5,7 @@ import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import Avatar from "../../components/ui/Avatar";
 import ClientUserInfo from "../../components/demo/ClientUserInfo";
+import ServerActionDemo from "./ServerActionDemo";
 import styles from "./page.module.scss";
 
 export default async function DashboardPage() {
@@ -50,6 +51,11 @@ export default async function DashboardPage() {
         Client-Side Access Proof
       </div>
       <ClientUserInfo />
+
+      <div className={styles.sectionLabel}>
+        Server Action Demo
+      </div>
+      <ServerActionDemo />
     </div>
   );
 }
