@@ -6,7 +6,7 @@ import SearchBar from '../../components/ui/SearchBar';
 import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
-import Pagination from '../../components/ui/Pagination';
+import PaginationFooter from '../../components/ui/PaginationFooter';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
@@ -22,7 +22,6 @@ import { CustomerFormData } from '../../schema/formSchema';
 import { generateCode } from '../../lib/generateCode';
 import { toast } from 'sonner';
 
-const ITEMS_PER_PAGE = 5;
 
 const sortOptions = [
   { value: 'name-asc', label: 'Name (A-Z)' },
@@ -49,6 +48,7 @@ export default function CustomersPage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('name-asc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
   const [customerList, setCustomerList] = useState<Customer[]>(initialCustomers);
 
   const [detailCustomer, setDetailCustomer] = useState<Customer | null>(null);
@@ -74,8 +74,8 @@ export default function CustomersPage() {
     return data;
   }, [customerList, search, sortBy]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleSearch = useCallback((value: string) => {
     setSearch(value);
@@ -176,10 +176,14 @@ export default function CustomersPage() {
         <Table columns={columns} data={paginated} keyExtractor={(row) => row.id} onRowClick={(row) => setDetailCustomer(row)} />
       </div>
 
-      <div className={styles.pagination}>
-        <span className={styles.results}>{filtered.length} customers found</span>
-        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-      </div>
+      <PaginationFooter
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filtered.length}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
+      />
 
       {/* Detail Modal */}
       <Modal isOpen={!!detailCustomer} onClose={() => setDetailCustomer(null)} title="Customer Details" size="lg">

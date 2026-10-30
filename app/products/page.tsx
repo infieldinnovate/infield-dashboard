@@ -6,7 +6,7 @@ import SearchBar from '../../components/ui/SearchBar';
 import SelectField from '../../components/forms/form_elements/select';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
-import Pagination from '../../components/ui/Pagination';
+import PaginationFooter from '../../components/ui/PaginationFooter';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
@@ -22,7 +22,6 @@ import { formatCurrency } from '../../lib/documentUtils';
 import { generateCode } from '../../lib/generateCode';
 import { toast } from 'sonner';
 
-const ITEMS_PER_PAGE = 5;
 
 const sortOptions = [
   { value: 'productName-asc', label: 'Name (A-Z)' },
@@ -43,6 +42,7 @@ export default function ProductsPage() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [sortBy, setSortBy] = useState('productName-asc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
   const [productList, setProductList] = useState<Product[]>(products);
 
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
@@ -71,8 +71,8 @@ export default function ProductsPage() {
     return data;
   }, [productList, search, categoryFilter, sortBy]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleSearch = useCallback((value: string) => {
     setSearch(value);
@@ -178,10 +178,14 @@ export default function ProductsPage() {
         <Table columns={columns} data={paginated} keyExtractor={(row) => row.id} onRowClick={(row) => setDetailProduct(row)} />
       </div>
 
-      <div className={styles.pagination}>
-        <span className={styles.results}>{filtered.length} products found</span>
-        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-      </div>
+      <PaginationFooter
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filtered.length}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
+      />
 
       {/* Detail Modal */}
       <Modal isOpen={!!detailProduct} onClose={() => setDetailProduct(null)} title="Product Details" size="md">
