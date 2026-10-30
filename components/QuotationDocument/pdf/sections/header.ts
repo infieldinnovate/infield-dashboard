@@ -287,7 +287,7 @@ export function drawHeader(state: PageState, ctx: PdfContext): void {
 
   const codeSize = 12 * PT;
   const codeLineHeight = codeSize * 1.2;
-  const codeText = quotation.quotationCode || "";
+  const codeText = quotation.quotationCode;
 
   const dateSize = 11 * PT;
   const dateLineHeight = dateSize * 1.2;

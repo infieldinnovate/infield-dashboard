@@ -11,7 +11,7 @@ export default function BillToAndFor({ quotation }: { quotation: Quotation }) {
             <b>{quotation.customerName}</b>
           </p>
 
-          {quotation.customerAddress && (
+          {quotation.customerAddress.trim() !== "" && (
             <p className={styles.clientAddress}>{quotation.customerAddress}</p>
           )}
           <p className={styles.clientContact}>{quotation.customerContact}</p>

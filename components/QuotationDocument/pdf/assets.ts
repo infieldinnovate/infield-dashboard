@@ -74,7 +74,7 @@ export async function loadImages(
     quotation.userId,
     quotation.quotationCode,
   );
-  const signatureSrc = quotation.createdBySignature || signature;
+  const signatureSrc = quotation.createdBySignature ? quotation.createdBySignature : signature;
 
   const [logoBytes, barcodeBytes, bgBytes, headerBgBytes, footerBgBytes, sigBytes, stampBytes] =
     await Promise.all([

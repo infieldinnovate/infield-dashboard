@@ -76,14 +76,14 @@ export default function QuotationsPage() {
           customerId: "",
           customerAddress: "",
           customerContact: "",
-          quoteFor: data.quoteFor ?? data.templateName ?? "",
-          items: data.items ?? [],
-          taxRate: data.taxRate ?? "16",
-          notes: data.notes ?? "",
+          quoteFor: data.quoteFor,
+          items: data.items,
+          taxRate: data.taxRate,
+          notes: data.notes,
         });
         setIsFormOpen(true);
         toast.info(
-          `Creating quotation from template: ${data.templateName ?? ""}`,
+          `Creating quotation from template: ${data.templateName}`,
         );
       } catch {
         toast.error("Failed to load template data");
@@ -125,12 +125,12 @@ export default function QuotationsPage() {
     setEditQuotation(null);
     setPrefillData({
       customerId: qt.customerId,
-      customerAddress: qt.customerAddress ?? "",
-      customerContact: qt.customerContact ?? "",
-      quoteFor: qt.quoteFor ?? "",
+      customerAddress: qt.customerAddress,
+      customerContact: qt.customerContact,
+      quoteFor: qt.quoteFor,
       items: qt.items.map((i) => ({ ...i })),
       taxRate: String(qt.taxRate),
-      notes: qt.notes ?? "",
+      notes: qt.notes,
     });
     setIsFormOpen(true);
     toast.info("Quotation details loaded — review and save to create a new quote");
@@ -146,24 +146,24 @@ export default function QuotationsPage() {
     const { subtotal, tax, total } = calcQuotationTotals(items, taxRate);
 
     const existingCodes = new Set(quotationList.map((q) => q.quotationCode));
-    const qCode = editQuotation?.quotationCode ?? generateUniqueCode(5, existingCodes);
+    const qCode = editQuotation ? editQuotation.quotationCode : generateUniqueCode(5, existingCodes);
 
     const qtData: Quotation = {
-      id: editQuotation?.id ?? generateNumericId(),
+      id: editQuotation ? editQuotation.id : generateNumericId(),
       customerId: data.customerId,
       customerName: customer.name,
-      customerAddress: data.customerAddress ?? undefined,
+      customerAddress: data.customerAddress,
       customerContact: data.customerContact,
       quoteFor: data.quoteFor,
       quotationCode: qCode,
-      createdBy: editQuotation?.createdBy ?? "",
-      createdBySignature: editQuotation?.createdBySignature,
-      userId: editQuotation?.userId ?? "",
+      createdBy: editQuotation ? editQuotation.createdBy : "",
+      createdBySignature: editQuotation ? editQuotation.createdBySignature : "",
+      userId: editQuotation ? editQuotation.userId : "",
       items,
       taxRate,
-      status: editQuotation?.status ?? "draft",
+      status: editQuotation ? editQuotation.status : "draft",
       createdAt:
-        editQuotation?.createdAt ?? new Date().toISOString().split("T")[0],
+        editQuotation ? editQuotation.createdAt : new Date().toISOString().split("T")[0],
       notes: data.notes,
     };
 

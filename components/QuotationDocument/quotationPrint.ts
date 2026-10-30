@@ -906,7 +906,7 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
     settings.business;
   const siteUrl = website || "www.infield.co.ke";
   const signatureSrc =
-    quotation.createdBySignature || settings.business.signature;
+    quotation.createdBySignature ? quotation.createdBySignature : settings.business.signature;
   const stampSrc = settings.business.stamp;
   const barcodeValue = generateBarcode(
     quotation.userId,
@@ -973,7 +973,7 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
       <div class="qt-footer-contact"><b>CONTACT US:</b> <span>${escapeHtml(phone)}</span></div>
       <span class="qt-footer-thankyou">Thank you for choosing Infield Innovations.<br>We deliver exceptional results with unmatched expertise and dedication.</span>
     </div>
-    <div class="qt-created-by">By ${escapeHtml(quotation.createdBy || "")}</div>
+    <div class="qt-created-by">By ${escapeHtml(quotation.createdBy)}</div>
   </footer>`;
 
   const headerFull = `<header class="qt-header">
@@ -995,7 +995,7 @@ async function buildQuotationHTML(quotation: Quotation): Promise<string> {
       <strong class="qt-billto-label">BILL TO:</strong>
       <div class="qt-billto-content">
         <p><b>${escapeHtml(quotation.customerName)}</b></p>
-        ${quotation.customerAddress ? `<p>${escapeHtml(quotation.customerAddress)}</p>` : ""}
+        <p>${escapeHtml(quotation.customerAddress)}</p>
         <p>${escapeHtml(quotation.customerContact)}</p>
       </div>
     </div>

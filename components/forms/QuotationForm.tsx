@@ -74,16 +74,16 @@ export default function QuotationForm({
 
   useEffect(() => {
     if (prefillData) {
-      reset({ ...prefillData, notes: prefillData.notes || DEFAULT_NOTES });
+      reset({ ...prefillData, notes: prefillData.notes });
     } else if (mode === 'edit' && initialValues) {
       reset({
         customerId: initialValues.customerId,
-        customerAddress: initialValues.customerAddress || '',
-        customerContact: initialValues.customerContact || '',
-        quoteFor: initialValues.quoteFor || '',
+        customerAddress: initialValues.customerAddress,
+        customerContact: initialValues.customerContact,
+        quoteFor: initialValues.quoteFor,
         items: initialValues.items.map((i) => ({ ...i })),
         taxRate: String(initialValues.taxRate),
-        notes: initialValues.notes || DEFAULT_NOTES,
+        notes: initialValues.notes,
       });
     } else {
       reset(getDefaultValues());

@@ -6,7 +6,7 @@ import styles from "./QuotationDocument.module.scss";
 
 export default function StampSign({ quotation }: { quotation: Quotation }) {
   const { signature } = getSettings().business;
-  const signatureSrc = quotation.createdBySignature || signature;
+  const signatureSrc = quotation.createdBySignature ? quotation.createdBySignature : signature;
 
   return (
     <div className={styles.stampSignSection}>

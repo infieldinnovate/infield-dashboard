@@ -5,11 +5,13 @@ export const quotations: Quotation[] = [
     id: "TBC",
     customerId: "TBC",
     customerName: "To be confirmed",
+    customerAddress: "To be confirmed",
     customerContact: "To be confirmed",
     quoteFor:
       "Drilling, installation and development of Ntiba Community Borehole, including installation of a solar-powered pump and associated works",
     quotationCode: "To be assigned",
     createdBy: "To be confirmed",
+    createdBySignature: "",
     userId: "To be assigned",
     items: [
       {

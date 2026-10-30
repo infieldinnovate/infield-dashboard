@@ -132,7 +132,7 @@ export function drawBillToAndFor(state: PageState, ctx: PdfContext): void {
     },
   ];
 
-  if (quotation.customerAddress) {
+  if (quotation.customerAddress.trim() !== "") {
     billParagraphs.push({
       font: fonts.serifFont,
       lines: wrapText(
@@ -239,7 +239,7 @@ export function drawBillToAndFor(state: PageState, ctx: PdfContext): void {
   // 5. Quotation-purpose text
   // ---------------------------------------------------------
 
-  const forText = quotation.quoteFor || "";
+  const forText = quotation.quoteFor;
   const forTextSize = 10 * PT;
   const forLineH = forTextSize * LINE_HEIGHT_FACTOR;
 

@@ -390,7 +390,7 @@ export async function downloadQuotationPDF(
   const bytes = await generateQuotationPDF(quotation);
 
   const filename = `Quotation_${
-    quotation.quotationCode || quotation.id.toUpperCase()
+    quotation.quotationCode
   }.pdf`;
 
   downloadPDF(bytes, filename);
