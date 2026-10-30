@@ -21,8 +21,8 @@ import { Customer, Quotation } from "../../types";
 import { CustomerFormData } from "../../schema/formSchema";
 import QuotationDocument, {
   printQuotation,
-  downloadQuotationPDF,
 } from "../../components/QuotationDocument";
+import PdfPreviewModal from "../../components/PdfPreviewModal";
 import { formatCurrency, generateNumericId, calcQuotationTotals } from "../../lib/documentUtils";
 import { QuotationFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
@@ -72,6 +72,7 @@ export default function QuotationsPage() {
   const [customerList, setCustomerList] = useState<Customer[]>(initialCustomers);
   const [isCustomerFormOpen, setIsCustomerFormOpen] = useState(false);
   const [createdCustomer, setCreatedCustomer] = useState<Customer | null>(null);
+  const [pdfPreviewQuotation, setPdfPreviewQuotation] = useState<Quotation | null>(null);
 
   const customerOptions = useMemo(
     () => customerList.map((c) => ({ value: c.id, label: c.name })),
@@ -275,7 +276,7 @@ export default function QuotationsPage() {
               label: "Download PDF",
               onClick: (e) => {
                 e.stopPropagation();
-                downloadQuotationPDF(row);
+                setPdfPreviewQuotation(row);
               },
             },
             {
@@ -455,6 +456,12 @@ export default function QuotationsPage() {
           onCancel={() => setIsCustomerFormOpen(false)}
         />
       </Modal>
+
+      {/* PDF Preview Modal */}
+      <PdfPreviewModal
+        quotation={pdfPreviewQuotation}
+        onClose={() => setPdfPreviewQuotation(null)}
+      />
 
       {/* Delete Confirm */}
       <ConfirmDialog
