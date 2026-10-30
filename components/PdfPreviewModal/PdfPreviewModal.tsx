@@ -56,7 +56,9 @@ export default function PdfPreviewModal({ quotation, onClose }: PdfPreviewModalP
 
   const handleDownload = () => {
     if (quotation) {
-      void downloadQuotationPDF(quotation);
+      void downloadQuotationPDF(quotation).then(() => {
+        onClose();
+      });
     }
   };
 
@@ -97,7 +99,7 @@ export default function PdfPreviewModal({ quotation, onClose }: PdfPreviewModalP
         )}
         {pdfUrl && !loading && !error && (
           <iframe
-            src={pdfUrl}
+            src={`${pdfUrl}#navpanes=0`}
             title="PDF Preview"
             className={styles.pdfFrame}
           />
