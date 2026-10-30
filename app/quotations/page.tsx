@@ -24,23 +24,9 @@ import QuotationDocument, {
 } from "../../components/QuotationDocument";
 import PdfPreviewModal from "../../components/PdfPreviewModal";
 import { formatCurrency, generateNumericId, calcQuotationTotals } from "../../lib/documentUtils";
+import { generateUniqueCode } from "../../lib/generateCode";
 import { QuotationFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
-
-const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-function generateQuotationCode(existing: Set<string>): string {
-  let code = "";
-  do {
-    code = "";
-    for (let i = 0; i < 5; i++) {
-      code += CHARS[Math.floor(Math.random() * CHARS.length)];
-    }
-  } while (existing.has(code));
-  return code;
-}
-
-const defaultUser = { name: "Jared Oluoch", signature: "/users/signature-jerry.png", userId: "J01" };
 
 const statusVariant: Record<
   string,
@@ -159,8 +145,7 @@ export default function QuotationsPage() {
     const { subtotal, tax, total } = calcQuotationTotals(items, taxRate);
 
     const existingCodes = new Set(quotationList.map((q) => q.quotationCode));
-    const qCode = editQuotation?.quotationCode || generateQuotationCode(existingCodes);
-    const userId = editQuotation?.userId || defaultUser.userId;
+    const qCode = editQuotation?.quotationCode || generateUniqueCode(5, existingCodes);
 
     const qtData: Quotation = {
       id: editQuotation?.id || generateNumericId(),
@@ -170,9 +155,9 @@ export default function QuotationsPage() {
       customerContact: data.customerContact,
       quoteFor: data.quoteFor,
       quotationCode: qCode,
-      createdBy: editQuotation?.createdBy || defaultUser.name,
-      createdBySignature: editQuotation?.createdBySignature || defaultUser.signature,
-      userId,
+      createdBy: editQuotation?.createdBy || "",
+      createdBySignature: editQuotation?.createdBySignature,
+      userId: editQuotation?.userId || "",
       items,
       taxRate,
       status: editQuotation?.status || "draft",
