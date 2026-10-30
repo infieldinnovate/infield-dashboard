@@ -1,0 +1,91 @@
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-4;
+  padding: $space-3 $space-4;
+  border-top: 1px solid var(--neutral-200);
+  background: var(--neutral-0);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  flex-wrap: wrap;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: $space-5;
+  flex-wrap: wrap;
+}
+
+.sizeSelector {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.label {
+  font-size: $fs-sm;
+  color: var(--neutral-500);
+  font-weight: $fw-medium;
+  white-space: nowrap;
+}
+
+.selectWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 34px;
+  padding: 0 $space-8 0 $space-3;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-sm);
+  background: var(--neutral-0);
+  color: var(--neutral-700);
+  font-size: $fs-sm;
+  font-weight: $fw-medium;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+}
+
+.select:hover {
+  border-color: var(--neutral-300);
+}
+
+.select:focus {
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px var(--primary-50);
+}
+
+.selectIcon {
+  position: absolute;
+  right: $space-2;
+  pointer-events: none;
+  color: var(--neutral-400);
+}
+
+.info {
+  font-size: $fs-sm;
+  color: var(--neutral-500);
+  font-weight: $fw-medium;
+  white-space: nowrap;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+}
+
+@include mq-max(md) {
+  .footer {
+    justify-content: center;
+  }
+
+  .left {
+    justify-content: center;
+  }
+}

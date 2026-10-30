@@ -9,6 +9,7 @@ export { ImageWithFallback } from './ImageWithFallback';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as Modal } from './Modal';
 export { default as Pagination } from './Pagination';
+export { default as PaginationFooter } from './PaginationFooter';
 export { default as SearchBar } from './SearchBar';
 export { default as StatCard } from './StatCard';
 export { default as Table } from './Table';
