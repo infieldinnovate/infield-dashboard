@@ -19,7 +19,7 @@ import { products } from '../../data/products';
 import { DeliveryNote } from '../../types';
 import DeliveryNoteDocument, { printDeliveryNote, downloadDeliveryNotePDF } from '../../components/DeliveryNoteDocument';
 import { DeliveryNoteFormData } from '../../schema/formSchema';
-import { generatePrefixedId } from '../../lib/generateCode';
+import { generateCode } from '../../lib/generateCode';
 import { toast } from 'sonner';
 
 const statusVariant: Record<string, 'primary' | 'success' | 'warning' | 'error' | 'secondary'> = {
@@ -101,7 +101,7 @@ export default function DeliveryNotesPage() {
 
   const onSubmit = (data: DeliveryNoteFormData) => {
     const noteData: DeliveryNote = {
-      id: editNote?.id || generatePrefixedId('dn'),
+      id: editNote?.id || generateCode(6, { prefix: 'dn' }),
       invoiceId: data.invoiceId,
       deliveryNumber: editNote?.deliveryNumber || generateDeliveryNumber(deliveryNoteList),
       customerName: data.customerName,

@@ -20,7 +20,7 @@ import { products } from '../../data/products';
 import { Invoice } from '../../types';
 import InvoiceDocument, { printInvoice, downloadInvoicePDF } from '../../components/InvoiceDocument';
 import { InvoiceFormData } from '../../schema/formSchema';
-import { generatePrefixedId } from '../../lib/generateCode';
+import { generateCode } from '../../lib/generateCode';
 import { toast } from 'sonner';
 
 const statusVariant: Record<string, 'primary' | 'success' | 'warning' | 'error' | 'secondary'> = {
@@ -86,7 +86,7 @@ export default function InvoicesPage() {
   const duplicateInvoice = (inv: Invoice) => {
     const newInvoice: Invoice = {
       ...inv,
-      id: generatePrefixedId('inv'),
+      id: generateCode(6, { prefix: 'inv' }),
       invoiceNumber: generateInvoiceNumber(invoiceList),
       status: 'unpaid',
       paid: 0,
@@ -114,7 +114,7 @@ export default function InvoicesPage() {
     const total = afterDiscount + tax;
 
     const invData: Invoice = {
-      id: editInvoice?.id || generatePrefixedId('inv'),
+      id: editInvoice?.id || generateCode(6, { prefix: 'inv' }),
       customerId: data.customerId,
       customerName: customer.name,
       invoiceNumber: editInvoice?.invoiceNumber || generateInvoiceNumber(invoiceList),

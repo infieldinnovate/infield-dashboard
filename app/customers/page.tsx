@@ -19,7 +19,7 @@ import { invoices } from '../../data/invoices';
 import { receipts } from '../../data/receipts';
 import { Customer, Invoice, Receipt } from '../../types';
 import { CustomerFormData } from '../../schema/formSchema';
-import { generatePrefixedId } from '../../lib/generateCode';
+import { generateCode } from '../../lib/generateCode';
 import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 5;
@@ -108,7 +108,7 @@ export default function CustomersPage() {
 
   const onAddSubmit = (data: CustomerFormData) => {
     const newCustomer: Customer = {
-      id: generatePrefixedId('cust'),
+      id: generateCode(6, { prefix: 'cust' }),
       name: data.name,
       email: data.email,
       phone: data.phone,

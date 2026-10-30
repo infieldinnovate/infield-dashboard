@@ -24,7 +24,7 @@ import QuotationDocument, {
 } from "../../components/QuotationDocument";
 import PdfPreviewModal from "../../components/PdfPreviewModal";
 import { formatCurrency, calcQuotationTotals } from "../../lib/documentUtils";
-import { generateUniqueCode, generateNumericId, generatePrefixedId } from "../../lib/generateCode";
+import { generateCode } from "../../lib/generateCode";
 import { QuotationFormData } from "../../schema/formSchema";
 import { toast } from "sonner";
 
@@ -146,10 +146,10 @@ export default function QuotationsPage() {
     const { subtotal, tax, total } = calcQuotationTotals(items, taxRate);
 
     const existingCodes = new Set(quotationList.map((q) => q.quotationCode));
-    const qCode = editQuotation ? editQuotation.quotationCode : generateUniqueCode(5, existingCodes);
+    const qCode = editQuotation ? editQuotation.quotationCode : generateCode(5, { type: "alphanumeric", existing: existingCodes });
 
     const qtData: Quotation = {
-      id: editQuotation ? editQuotation.id : generateNumericId(),
+      id: editQuotation ? editQuotation.id : generateCode(6),
       customerId: data.customerId,
       customerName: customer.name,
       customerAddress: data.customerAddress,
@@ -421,7 +421,7 @@ export default function QuotationsPage() {
           onSubmit={(data: CustomerFormData) => {
             const parsedCreditLimit = parseFloat(data.creditLimit);
             const newCustomer: Customer = {
-              id: generatePrefixedId("cust"),
+              id: generateCode(6, { prefix: "cust" }),
               name: data.name,
               email: data.email,
               phone: data.phone,

@@ -19,7 +19,7 @@ import { categories } from '../../data/categories';
 import { Product } from '../../types';
 import { ProductFormData } from '../../schema/formSchema';
 import { formatCurrency } from '../../lib/documentUtils';
-import { generateProductId } from '../../lib/generateCode';
+import { generateCode } from '../../lib/generateCode';
 import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 5;
@@ -118,7 +118,7 @@ export default function ProductsPage() {
 
   const onAddSubmit = (data: ProductFormData) => {
     const newProduct: Product = {
-      id: generateProductId(),
+      id: generateCode(5),
       productName: data.productName,
       size: data.size,
       price: parseFloat(data.price) || 0,

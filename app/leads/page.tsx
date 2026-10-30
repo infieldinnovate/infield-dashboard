@@ -18,7 +18,7 @@ import LeadForm from "../../components/forms/LeadForm";
 import { leads as initialLeads } from "../../data/leads";
 import { Lead, LeadStatus } from "../../types";
 import { LeadFormData } from "../../schema/formSchema";
-import { generatePrefixedId } from "../../lib/generateCode";
+import { generateCode } from "../../lib/generateCode";
 import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 8;
@@ -128,7 +128,7 @@ export default function LeadsPage() {
   const onAddSubmit = (data: LeadFormData) => {
     const now = new Date().toISOString();
     const newLead: Lead = {
-      id: generatePrefixedId("lead"),
+      id: generateCode(6, { prefix: "lead" }),
       ...data,
       last_contact_date: data.last_contact_date || null,
       follow_up_date: data.follow_up_date || null,

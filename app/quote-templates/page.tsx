@@ -18,7 +18,7 @@ import { products } from "../../data/products";
 import { QuoteTemplate, QuotationItem } from "../../types";
 import { formatCurrency, calcItemTotal, calcTemplateTotals } from "../../lib/documentUtils";
 import { QuoteTemplateFormData } from "../../schema/formSchema";
-import { generatePrefixedId } from "../../lib/generateCode";
+import { generateCode } from "../../lib/generateCode";
 import { toast } from "sonner";
 
 const productOptions = products.map((p) => ({ value: p.id, label: `${p.productName} (${p.size})` }));
@@ -75,7 +75,7 @@ export default function QuoteTemplatesPage() {
   const duplicateTemplate = (t: QuoteTemplate) => {
     const newT: QuoteTemplate = {
       ...t,
-      id: generatePrefixedId("tmpl"),
+      id: generateCode(6, { prefix: "tmpl" }),
       name: `${t.name} (Copy)`,
       createdAt: new Date().toISOString().split("T")[0],
       items: t.items.map((i) => ({ ...i })),
@@ -100,7 +100,7 @@ export default function QuoteTemplatesPage() {
 
   const onSubmit = (data: QuoteTemplateFormData) => {
     const tmplData: QuoteTemplate = {
-      id: editTemplate?.id || generatePrefixedId("tmpl"),
+      id: editTemplate?.id || generateCode(6, { prefix: "tmpl" }),
       name: data.name,
       description: data.description,
       category: data.category,
