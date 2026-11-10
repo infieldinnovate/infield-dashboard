@@ -2,6 +2,42 @@ import { Quotation } from "../types";
 
 export const quotations: Quotation[] = [
   {
+    id: "5920994",
+    customerId: "cust-002",
+    customerName: "Sub-County Accountant",
+    customerAddress: "Kisumu Central",
+    customerContact: "",
+    quoteFor:
+      "Computer Repair; HDD Replacement and Data Recovery, OS Reinstallation, User Apps Installation, and System Optimization",
+    quotationCode: "B7X2M",
+    createdBy: "Wicklife Oluoch",
+    createdBySignature: "/users/signature-wadeya.png",
+    userId: "W02",
+    items: [
+      {
+        productId: "10016",
+        productName: "SSD Lexar SATA",
+        size: "512GB",
+        quantity: 1,
+        unitPrice: 8500,
+        unit: "Pc",
+      },
+      {
+        productId: "10021",
+        productName:
+          "Labour Charge; HDD Replacement and Data Recovery, OS Reinstallation, User Apps Installation, and System Optimization",
+        size: "-",
+        quantity: 1,
+        unitPrice: 11000,
+        unit: "-",
+      },
+    ],
+    taxRate: 0,
+    status: "sent",
+    createdAt: "2026-11-10",
+    notes: "Warranty is as per the manufacturer's terms and conditions.",
+  },
+  {
     id: "TBC",
     customerId: "TBC",
     customerName: "To be confirmed",
