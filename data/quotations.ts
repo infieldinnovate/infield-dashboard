@@ -10,7 +10,7 @@ export const quotations: Quotation[] = [
     quoteFor:
       "Computer Repair; HDD Replacement and Data Recovery, OS Reinstallation, User Apps Installation, and System Optimization",
     quotationCode: "B7X2M",
-    createdBy: "Wicklife Oluoch",
+    createdBy: "Wicklife Wadeya",
     createdBySignature: "/users/signature-wadeya.png",
     userId: "W02",
     items: [
@@ -253,7 +253,7 @@ export const quotations: Quotation[] = [
     customerContact: "+254 712 345 678",
     quoteFor: "Off-grid solar system for Sacco office block.",
     quotationCode: "A3F9K",
-    createdBy: "Jared Oluoch",
+    createdBy: "Jared Wadeya",
     createdBySignature: "/users/signature-jerry.png",
     userId: "J01",
 
@@ -778,7 +778,7 @@ export const quotations: Quotation[] = [
     customerContact: "info@timaudairy.co.ke",
     quoteFor: "Plumbing retrofit for milk processing facility",
     quotationCode: "B7X2M",
-    createdBy: "Wicklife Oluoch",
+    createdBy: "Wicklife Wadeya",
     createdBySignature: "/users/signature-wadeya.png",
     userId: "W02",
     items: [
@@ -871,7 +871,7 @@ export const quotations: Quotation[] = [
     customerContact: "+254 733 456 789",
     quoteFor: "Rural electrification materials supply",
     quotationCode: "D2L6Q",
-    createdBy: "Jared Oluoch",
+    createdBy: "Jared Wadeya",
     createdBySignature: "/users/signature-jerry.png",
     userId: "J01",
     items: [
@@ -914,7 +914,7 @@ export const quotations: Quotation[] = [
     customerContact: "john.mwenda@gmail.com",
     quoteFor: "Solar street lighting for compound perimeter",
     quotationCode: "E9W4T",
-    createdBy: "Wicklife Oluoch",
+    createdBy: "Wicklife Wadeya",
     createdBySignature: "/users/signature-wadeya.png",
     userId: "W02",
     items: [
